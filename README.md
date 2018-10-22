@@ -1,2 +1,3 @@
 # LGFW
-Open source game framework
+Open source game framework   
+An upgrade of LGUI

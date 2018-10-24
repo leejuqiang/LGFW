@@ -38,9 +38,9 @@ namespace LGFW
         public UIAtlas m_atlas;
 
         /// <summary>
-        /// Is this sprite trimed
+        /// Is this sprite trimmed
         /// </summary>
-        /// <value>If this sprite is trimed</value>
+        /// <value>If this sprite is trimmed</value>
         public bool IsTrim
         {
             get { return m_trimMargin.x > 0 || m_trimMargin.y > 0 || m_trimMargin.z > 0 || m_trimMargin.w > 0; }

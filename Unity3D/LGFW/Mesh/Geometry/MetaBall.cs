@@ -18,7 +18,7 @@ namespace LGFW
         /// <summary>
         /// The split number for each dimension
         /// </summary>
-        public int m_spaceDivid = 10;
+        public int m_spacePartition = 10;
         /// <summary>
         /// The initial value of each point in the space
         /// </summary>
@@ -40,7 +40,7 @@ namespace LGFW
         public void computeE()
         {
             m_e = 1 / m_energy / m_energy;
-            int size = m_spaceDivid + 1;
+            int size = m_spacePartition + 1;
             for (int i1 = 0; i1 < size; ++i1)
             {
                 for (int i2 = 0; i2 < size; ++i2)
@@ -85,13 +85,13 @@ namespace LGFW
 
         protected override void updateIndex()
         {
-            for (int i1 = 0; i1 < m_spaceDivid; ++i1)
+            for (int i1 = 0; i1 < m_spacePartition; ++i1)
             {
-                for (int i2 = 0; i2 < m_spaceDivid; ++i2)
+                for (int i2 = 0; i2 < m_spacePartition; ++i2)
                 {
-                    for (int i3 = 0; i3 < m_spaceDivid; ++i3)
+                    for (int i3 = 0; i3 < m_spacePartition; ++i3)
                     {
-                        m_voxels[i3, i2, i1].collectIndex(m_indexs, m_e);
+                        m_voxels[i3, i2, i1].collectIndex(m_indexes, m_e);
                     }
                 }
             }
@@ -140,11 +140,11 @@ namespace LGFW
 
         public void initSpace()
         {
-            int size = m_spaceDivid + 1;
+            int size = m_spacePartition + 1;
             m_nodes = new MetaBallNode[size, size, size];
-            m_voxels = new MetaBallVoxel[m_spaceDivid, m_spaceDivid, m_spaceDivid];
+            m_voxels = new MetaBallVoxel[m_spacePartition, m_spacePartition, m_spacePartition];
 
-            float step = m_spaceSize / m_spaceDivid;
+            float step = m_spaceSize / m_spacePartition;
             Vector3 start = Vector3.zero;
             start.x = -m_spaceSize / 2;
             start.y = start.x;
@@ -171,11 +171,11 @@ namespace LGFW
                 p.z += step;
             }
             m_edges.Clear();
-            for (int i1 = 0; i1 < m_spaceDivid; ++i1)
+            for (int i1 = 0; i1 < m_spacePartition; ++i1)
             {
-                for (int i2 = 0; i2 < m_spaceDivid; ++i2)
+                for (int i2 = 0; i2 < m_spacePartition; ++i2)
                 {
-                    for (int i3 = 0; i3 < m_spaceDivid; ++i3)
+                    for (int i3 = 0; i3 < m_spacePartition; ++i3)
                     {
                         int c = m_edges.Count;
                         MetaBallVoxel v = new MetaBallVoxel();
@@ -208,7 +208,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Geometry/MetaBall", false, (int)'m')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<MetaBall>(true);
+            LEditorKits.addComponentToSelectedObjects<MetaBall>(true);
         }
 #endif
     }

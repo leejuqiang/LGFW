@@ -13,7 +13,7 @@ namespace LGFW
         private static ResourceManager m_instance;
 
         /// <summary>
-        /// Gets the singleton of ResouceManager
+        /// Gets the singleton of ResourceManager
         /// </summary>
         /// <value>The singleton</value>
         public static ResourceManager Instance

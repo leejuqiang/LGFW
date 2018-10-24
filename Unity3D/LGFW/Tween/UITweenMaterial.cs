@@ -83,7 +83,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Tween/TweenMaterial", false, (int)'m')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UITweenMaterial>(false);
+            LEditorKits.addComponentToSelectedObjects<UITweenMaterial>(false);
         }
 #endif
     }

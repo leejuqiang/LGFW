@@ -161,8 +161,8 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/UISlide", false, (int)'s')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UISlide>(true);
-            LEditorKits.addComponentToSelectedOjbects<BoxCollider2D>(true);
+            LEditorKits.addComponentToSelectedObjects<UISlide>(true);
+            LEditorKits.addComponentToSelectedObjects<BoxCollider2D>(true);
         }
 #endif
     }

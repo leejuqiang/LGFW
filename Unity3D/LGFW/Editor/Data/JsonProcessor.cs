@@ -27,7 +27,7 @@ namespace LGFW
         private static void startProcess(string json, JsonDataConfig c)
         {
             Dictionary<string, object> dict = (Dictionary<string, object>)MiniJSON.Json.Deserialize(json);
-            processDatas(dict, c);
+            processDataList(dict, c);
         }
 
         private static object[] getAttribute(FieldInfo fInfo)
@@ -233,15 +233,15 @@ namespace LGFW
             return ret;
         }
 
-        private static void processDatas(Dictionary<string, object> dict, JsonDataConfig c)
+        private static void processDataList(Dictionary<string, object> dict, JsonDataConfig c)
         {
             object o = null;
             if (!dict.TryGetValue(K_TYPE, out o))
             {
                 return;
             }
-            string tNmae = o.ToString();
-            System.Type t = LEditorKits.findTypeByName(tNmae);
+            string tName = o.ToString();
+            System.Type t = LEditorKits.findTypeByName(tName);
             if (t == null)
             {
                 return;
@@ -268,12 +268,12 @@ namespace LGFW
                 AssetDatabase.Refresh();
             }
             EditorConfig ec = EditorConfig.Instance;
-            List<object> datas = (List<object>)o;
-            FieldInfo listInfo = dsT.GetField("m_datas", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            List<object> data = (List<object>)o;
+            FieldInfo listInfo = dsT.GetField("m_dataList", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             IList dataList = (IList)System.Activator.CreateInstance(typeof(List<>).MakeGenericType(t));
-            for (int i = 0; i < datas.Count; ++i)
+            for (int i = 0; i < data.Count; ++i)
             {
-                object d = processOneData((Dictionary<string, object>)datas[i], t, ec.m_dataFieldPrefix, c);
+                object d = processOneData((Dictionary<string, object>)data[i], t, ec.m_dataFieldPrefix, c);
                 dataList.Add(d);
             }
             listInfo.SetValue(dsO, dataList);

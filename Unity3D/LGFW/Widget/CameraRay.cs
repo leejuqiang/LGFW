@@ -329,7 +329,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/CameraRay", false, (int)'c')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<CameraRay>(true);
+            LEditorKits.addComponentToSelectedObjects<CameraRay>(true);
         }
 #endif
     }

@@ -247,7 +247,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Editor/MeshEditor", false, (int)'m')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<MeshEditor>(true);
+            LEditorKits.addComponentToSelectedObjects<MeshEditor>(true);
         }
 #endif
     }

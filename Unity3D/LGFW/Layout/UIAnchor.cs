@@ -34,7 +34,7 @@ namespace LGFW
         }
 
         /// <summary>
-        /// The offset of this layou for its dependence
+        /// The offset of this layout for its dependence
         /// </summary>
         /// <value>The offset</value>
         public Vector2 Offset
@@ -67,7 +67,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Layout/UIAnchor", false, (int)'a')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UIAnchor>(true);
+            LEditorKits.addComponentToSelectedObjects<UIAnchor>(true);
         }
 #endif
     }

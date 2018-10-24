@@ -22,7 +22,7 @@ namespace LGFW
     {
         none,
         deactiveWhenForward,
-        deactiveWhneBackward,
+        deactiveWhenBackward,
     }
 
     /// <summary>
@@ -281,7 +281,7 @@ namespace LGFW
             {
                 this.gameObject.SetActive(false);
             }
-            else if (m_deactiveWhenFinish == UITweenFinish.deactiveWhneBackward && !m_isForward)
+            else if (m_deactiveWhenFinish == UITweenFinish.deactiveWhenBackward && !m_isForward)
             {
                 this.gameObject.SetActive(false);
             }

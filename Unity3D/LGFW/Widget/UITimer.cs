@@ -184,7 +184,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/UITimer", false, (int)'t')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UITimer>(false);
+            LEditorKits.addComponentToSelectedObjects<UITimer>(false);
         }
 #endif
     }

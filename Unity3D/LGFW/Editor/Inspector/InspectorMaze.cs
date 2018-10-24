@@ -35,9 +35,9 @@ namespace LGFW
             {
                 m.createMaze();
             }
-            if (GUILayout.Button("create itmes"))
+            if (GUILayout.Button("create items"))
             {
-                m.clearItmes();
+                m.clearItems();
                 m.createItems(1);
             }
         }

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LGFW
 {
     /// <summary>
-    /// An interface for data in scriptableObjcet, K is the type of the key of the data
+    /// An interface for data in scriptableObject, K is the type of the key of the data
     /// </summary>
     public interface IData<K>
     {
@@ -41,18 +41,18 @@ namespace LGFW
     {
 
         [SerializeField]
-        protected List<T> m_datas;
+        protected List<T> m_dataList;
         protected Dictionary<K, T> m_dict;
 
         /// <summary>
-        /// Initialize all datas
+        /// Initialize all data
         /// </summary>
-        public virtual void initDatas()
+        public virtual void initData()
         {
             m_dict = new Dictionary<K, T>();
-            for (int i = 0; i < m_datas.Count; ++i)
+            for (int i = 0; i < m_dataList.Count; ++i)
             {
-                m_dict.Add(m_datas[i].getID(), m_datas[i]);
+                m_dict.Add(m_dataList[i].getID(), m_dataList[i]);
             }
         }
 
@@ -75,20 +75,20 @@ namespace LGFW
         /// <param name="index">The index</param>
         public T getDataByIndex(int index)
         {
-            if (index < 0 || index >= m_datas.Count)
+            if (index < 0 || index >= m_dataList.Count)
             {
                 return default(T);
             }
-            return m_datas[index];
+            return m_dataList[index];
         }
 
         /// <summary>
-        /// Gets the number of datas
+        /// Gets the number of data list
         /// </summary>
-        /// <value>The number of datas</value>
+        /// <value>The number of data list</value>
         public int DataCount
         {
-            get { return m_datas.Count; }
+            get { return m_dataList.Count; }
         }
     }
 }

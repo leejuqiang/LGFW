@@ -13,9 +13,9 @@ namespace LGFW
         protected OnSelectItem m_selectCallback;
         protected MessageData m_customMessage;
 
-        protected virtual void open(OnSelectItem callback, object[] datas)
+        protected virtual void open(OnSelectItem callback, object[] dataList)
         {
-            m_customMessage = new MessageData(datas);
+            m_customMessage = new MessageData(dataList);
             m_selectCallback = callback;
         }
 

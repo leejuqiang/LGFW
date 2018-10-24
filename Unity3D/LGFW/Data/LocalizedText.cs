@@ -45,11 +45,11 @@ namespace LGFW
         }
 
         /// <inheritdoc/>
-        public override void initDatas()
+        public override void initData()
         {
             if (m_dict == null)
             {
-                base.initDatas();
+                base.initData();
             }
         }
 
@@ -60,7 +60,7 @@ namespace LGFW
         /// <param name="id">The key</param>
         public string getText(string id)
         {
-            initDatas();
+            initData();
             if (string.IsNullOrEmpty(id))
             {
                 return "";

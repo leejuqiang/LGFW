@@ -110,14 +110,14 @@ namespace LGFW
         /// </summary>
         /// <param name="id">The id of the event</param>
         /// <param name="isOneTime">If the event is a one time event</param>
-        /// <param name="datas">Datas of the event</param>
-        public void sendEvent(string id, bool isOneTime, params object[] datas)
+        /// <param name="dataList">Data of the event</param>
+        public void sendEvent(string id, bool isOneTime, params object[] dataList)
         {
             LinkedList<EventTrigger> l = null;
             if (m_allTriggers.TryGetValue(id, out l))
             {
                 LEvent e = new LEvent(id, isOneTime);
-                e.m_datas = datas;
+                e.m_dataList = dataList;
                 LinkedListNode<EventTrigger> n = l.First;
                 while (n != null)
                 {

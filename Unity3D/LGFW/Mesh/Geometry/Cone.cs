@@ -59,10 +59,10 @@ namespace LGFW
         }
 
         /// <summary>
-        /// If true, it's a pyrmaid, this will make the normals difference
+        /// If true, it's a pyramid, this will make the normals difference
         /// </summary>
-        /// <value>If it's a pyrmaid</value>
-        public bool IsPyrmaid
+        /// <value>If it's a pyramid</value>
+        public bool IsPyramid
         {
             get { return m_isPyramid; }
             set
@@ -546,25 +546,25 @@ namespace LGFW
                 {
                     for (int i = 0; i < l; ++i)
                     {
-                        m_indexs.Add(i);
-                        m_indexs.Add(i + m_splitNumber + 1);
-                        m_indexs.Add(tipStart + i);
+                        m_indexes.Add(i);
+                        m_indexes.Add(i + m_splitNumber + 1);
+                        m_indexes.Add(tipStart + i);
                     }
-                    m_indexs.Add(l);
-                    m_indexs.Add(m_splitNumber);
-                    m_indexs.Add(m_vertices.Count - 1);
+                    m_indexes.Add(l);
+                    m_indexes.Add(m_splitNumber);
+                    m_indexes.Add(m_vertices.Count - 1);
                 }
                 else
                 {
                     for (int i = 0; i < l; ++i)
                     {
-                        m_indexs.Add(i);
-                        m_indexs.Add(i + 1);
-                        m_indexs.Add(tipStart + i);
+                        m_indexes.Add(i);
+                        m_indexes.Add(i + 1);
+                        m_indexes.Add(tipStart + i);
                     }
-                    m_indexs.Add(l);
-                    m_indexs.Add(0);
-                    m_indexs.Add(m_vertices.Count - 1);
+                    m_indexes.Add(l);
+                    m_indexes.Add(0);
+                    m_indexes.Add(m_vertices.Count - 1);
                 }
                 if (m_hasBottom)
                 {
@@ -575,9 +575,9 @@ namespace LGFW
                     }
                     for (int i = 1; i < l; ++i)
                     {
-                        m_indexs.Add(botStart);
-                        m_indexs.Add(botStart + i + 1);
-                        m_indexs.Add(botStart + i);
+                        m_indexes.Add(botStart);
+                        m_indexes.Add(botStart + i + 1);
+                        m_indexes.Add(botStart + i);
                     }
                 }
             }
@@ -587,25 +587,25 @@ namespace LGFW
                 {
                     for (int i = 0; i < l; ++i)
                     {
-                        m_indexs.Add(i + m_splitNumber + 1);
-                        m_indexs.Add(i);
-                        m_indexs.Add(tipStart + i);
+                        m_indexes.Add(i + m_splitNumber + 1);
+                        m_indexes.Add(i);
+                        m_indexes.Add(tipStart + i);
                     }
-                    m_indexs.Add(m_splitNumber);
-                    m_indexs.Add(l);
-                    m_indexs.Add(m_vertices.Count - 1);
+                    m_indexes.Add(m_splitNumber);
+                    m_indexes.Add(l);
+                    m_indexes.Add(m_vertices.Count - 1);
                 }
                 else
                 {
                     for (int i = 0; i < l; ++i)
                     {
-                        m_indexs.Add(i + 1);
-                        m_indexs.Add(i);
-                        m_indexs.Add(tipStart + i);
+                        m_indexes.Add(i + 1);
+                        m_indexes.Add(i);
+                        m_indexes.Add(tipStart + i);
                     }
-                    m_indexs.Add(0);
-                    m_indexs.Add(l);
-                    m_indexs.Add(m_vertices.Count - 1);
+                    m_indexes.Add(0);
+                    m_indexes.Add(l);
+                    m_indexes.Add(m_vertices.Count - 1);
                 }
                 if (m_hasBottom)
                 {
@@ -616,9 +616,9 @@ namespace LGFW
                     }
                     for (int i = 1; i < l; ++i)
                     {
-                        m_indexs.Add(botStart);
-                        m_indexs.Add(botStart + i);
-                        m_indexs.Add(botStart + i + 1);
+                        m_indexes.Add(botStart);
+                        m_indexes.Add(botStart + i);
+                        m_indexes.Add(botStart + i + 1);
                     }
                 }
             }
@@ -628,7 +628,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Geometry/Cone", false, (int)'c')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<Cone>(true);
+            LEditorKits.addComponentToSelectedObjects<Cone>(true);
         }
 #endif
     }

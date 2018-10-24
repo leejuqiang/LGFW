@@ -23,7 +23,7 @@ namespace LGFW
         /// The sprite in atlas this sprite using
         /// </summary>
         /// <value>The sprite</value>
-        public UIAtlasSprite AtalsSprite
+        public UIAtlasSprite AtlasSprite
         {
             get { return m_sprite; }
         }
@@ -231,7 +231,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/UISprite", false, (int)'s')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UISprite>(true);
+            LEditorKits.addComponentToSelectedObjects<UISprite>(true);
         }
 #endif
     }

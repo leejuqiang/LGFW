@@ -16,7 +16,7 @@ namespace LGFW
         /// <returns>The factor</returns>
         /// <param name="fromValue">From value</param>
         /// <param name="to">To value</param>
-        /// <param name="current">The lerped value</param>
+        /// <param name="current">The interpolated value</param>
         public static float lerpValue(float fromValue, float to, float current)
         {
             if (fromValue == to)

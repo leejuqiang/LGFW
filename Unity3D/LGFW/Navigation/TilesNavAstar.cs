@@ -357,7 +357,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Map/A* For Tiles", false, (int)'a')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<TilesNavAstar>(true);
+            LEditorKits.addComponentToSelectedObjects<TilesNavAstar>(true);
         }
 #endif
     }

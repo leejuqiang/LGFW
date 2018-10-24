@@ -63,7 +63,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Tween/TweenAlpha", false, (int)'a')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UITweenAlpha>(false);
+            LEditorKits.addComponentToSelectedObjects<UITweenAlpha>(false);
         }
 #endif
     }

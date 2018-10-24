@@ -99,7 +99,7 @@ namespace LGFW
             if (image is UISprite)
             {
                 UISprite s = (UISprite)image;
-                UIAtlasSprite a = s.AtalsSprite;
+                UIAtlasSprite a = s.AtlasSprite;
                 if (a != null)
                 {
                     v.x = a.m_uv.xMin + v.x * a.m_uv.width;

@@ -16,7 +16,7 @@ namespace LGFW
         [SerializeField]
         protected float m_height = 1;
         [SerializeField]
-        protected int m_divid = 10;
+        protected int m_partition = 10;
         [SerializeField]
         protected float m_anchorY = 0.5f;
 
@@ -95,17 +95,17 @@ namespace LGFW
         }
 
         /// <summary>
-        /// The split number of this cylinder, with more split number, the cylinder will be more circular
+        /// The partition number of this cylinder, with more partition number, the cylinder will be more circular
         /// </summary>
-        /// <value>The split number</value>
-        public int Divid
+        /// <value>The partition number</value>
+        public int Partition
         {
-            get { return m_divid; }
+            get { return m_partition; }
             set
             {
-                if (m_divid != value)
+                if (m_partition != value)
                 {
-                    m_divid = value;
+                    m_partition = value;
                     repaint();
                 }
             }
@@ -281,10 +281,10 @@ namespace LGFW
         {
             float yMin = -m_anchorY * m_height;
             float yMax = yMin + m_height;
-            float a = 360.0f / m_divid;
+            float a = 360.0f / m_partition;
             Quaternion q = Quaternion.Euler(0, a, 0);
             Vector3 dir = new Vector3(m_radius, 0, 0);
-            for (int i = 0; i < m_divid; ++i)
+            for (int i = 0; i < m_partition; ++i)
             {
                 m_vertices.Add(new Vector3(dir.x, yMin, dir.z));
                 m_vertices.Add(new Vector3(dir.x, yMax, dir.z));
@@ -304,7 +304,7 @@ namespace LGFW
             Color32 tc = m_topColor;
             Color32 wc = m_sideColor;
 
-            for (int i = 0; i < m_divid; ++i)
+            for (int i = 0; i < m_partition; ++i)
             {
                 m_colors.Add(bc);
                 m_colors.Add(tc);
@@ -317,30 +317,30 @@ namespace LGFW
 
         protected override void updateIndex()
         {
-            int len = m_divid - 1;
+            int len = m_partition - 1;
             for (int i = 1; i < len; ++i)
             {
                 int ii = i << 1;
-                m_indexs.Add(0);
-                m_indexs.Add(ii + 2);
-                m_indexs.Add(ii);
+                m_indexes.Add(0);
+                m_indexes.Add(ii + 2);
+                m_indexes.Add(ii);
             }
             for (int i = 1; i < len; ++i)
             {
                 int ii = (i << 1) + 1;
-                m_indexs.Add(1);
-                m_indexs.Add(ii);
-                m_indexs.Add(ii + 2);
+                m_indexes.Add(1);
+                m_indexes.Add(ii);
+                m_indexes.Add(ii + 2);
             }
-            int s = m_divid * 2;
-            for (int i = 0; i < m_divid; ++i)
+            int s = m_partition * 2;
+            for (int i = 0; i < m_partition; ++i)
             {
-                m_indexs.Add(s);
-                m_indexs.Add(s + 3);
-                m_indexs.Add(s + 1);
-                m_indexs.Add(s);
-                m_indexs.Add(s + 2);
-                m_indexs.Add(s + 3);
+                m_indexes.Add(s);
+                m_indexes.Add(s + 3);
+                m_indexes.Add(s + 1);
+                m_indexes.Add(s);
+                m_indexes.Add(s + 2);
+                m_indexes.Add(s + 3);
                 s += 2;
             }
         }
@@ -352,20 +352,20 @@ namespace LGFW
             Rect wr = m_wallAS == null ? (new Rect(0, 0, 1, 1)) : m_wallAS.m_uv;
             Vector2 bc = br.center;
             Vector2 tc = tr.center;
-            float a = 360.0f / m_divid;
+            float a = 360.0f / m_partition;
             float bra = Mathf.Min(br.width, br.height);
             float tra = Mathf.Min(tr.width, tr.height);
             Quaternion q = Quaternion.Euler(0, a, 0);
             Vector3 dir = new Vector3(0.5f, 0, 0);
-            for (int i = 0; i < m_divid; ++i)
+            for (int i = 0; i < m_partition; ++i)
             {
                 m_uvs.Add(new Vector2(dir.x * bra + bc.x, dir.z * bra + bc.y));
                 m_uvs.Add(new Vector2(dir.x * tra + tc.x, dir.z * tra + tc.y));
                 dir = q * dir;
             }
-            float step = wr.width / m_divid;
+            float step = wr.width / m_partition;
             float x = wr.xMin;
-            for (int i = 0; i <= m_divid; ++i)
+            for (int i = 0; i <= m_partition; ++i)
             {
                 m_uvs.Add(new Vector2(x, wr.yMin));
                 m_uvs.Add(new Vector2(x, wr.yMax));
@@ -375,15 +375,15 @@ namespace LGFW
 
         protected override void updateNormal()
         {
-            for (int i = 0; i < m_divid; ++i)
+            for (int i = 0; i < m_partition; ++i)
             {
                 m_normals.Add(new Vector3(0, -1, 0));
                 m_normals.Add(new Vector3(0, 1, 0));
             }
-            float a = 360.0f / m_divid;
+            float a = 360.0f / m_partition;
             Quaternion q = Quaternion.Euler(0, a, 0);
             Vector3 dir = new Vector3(1, 0, 0);
-            for (int i = 0; i < m_divid; ++i)
+            for (int i = 0; i < m_partition; ++i)
             {
                 m_normals.Add(dir);
                 m_normals.Add(dir);
@@ -397,7 +397,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Geometry/Cylinder", false, (int)'c')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<Cylinder>(true);
+            LEditorKits.addComponentToSelectedObjects<Cylinder>(true);
         }
 #endif
     }

@@ -287,12 +287,12 @@ namespace LGFW
                 for (int j = 0; j < m_gridNumber.x; ++j)
                 {
                     int index = i * len + j;
-                    m_indexs.Add(index);
-                    m_indexs.Add(index + len);
-                    m_indexs.Add(index + len + 1);
-                    m_indexs.Add(index);
-                    m_indexs.Add(index + len + 1);
-                    m_indexs.Add(index + 1);
+                    m_indexes.Add(index);
+                    m_indexes.Add(index + len);
+                    m_indexes.Add(index + len + 1);
+                    m_indexes.Add(index);
+                    m_indexes.Add(index + len + 1);
+                    m_indexes.Add(index + 1);
                 }
             }
         }
@@ -301,7 +301,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Geometry/Sphere", false, (int)'s')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<Sphere>(true);
+            LEditorKits.addComponentToSelectedObjects<Sphere>(true);
         }
 #endif
     }

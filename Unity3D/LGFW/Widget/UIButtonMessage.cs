@@ -67,7 +67,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/UIButtonMessage", false, (int)'b')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UIButtonMessage>(true);
+            LEditorKits.addComponentToSelectedObjects<UIButtonMessage>(true);
         }
 #endif
     }

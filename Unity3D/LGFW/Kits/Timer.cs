@@ -89,7 +89,7 @@ namespace LGFW
         /// <summary>
         /// Call update so the timer will be timing
         /// </summary>
-        /// <returns>If the time has stoped, return true</returns>
+        /// <returns>If the time has stopped, return true</returns>
         public bool update()
         {
             if (!m_pause)

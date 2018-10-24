@@ -181,10 +181,10 @@ namespace LGFW
         /// <summary>
         /// Sets the data of this panel
         /// </summary>
-        /// <param name="datas">The data</param>
-        public void refreshData(params object[] datas)
+        /// <param name="dataList">The data list</param>
+        public void refreshData(params object[] dataList)
         {
-            MessageData md = new MessageData(datas);
+            MessageData md = new MessageData(dataList);
             this.gameObject.SendMessage(UIPanelManager.E_DATA, md, SendMessageOptions.DontRequireReceiver);
         }
 
@@ -295,7 +295,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/UIPanel", false, (int)'p')]
         public static void addToGameObjects()
         {
-            UIPanel[] ps = LEditorKits.addComponentToSelectedOjbects<UIPanel>(true);
+            UIPanel[] ps = LEditorKits.addComponentToSelectedObjects<UIPanel>(true);
             for (int i = 0; i < ps.Length; ++i)
             {
                 ps[i].createDefaultTweens();

@@ -111,7 +111,7 @@ namespace LGFW
             go.AddComponent<UIPanelManager>();
             go.AddComponent<EventManager>();
             go.AddComponent<ResourceManager>();
-            go.AddComponent<NotDestory>();
+            go.AddComponent<NotDestroy>();
         }
 #endif
     }

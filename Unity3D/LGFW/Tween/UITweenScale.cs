@@ -48,7 +48,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Tween/TweenScale", false, (int)'s')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UITweenScale>(false);
+            LEditorKits.addComponentToSelectedObjects<UITweenScale>(false);
         }
 #endif
     }

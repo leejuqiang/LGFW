@@ -20,7 +20,7 @@ namespace LGFW
         [HideInInspector]
         public Vector3 m_scale;
         [HideInInspector]
-        public Quaternion m_roataion;
+        public Quaternion m_rotation;
         [HideInInspector]
         public bool m_active = true;
 
@@ -28,7 +28,7 @@ namespace LGFW
         {
             m_position = m_trans.localPosition;
             m_scale = m_trans.localScale;
-            m_roataion = m_trans.localRotation;
+            m_rotation = m_trans.localRotation;
             m_active = m_trans.gameObject.activeSelf;
         }
 
@@ -37,7 +37,7 @@ namespace LGFW
             m_trans.gameObject.SetActive(m_active);
             m_trans.localPosition = m_position;
             m_trans.localScale = m_scale;
-            m_trans.localRotation = m_roataion;
+            m_trans.localRotation = m_rotation;
         }
     }
 
@@ -82,7 +82,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Layout/LayoutLoader", false, (int)'l')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<LayoutLoader>(false);
+            LEditorKits.addComponentToSelectedObjects<LayoutLoader>(false);
         }
 #endif
     }

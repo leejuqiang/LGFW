@@ -45,20 +45,20 @@ namespace LGFW
         }
 
         public string m_dataFieldPrefix = "m_";
-        public JsonDataConfig[] m_jsonDatas;
+        public JsonDataConfig[] m_jsonData;
         public string[] m_processExcels;
 
         public JsonDataConfig getDataConfig(string path)
         {
-            if (m_jsonDatas == null)
+            if (m_jsonData == null)
             {
                 return null;
             }
-            for (int i = 0; i < m_jsonDatas.Length; ++i)
+            for (int i = 0; i < m_jsonData.Length; ++i)
             {
-                if (m_jsonDatas[i].m_dataPath == path)
+                if (m_jsonData[i].m_dataPath == path)
                 {
-                    return m_jsonDatas[i];
+                    return m_jsonData[i];
                 }
             }
             return null;

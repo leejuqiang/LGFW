@@ -119,7 +119,7 @@ namespace LGFW
             }
             if (m_currentText != null)
             {
-                m_currentText.initDatas();
+                m_currentText.initData();
             }
         }
 

@@ -10,7 +10,7 @@ namespace LGFW
     public class UIList : UITouchWidget
     {
 
-        private const float m_minBounchOffset = 5;
+        private const float m_minBounceOffset = 5;
         private const float m_minScrollOffset = 2;
         private const float m_minAlignOffset = 2;
         private const float m_bounceOffsetSpring = 0.3f;
@@ -601,7 +601,7 @@ namespace LGFW
             {
                 return false;
             }
-            if (Mathf.Abs(offset) > m_minBounchOffset)
+            if (Mathf.Abs(offset) > m_minBounceOffset)
             {
                 offset *= m_bounceOffsetSpring;
             }
@@ -777,9 +777,9 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/UIList", false, (int)'l')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UIList>(true);
-            LEditorKits.addComponentToSelectedOjbects<BoxCollider2D>(true);
-            UIClip[] cs = LEditorKits.addComponentToSelectedOjbects<UIClip>(true);
+            LEditorKits.addComponentToSelectedObjects<UIList>(true);
+            LEditorKits.addComponentToSelectedObjects<BoxCollider2D>(true);
+            UIClip[] cs = LEditorKits.addComponentToSelectedObjects<UIClip>(true);
             for (int i = 0; i < cs.Length; ++i)
             {
                 cs[i].createDefaultShaderPairs();

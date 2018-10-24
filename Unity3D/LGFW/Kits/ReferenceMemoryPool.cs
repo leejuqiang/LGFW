@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LGFW
 {
     /// <summary>
-    /// Base calss for items used for reference memory pool
+    /// Base class for items used for reference memory pool
     /// </summary>
     public abstract class ReferenceMemoryPoolItem : MemoryPoolItem
     {

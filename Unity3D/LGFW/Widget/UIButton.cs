@@ -222,9 +222,9 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/UIButton", false, (int)'b')]
         public static void addToGameObjects()
         {
-            UIButton[] bs = LEditorKits.addComponentToSelectedOjbects<UIButton>(true);
-            LEditorKits.addComponentToSelectedOjbects<BoxCollider2D>(true);
-            LEditorKits.addComponentToSelectedOjbects<UIButtonMessage>(true);
+            UIButton[] bs = LEditorKits.addComponentToSelectedObjects<UIButton>(true);
+            LEditorKits.addComponentToSelectedObjects<BoxCollider2D>(true);
+            LEditorKits.addComponentToSelectedObjects<UIButtonMessage>(true);
             for (int i = 0; i < bs.Length; ++i)
             {
                 UITweenButton tw = bs[i].GetComponent<UITweenButton>();

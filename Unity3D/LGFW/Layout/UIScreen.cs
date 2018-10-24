@@ -63,7 +63,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Layout/UIScreen", false, (int)'s')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UIScreen>(true);
+            LEditorKits.addComponentToSelectedObjects<UIScreen>(true);
         }
 #endif
     }

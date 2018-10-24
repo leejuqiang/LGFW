@@ -62,7 +62,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Tween/TweenAnchor", false, (int)'a')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UITweenAnchor>(false);
+            LEditorKits.addComponentToSelectedObjects<UITweenAnchor>(false);
         }
 #endif
     }

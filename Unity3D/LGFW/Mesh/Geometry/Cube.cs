@@ -372,12 +372,12 @@ namespace LGFW
             for (int i = 0; i < 6; ++i)
             {
                 int index = i * 4;
-                m_indexs.Add(index);
-                m_indexs.Add(index + 1);
-                m_indexs.Add(index + 2);
-                m_indexs.Add(index);
-                m_indexs.Add(index + 2);
-                m_indexs.Add(index + 3);
+                m_indexes.Add(index);
+                m_indexes.Add(index + 1);
+                m_indexes.Add(index + 2);
+                m_indexes.Add(index);
+                m_indexes.Add(index + 2);
+                m_indexes.Add(index + 3);
             }
         }
 
@@ -420,7 +420,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Geometry/Cube", false, (int)'c')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<Cube>(true);
+            LEditorKits.addComponentToSelectedObjects<Cube>(true);
         }
 #endif
     }

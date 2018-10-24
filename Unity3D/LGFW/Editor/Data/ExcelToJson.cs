@@ -73,7 +73,7 @@ namespace LGFW
             {
                 return;
             }
-            FieldInfo fi = dsT.GetField("m_datas", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo fi = dsT.GetField("m_dataList", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (fi == null)
             {
                 return;
@@ -86,8 +86,8 @@ namespace LGFW
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict[JsonProcessor.K_TYPE] = m_typeName;
             dict[JsonProcessor.K_DS_TYPE] = m_dsTypeName;
-            List<object> datas = new List<object>();
-            dict[JsonProcessor.K_DATA] = datas;
+            List<object> dataList = new List<object>();
+            dict[JsonProcessor.K_DATA] = dataList;
             int len = m_values[0].Count;
             for (int i = 0; i < len; ++i)
             {
@@ -96,7 +96,7 @@ namespace LGFW
                 {
                     d[m_heads[h].m_name] = m_values[h][i];
                 }
-                datas.Add(d);
+                dataList.Add(d);
             }
             return dict;
         }

@@ -53,9 +53,9 @@ namespace LGFW
             if (targets.Length < 2)
             {
                 UISprite us = (UISprite)target;
-                if (us.AtalsSprite != null)
+                if (us.AtlasSprite != null)
                 {
-                    EditorGUILayout.LabelField("Sprite " + us.AtalsSprite.m_name + "      " + us.AtalsSprite.m_originalSize.x + "x" + us.AtalsSprite.m_originalSize.y);
+                    EditorGUILayout.LabelField("Sprite " + us.AtlasSprite.m_name + "      " + us.AtlasSprite.m_originalSize.x + "x" + us.AtlasSprite.m_originalSize.y);
                 }
                 if (us.Atlas != null && GUILayout.Button("sprite"))
                 {
@@ -78,9 +78,9 @@ namespace LGFW
         {
             base.OnPreviewGUI(r, background);
             UISprite s = (UISprite)target;
-            if (s.AtalsSprite != null && s.Atlas != null && s.Atlas.m_material != null && s.Atlas.m_material.mainTexture != null)
+            if (s.AtlasSprite != null && s.Atlas != null && s.Atlas.m_material != null && s.Atlas.m_material.mainTexture != null)
             {
-                InspectorUIAtlas.guiDrawSprite(r, s.Atlas, s.AtalsSprite);
+                InspectorUIAtlas.guiDrawSprite(r, s.Atlas, s.AtlasSprite);
             }
         }
     }

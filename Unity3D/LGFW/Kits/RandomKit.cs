@@ -17,7 +17,7 @@ namespace LGFW
         private float m_cacheNormal2;
         private bool m_hasInit;
         private bool m_hasCache;
-        private bool m_continous;
+        private bool m_continuous;
 
         /// <summary>
         /// The seed of random
@@ -29,12 +29,12 @@ namespace LGFW
         }
 
         /// <summary>
-        /// If the kit is in continous mode. Continous mode will be faster, suitable for random mass numbers at once
+        /// If the kit is in continuous mode. Continuous mode will be faster, suitable for random mass numbers at once
         /// </summary>
-        /// <value>If in continous mode</value>
-        public bool Continous
+        /// <value>If in continuous mode</value>
+        public bool Continuous
         {
-            get { return m_continous; }
+            get { return m_continuous; }
         }
 
         /// <summary>
@@ -47,11 +47,11 @@ namespace LGFW
         }
 
         /// <summary>
-        /// Enables the continous mode, must call disableContinous before using unity's Random class
+        /// Enables the continuous mode, must call disableContinuous before using unity's Random class
         /// </summary>
-        public void enableContinous()
+        public void enableContinuous()
         {
-            if (m_hasInit && !m_continous)
+            if (m_hasInit && !m_continuous)
             {
                 m_cacheState = Random.state;
                 Random.state = m_state;
@@ -59,11 +59,11 @@ namespace LGFW
         }
 
         /// <summary>
-        /// Disables the continous mode
+        /// Disables the continuous mode
         /// </summary>
-        public void disableContinous()
+        public void disableContinuous()
         {
-            if (m_continous)
+            if (m_continuous)
             {
                 m_state = Random.state;
                 Random.state = m_cacheState;
@@ -77,9 +77,9 @@ namespace LGFW
         public void setSeed(int seed)
         {
 #if UNITY_EDITOR
-            if (m_continous)
+            if (m_continuous)
             {
-                Debug.LogError("can't set seed while enalbing continous");
+                Debug.LogError("can't set seed while enabling continuous");
                 return;
             }
 #endif
@@ -90,7 +90,7 @@ namespace LGFW
             Random.state = m_cacheState;
             m_hasInit = true;
             m_hasCache = false;
-            m_continous = false;
+            m_continuous = false;
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace LGFW
         /// <param name="max">Max</param>
         public float range(float min, float max)
         {
-            if (!m_hasInit || m_continous)
+            if (!m_hasInit || m_continuous)
             {
                 return Random.Range(min, max);
             }
@@ -119,7 +119,7 @@ namespace LGFW
         /// <param name="max">Max</param>
         public int range(int min, int max)
         {
-            if (!m_hasInit || m_continous)
+            if (!m_hasInit || m_continuous)
             {
                 return Random.Range(min, max);
             }
@@ -139,7 +139,7 @@ namespace LGFW
         /// <param name="sd">Standard deviation</param>
         public float randomNormalDistribution(float mean, float sd)
         {
-            bool cache = m_hasInit && !m_continous && !m_hasCache;
+            bool cache = m_hasInit && !m_continuous && !m_hasCache;
             if (cache)
             {
                 m_cacheState = Random.state;
@@ -181,7 +181,7 @@ namespace LGFW
         /// <param name="times">The times of random, the larger number will make it more like normal distribution, but slower</param>
         public float rangeNormalDistribution(float mean, float sd, int times = 3)
         {
-            bool cache = m_hasInit && !m_continous;
+            bool cache = m_hasInit && !m_continuous;
             if (cache)
             {
                 m_cacheState = Random.state;

@@ -329,7 +329,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/UITexture", false, (int)'t')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UITexture>(true);
+            LEditorKits.addComponentToSelectedObjects<UITexture>(true);
         }
 #endif
     }

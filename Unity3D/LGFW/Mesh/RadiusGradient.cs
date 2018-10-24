@@ -76,7 +76,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Gradient/Radius", false, (int)'l')]
         public static void addToGameObjects()
         {
-            RadiusGradient[] rg = LEditorKits.addComponentToSelectedOjbects<RadiusGradient>(true);
+            RadiusGradient[] rg = LEditorKits.addComponentToSelectedObjects<RadiusGradient>(true);
             for (int i = 0; i < rg.Length; ++i)
             {
                 rg[i].createPoints();

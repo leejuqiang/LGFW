@@ -103,7 +103,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Layout/UIScale", false, (int)'s')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UIScale>(true);
+            LEditorKits.addComponentToSelectedObjects<UIScale>(true);
         }
 #endif
     }

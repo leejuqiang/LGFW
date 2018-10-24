@@ -34,10 +34,10 @@ namespace LGFW
         }
 
         /// <summary>
-        /// Gets an item, if the pool dosen't have an unused item, a new item will be created
+        /// Gets an item, if the pool dose not have an unused item, a new item will be created
         /// </summary>
         /// <returns>The item</returns>
-        /// <typeparam name="T">The type of the itme</typeparam>
+        /// <typeparam name="T">The type of the item</typeparam>
         public T getAnItem<T>() where T : MemoryPoolItem, new()
         {
             MemoryPoolItem ret = null;

@@ -59,7 +59,7 @@ namespace LGFW
         }
 
         /// <summary>
-        /// Recliams the GameObject which the component attachs to
+        /// Reclaims the GameObject which the component attaches to
         /// </summary>
         /// <param name="t">The component</param>
         public void freeGameObject(T t)

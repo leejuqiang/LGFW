@@ -39,13 +39,13 @@ namespace LGFW
         protected Dictionary<string, object> m_dict = new Dictionary<string, object>();
         protected Dictionary<string, long> m_timeStamps = new Dictionary<string, long>();
         protected Dictionary<string, int> m_typeDict = new Dictionary<string, int>();
-        protected BinSerializiation m_serializiation;
+        protected BinSerialization m_serialization;
 
         void Awake()
         {
             if (m_saveAsBinary)
             {
-                m_serializiation = new BinSerializiation(1024);
+                m_serialization = new BinSerialization(1024);
             }
             load();
         }
@@ -228,7 +228,7 @@ namespace LGFW
             if (m_saveAsBinary)
             {
                 saveBin();
-                b = m_serializiation.getData();
+                b = m_serialization.getData();
             }
             else
             {
@@ -309,7 +309,7 @@ namespace LGFW
             b = decode(temp, v);
             if (m_saveAsBinary)
             {
-                m_serializiation.setBuffer(b);
+                m_serialization.setBuffer(b);
                 loadBin();
             }
             else
@@ -387,21 +387,21 @@ namespace LGFW
 
         protected void saveBin()
         {
-            m_serializiation.reset();
-            m_serializiation.OnePackedInt = m_dict.Count;
-            m_serializiation.OneBool = m_timeStampMode != ProfileTimeStamp.none;
+            m_serialization.reset();
+            m_serialization.OnePackedInt = m_dict.Count;
+            m_serialization.OneBool = m_timeStampMode != ProfileTimeStamp.none;
             foreach (string key in m_dict.Keys)
             {
-                m_serializiation.OneString = key;
+                m_serialization.OneString = key;
                 ProfileValueType t = (ProfileValueType)m_typeDict[key];
-                m_serializiation.OneByte = (byte)t;
+                m_serialization.OneByte = (byte)t;
                 if (m_timeStampMode != ProfileTimeStamp.none)
                 {
-                    m_serializiation.OnePackedLong = m_timeStamps[key];
+                    m_serialization.OnePackedLong = m_timeStamps[key];
                 }
                 if (t == ProfileValueType.custom)
                 {
-                    saveCustomObjectToBin(key, m_dict[key], m_serializiation);
+                    saveCustomObjectToBin(key, m_dict[key], m_serialization);
                 }
                 else
                 {
@@ -412,21 +412,21 @@ namespace LGFW
 
         protected void loadBin()
         {
-            int len = m_serializiation.OnePackedInt;
-            bool hasTime = m_serializiation.OneBool;
+            int len = m_serialization.OnePackedInt;
+            bool hasTime = m_serialization.OneBool;
             for (int i = 0; i < len; ++i)
             {
-                string key = m_serializiation.OneString;
-                ProfileValueType t = (ProfileValueType)m_serializiation.OneByte;
+                string key = m_serialization.OneString;
+                ProfileValueType t = (ProfileValueType)m_serialization.OneByte;
                 m_typeDict[key] = (int)t;
                 if (hasTime)
                 {
-                    m_timeStamps[key] = m_serializiation.OnePackedLong;
+                    m_timeStamps[key] = m_serialization.OnePackedLong;
                 }
                 object o = null;
                 if (t == ProfileValueType.custom)
                 {
-                    o = loadCustomObjectFromBin(key, m_serializiation);
+                    o = loadCustomObjectFromBin(key, m_serialization);
                 }
                 else
                 {
@@ -436,7 +436,7 @@ namespace LGFW
             }
         }
 
-        protected virtual object loadCustomObjectFromBin(string k, BinSerializiation b)
+        protected virtual object loadCustomObjectFromBin(string k, BinSerialization b)
         {
             return null;
         }
@@ -446,29 +446,29 @@ namespace LGFW
             switch (t)
             {
                 case ProfileValueType.intType:
-                    return m_serializiation.OnePackedInt;
+                    return m_serialization.OnePackedInt;
                 case ProfileValueType.intList:
-                    return m_serializiation.IntList;
+                    return m_serialization.IntList;
                 case ProfileValueType.floatType:
-                    return m_serializiation.OneFloat;
+                    return m_serialization.OneFloat;
                 case ProfileValueType.floatList:
-                    return m_serializiation.FloatList;
+                    return m_serialization.FloatList;
                 case ProfileValueType.boolType:
-                    return m_serializiation.OneBool;
+                    return m_serialization.OneBool;
                 case ProfileValueType.boolList:
-                    return m_serializiation.BoolList;
+                    return m_serialization.BoolList;
                 case ProfileValueType.byteList:
-                    return m_serializiation.ByteList;
+                    return m_serialization.ByteList;
                 case ProfileValueType.stringType:
-                    return m_serializiation.OneString;
+                    return m_serialization.OneString;
                 case ProfileValueType.stringList:
-                    return m_serializiation.StringList;
+                    return m_serialization.StringList;
                 default:
                     return null;
             }
         }
 
-        protected virtual void saveCustomObjectToBin(string k, object o, BinSerializiation b)
+        protected virtual void saveCustomObjectToBin(string k, object o, BinSerialization b)
         {
             //todo
         }
@@ -478,31 +478,31 @@ namespace LGFW
             switch (t)
             {
                 case ProfileValueType.intType:
-                    m_serializiation.OnePackedInt = (int)o;
+                    m_serialization.OnePackedInt = (int)o;
                     break;
                 case ProfileValueType.intList:
-                    m_serializiation.IntList = (List<int>)o;
+                    m_serialization.IntList = (List<int>)o;
                     break;
                 case ProfileValueType.floatType:
-                    m_serializiation.OneFloat = (float)o;
+                    m_serialization.OneFloat = (float)o;
                     break;
                 case ProfileValueType.floatList:
-                    m_serializiation.FloatList = (List<float>)o;
+                    m_serialization.FloatList = (List<float>)o;
                     break;
                 case ProfileValueType.boolType:
-                    m_serializiation.OneBool = (bool)o;
+                    m_serialization.OneBool = (bool)o;
                     break;
                 case ProfileValueType.boolList:
-                    m_serializiation.BoolList = (List<bool>)o;
+                    m_serialization.BoolList = (List<bool>)o;
                     break;
                 case ProfileValueType.byteList:
-                    m_serializiation.ByteList = (List<byte>)o;
+                    m_serialization.ByteList = (List<byte>)o;
                     break;
                 case ProfileValueType.stringType:
-                    m_serializiation.OneString = (string)o;
+                    m_serialization.OneString = (string)o;
                     break;
                 case ProfileValueType.stringList:
-                    m_serializiation.StringList = (List<string>)o;
+                    m_serialization.StringList = (List<string>)o;
                     break;
                 default:
                     break;

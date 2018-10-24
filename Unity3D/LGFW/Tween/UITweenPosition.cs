@@ -57,7 +57,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Tween/TweenPosition", false, (int)'p')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UITweenPosition>(false);
+            LEditorKits.addComponentToSelectedObjects<UITweenPosition>(false);
         }
 #endif
     }

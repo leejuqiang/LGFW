@@ -17,23 +17,23 @@ namespace LGFW
     }
 
     /// <summary>
-    /// Attachs this to a GameObject so it will receive event
+    /// Attaches this to a GameObject so it will receive event
     /// </summary>
     public class EventTrigger : MonoBehaviour
     {
 
         /// <summary>
-        /// The events will be responsed
+        /// The events will be responded
         /// </summary>
         public string[] m_responseToEvents;
         /// <summary>
-        /// A Monobehaviour implements the IEventTrigger interface, this will be the script responses to events
+        /// A MonoBehaviour implements the IEventTrigger interface, this will be the script responses to events
         /// </summary>
         [HideInInspector]
         public MonoBehaviour m_receiver;
 
         /// <summary>
-        /// The priority of this trigger, if more then one triggers is attached to the GameObject, the hihger priority trigger will be notified first
+        /// The priority of this trigger, if more then one triggers is attached to the GameObject, the higher priority trigger will be notified first
         /// </summary>
         public int m_priority;
         /// <summary>
@@ -103,7 +103,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Event/EventTrigger", false, (int)'e')]
         public static void addToSelect()
         {
-            LEditorKits.addComponentToSelectedOjbects<EventTrigger>(false);
+            LEditorKits.addComponentToSelectedObjects<EventTrigger>(false);
         }
 #endif
     }

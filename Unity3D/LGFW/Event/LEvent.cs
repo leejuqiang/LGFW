@@ -17,7 +17,7 @@ namespace LGFW
         /// <summary>
         /// The data of this event
         /// </summary>
-        public object[] m_datas;
+        public object[] m_dataList;
         /// <summary>
         /// If true, the event will only sent to the first EventTrigger that responses to it
         /// </summary>

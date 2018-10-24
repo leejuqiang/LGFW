@@ -440,7 +440,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/UIText", false, (int)'t')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UIText>(true);
+            LEditorKits.addComponentToSelectedObjects<UIText>(true);
         }
 
         protected override void doDrawGizmos()

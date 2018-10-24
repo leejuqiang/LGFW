@@ -31,12 +31,12 @@ namespace LGFW
             m_editSprite = (UIAtlasSprite)obj;
         }
 
-        private float marginToPiexl(float v, float textureSize)
+        private float marginToPixel(float v, float textureSize)
         {
             return v * textureSize;
         }
 
-        private float piexlToMargin(float v, float textureSize)
+        private float pixelToMargin(float v, float textureSize)
         {
             return v / textureSize;
         }
@@ -52,10 +52,10 @@ namespace LGFW
                 ++EditorGUI.indentLevel;
                 Texture tex = ua.m_material.mainTexture;
                 Vector4 v = m_editSprite.m_sliceMargin;
-                v.x = piexlToMargin(EditorGUILayout.FloatField("Left", marginToPiexl(v.x, tex.width)), tex.width);
-                v.y = piexlToMargin(EditorGUILayout.FloatField("Right", marginToPiexl(v.y, tex.width)), tex.width);
-                v.z = piexlToMargin(EditorGUILayout.FloatField("Top", marginToPiexl(v.z, tex.height)), tex.height);
-                v.w = piexlToMargin(EditorGUILayout.FloatField("Bottom", marginToPiexl(v.w, tex.height)), tex.height);
+                v.x = pixelToMargin(EditorGUILayout.FloatField("Left", marginToPixel(v.x, tex.width)), tex.width);
+                v.y = pixelToMargin(EditorGUILayout.FloatField("Right", marginToPixel(v.y, tex.width)), tex.width);
+                v.z = pixelToMargin(EditorGUILayout.FloatField("Top", marginToPixel(v.z, tex.height)), tex.height);
+                v.w = pixelToMargin(EditorGUILayout.FloatField("Bottom", marginToPixel(v.w, tex.height)), tex.height);
                 --EditorGUI.indentLevel;
                 m_editSprite.setSliceMargin(v);
             }

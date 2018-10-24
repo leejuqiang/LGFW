@@ -12,7 +12,7 @@ namespace LGFW
         public MeshFilter[] m_filters;
 
 #if UNITY_EDITOR
-        private List<Vector3> m_vertexs = new List<Vector3>();
+        private List<Vector3> m_vertices = new List<Vector3>();
         private List<Vector2> m_uvs = new List<Vector2>();
         private List<Color32> m_colors = new List<Color32>();
         private List<int> m_indexes = new List<int>();
@@ -26,12 +26,12 @@ namespace LGFW
             Color32[] cols = m.colors32;
             int[] tri = m.triangles;
             Vector3[] nor = m_hasNormal ? m.normals : null;
-            int offset = m_vertexs.Count;
+            int offset = m_vertices.Count;
             for (int i = 0; i < vs.Length; ++i)
             {
                 Vector3 v = t.TransformPoint(vs[i]);
                 v = trans.InverseTransformPoint(v);
-                m_vertexs.Add(v);
+                m_vertices.Add(v);
                 m_uvs.Add(us[i]);
                 m_colors.Add(cols[i]);
                 if (m_hasNormal)
@@ -58,7 +58,7 @@ namespace LGFW
                 UnityEditor.AssetDatabase.CreateAsset(me, m_path);
             }
             me.Clear();
-            m_vertexs.Clear();
+            m_vertices.Clear();
             m_uvs.Clear();
             m_colors.Clear();
             m_indexes.Clear();
@@ -72,7 +72,7 @@ namespace LGFW
                     exportOne(m, m_filters[i].transform);
                 }
             }
-            me.vertices = m_vertexs.ToArray();
+            me.vertices = m_vertices.ToArray();
             me.uv = m_uvs.ToArray();
             me.colors32 = m_colors.ToArray();
             if (m_hasNormal)
@@ -86,7 +86,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Editor/MeshExporter", false, (int)'m')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<MeshExporter>(false);
+            LEditorKits.addComponentToSelectedObjects<MeshExporter>(false);
         }
 #endif
     }

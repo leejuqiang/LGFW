@@ -13,7 +13,7 @@ namespace LGFW
         private const float m_cellSizeY = 130;
         private const float m_scrollViewPosX = 5;
         private const float m_scrollViewPosY = 25;
-        private const float m_searchLableWidth = 50;
+        private const float m_searchLabelWidth = 50;
 
         private UIAtlas m_atlas;
         private Vector2 m_scrollPos;
@@ -21,20 +21,20 @@ namespace LGFW
 
         private static WindowSelectSprite m_instance;
 
-        public static void showWindow(UIAtlas atlas, OnSelectItem callback, params object[] datas)
+        public static void showWindow(UIAtlas atlas, OnSelectItem callback, params object[] dataList)
         {
             if (m_instance == null)
             {
                 m_instance = EditorWindow.GetWindow<WindowSelectSprite>(true, "Select a Sprite");
             }
-            m_instance.open(callback, datas);
+            m_instance.open(callback, dataList);
             m_instance.m_atlas = atlas;
             m_instance.Show();
         }
 
-        protected override void open(OnSelectItem callback, object[] datas)
+        protected override void open(OnSelectItem callback, object[] dataList)
         {
-            base.open(callback, datas);
+            base.open(callback, dataList);
             m_scrollPos = Vector2.zero;
             m_searchText = "";
         }
@@ -93,9 +93,9 @@ namespace LGFW
                 return;
             }
             UIAtlasSprite selectSprite = null;
-            Rect searchRc = new Rect(0, 0, m_searchLableWidth, m_scrollViewPosY - 5);
+            Rect searchRc = new Rect(0, 0, m_searchLabelWidth, m_scrollViewPosY - 5);
             GUI.Label(searchRc, "Search");
-            searchRc.xMin = m_searchLableWidth + 10;
+            searchRc.xMin = m_searchLabelWidth + 10;
             searchRc.xMax = position.width;
             m_searchText = GUI.TextField(searchRc, m_searchText);
             Rect rc = new Rect(m_scrollViewPosX, m_scrollViewPosY, this.position.width - m_scrollViewPosX, this.position.height - m_scrollViewPosY);

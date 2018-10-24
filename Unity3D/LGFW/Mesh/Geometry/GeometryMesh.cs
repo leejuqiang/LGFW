@@ -20,7 +20,7 @@ namespace LGFW
         protected List<Vector3> m_vertices = new List<Vector3>();
         protected List<Vector2> m_uvs = new List<Vector2>();
         protected List<Color32> m_colors = new List<Color32>();
-        protected List<int> m_indexs = new List<int>();
+        protected List<int> m_indexes = new List<int>();
         protected List<Vector3> m_normals = new List<Vector3>();
         protected Mesh m_mesh;
 
@@ -31,7 +31,7 @@ namespace LGFW
         /// If the mesh has normal
         /// </summary>
         /// <value>If the mesh has normal</value>
-        public bool HasNomral
+        public bool HasNormal
         {
             get { return m_hasNormal; }
             set
@@ -75,7 +75,7 @@ namespace LGFW
         {
             m_vertices.Clear();
             m_uvs.Clear();
-            m_indexs.Clear();
+            m_indexes.Clear();
             m_colors.Clear();
         }
 
@@ -136,9 +136,9 @@ namespace LGFW
                 }
                 if ((m_updateFlag & UIMesh.FLAG_INDEX) > 0)
                 {
-                    m_indexs.Clear();
+                    m_indexes.Clear();
                     updateIndex();
-                    m_mesh.triangles = m_indexs.ToArray();
+                    m_mesh.triangles = m_indexes.ToArray();
                 }
                 m_updateFlag = 0;
             }

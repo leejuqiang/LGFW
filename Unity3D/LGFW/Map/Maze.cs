@@ -156,7 +156,7 @@ namespace LGFW
         /// </summary>
         public bool m_allowItemsNextToEachOther = false;
         /// <summary>
-        /// If ture, there will be no item generated at the start and end tiles, only works when m_hasStartEnd is set true
+        /// If true, there will be no item generated at the start and end tiles, only works when m_hasStartEnd is set true
         /// </summary>
         public bool m_noItemAtStartEnd = true;
         /// <summary>
@@ -164,11 +164,11 @@ namespace LGFW
         /// </summary>
         public int m_itemNumber;
         /// <summary>
-        /// The itme's possibility reduction of generated next to another item
+        /// The item's possibility reduction of generated next to another item
         /// </summary>
         public float m_itemChanceDescent = 0.2f;
         /// <summary>
-        /// The max distance a itme will influence the possibility of other items generated near it
+        /// The max distance a item will influence the possibility of other items generated near it
         /// </summary>
         public int m_itemDescentRange = 3;
         /// <summary>
@@ -322,9 +322,9 @@ namespace LGFW
         }
 
         /// <summary>
-        /// Clears all the itmes
+        /// Clears all the items
         /// </summary>
-        public void clearItmes()
+        public void clearItems()
         {
             if (m_items == null || m_items.Length != m_matrix.Length)
             {
@@ -658,7 +658,7 @@ namespace LGFW
         /// </summary>
         public void createMaze()
         {
-            m_random.enableContinous();
+            m_random.enableContinuous();
             init();
             m_template = new int[m_matrix.Length];
             for (int i = 0; i < m_matrix.Length; ++i)
@@ -704,7 +704,7 @@ namespace LGFW
 
             fillMaze();
             breakWalls();
-            m_random.disableContinous();
+            m_random.disableContinuous();
         }
 
         private bool checkCanBeBroke(int index)
@@ -920,7 +920,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Map/Maze", false, (int)'m')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<Maze>(true);
+            LEditorKits.addComponentToSelectedObjects<Maze>(true);
         }
 
         private void OnDrawGizmos()

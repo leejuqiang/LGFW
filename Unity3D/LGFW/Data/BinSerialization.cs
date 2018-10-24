@@ -4,9 +4,9 @@ using UnityEngine;
 namespace LGFW
 {
     /// <summary>
-    /// A serializiation for binary data
+    /// A serialization for binary data
     /// </summary>
-    public class BinSerializiation
+    public class BinSerialization
     {
 
         /// <summary>
@@ -34,10 +34,10 @@ namespace LGFW
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LGFW.BinSerializiation"/> class.
+        /// Initializes a new instance of the <see cref="LGFW.BinSerialization"/> class.
         /// </summary>
         /// <param name="bufferSize">The size of the buffer</param>
-        public BinSerializiation(int bufferSize)
+        public BinSerialization(int bufferSize)
         {
             m_buffer = new byte[bufferSize];
             m_offset = 0;

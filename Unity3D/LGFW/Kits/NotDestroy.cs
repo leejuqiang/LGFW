@@ -5,9 +5,9 @@ using UnityEngine;
 namespace LGFW
 {
     /// <summary>
-    /// Attach this script to GameObject won't be destoryed when change scene
+    /// Attach this script to GameObject won't be destroyed when change scene
     /// </summary>
-    public class NotDestory : MonoBehaviour
+    public class NotDestroy : MonoBehaviour
     {
 
         void Awake()
@@ -19,7 +19,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Don't destory on load", false, (int)'z')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<NotDestory>(true);
+            LEditorKits.addComponentToSelectedObjects<NotDestroy>(true);
         }
 #endif
     }

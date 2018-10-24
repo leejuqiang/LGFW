@@ -58,7 +58,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Tween/TweenColor", false, (int)'c')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedOjbects<UITweenColor>(false);
+            LEditorKits.addComponentToSelectedObjects<UITweenColor>(false);
         }
 #endif
     }

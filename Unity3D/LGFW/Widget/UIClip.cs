@@ -258,7 +258,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/UI/UIClip", false, (int)'c')]
         public static void addToGameObjects()
         {
-            UIClip[] cs = LEditorKits.addComponentToSelectedOjbects<UIClip>(true);
+            UIClip[] cs = LEditorKits.addComponentToSelectedObjects<UIClip>(true);
             for (int i = 0; i < cs.Length; ++i)
             {
                 cs[i].createDefaultShaderPairs();

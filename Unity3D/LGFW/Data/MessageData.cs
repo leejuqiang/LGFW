@@ -11,24 +11,24 @@ namespace LGFW
     {
 
         /// <summary>
-        /// The first data of all datas
+        /// The first data of all data
         /// </summary>
         public object m_data;
         /// <summary>
-        /// All datas
+        /// All data
         /// </summary>
-        public object[] m_datas;
+        public object[] m_dataList;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LGFW.MessageData"/> class.
         /// </summary>
-        /// <param name="datas">Datas</param>
-        public MessageData(object[] datas)
+        /// <param name="dataList">Data</param>
+        public MessageData(object[] dataList)
         {
-            m_datas = datas;
-            if (datas != null && datas.Length > 0)
+            m_dataList = dataList;
+            if (dataList != null && dataList.Length > 0)
             {
-                m_data = m_datas[0];
+                m_data = m_dataList[0];
             }
         }
     }

@@ -62,7 +62,7 @@ namespace LGFW
         [UnityEditor.MenuItem("LGFW/Gradient/Linear", false, (int)'l')]
         public static void addToGameObjects()
         {
-            LinearGradient[] lg = LEditorKits.addComponentToSelectedOjbects<LinearGradient>(true);
+            LinearGradient[] lg = LEditorKits.addComponentToSelectedObjects<LinearGradient>(true);
             for (int i = 0; i < lg.Length; ++i)
             {
                 lg[i].createPoints();

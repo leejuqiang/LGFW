@@ -25,12 +25,15 @@ namespace LGFW
             m_weights[index] += value;
         }
 
-        public void randomParams()
+        public void randomParams(RandomKit k)
         {
-            for (int i = 0; i < m_weights.Length; ++i)
+            int last = m_weights.Length - 1;
+            float sd = 1 / Mathf.Sqrt(m_weights.Length - 1);
+            for (int i = 0; i < last; ++i)
             {
-                m_weights[i] = Random.Range(-1.0f, 1.0f);
+                m_weights[i] = k.randomNormalDistribution(0, sd);
             }
+            m_weights[last] = k.randomNormalDistribution(0, 1);
         }
 
         public void applyGD(double rate)
@@ -115,12 +118,12 @@ namespace LGFW
             }
         }
 
-        public override void randomParams()
+        public override void randomParams(RandomKit k)
         {
-            base.randomParams();
+            base.randomParams(k);
             for (int i = 0; i < m_filters.Length; ++i)
             {
-                m_filters[i].randomParams();
+                m_filters[i].randomParams(k);
             }
             // m_filters[0].m_weights = new double[]{-1, 0, 1, 1, -1, -1, -1, 1, 1, 2};
             // m_filters[1].m_weights = new double[]{-2, 0, 1, -1, -1, -1, 1, 1, 1, 0};

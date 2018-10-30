@@ -92,7 +92,7 @@ namespace LGFW
 
         public abstract CNNDualArray output(CNNDualArray input);
 
-        public virtual void randomParams()
+        public virtual void randomParams(RandomKit k)
         {
         }
 

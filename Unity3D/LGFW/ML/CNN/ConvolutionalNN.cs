@@ -111,7 +111,7 @@ namespace LGFW
             RandomKit rk = new RandomKit();
             for (int i = 0; i < m_layers.Length; ++i)
             {
-                m_layers[i].randomParams();
+                m_layers[i].randomParams(rk);
             }
             for (int i = 0; i < m_lastLayers.Length; ++i)
             {

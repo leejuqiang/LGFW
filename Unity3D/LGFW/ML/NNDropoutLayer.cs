@@ -11,7 +11,6 @@ namespace LGFW
 
         public float m_dropoutRate;
         public int m_dropoutOutLen;
-        public int[] m_dropoutShuffle;
 
         public override bool[] OutputMask
         {
@@ -36,31 +35,40 @@ namespace LGFW
             {
                 m_dropoutOutLen = Mathf.Max((int)(m_dropoutRate * m_neuronNum), 1);
                 m_outputMask = new bool[m_neuronNum];
-                m_dropoutShuffle = new int[m_neuronNum];
-                for (int i = 0; i < m_dropoutShuffle.Length; ++i)
-                {
-                    m_dropoutShuffle[i] = i;
-                }
             }
             else
             {
                 m_outputMask = null;
                 m_inputMask = null;
-                m_dropoutShuffle = null;
             }
         }
 
         public override void initDropout()
         {
-            LMath.shuffleArray<int>(m_dropoutShuffle);
+            int count = 0;
             for (int i = 0; i < m_outputMask.Length; ++i)
             {
-                m_outputMask[i] = false;
+                float r = Random.Range(0.0f, 1.0f);
+                if (r < m_dropoutRate)
+                {
+                    m_outputMask[i] = true;
+                    ++count;
+                }
+                else
+                {
+                    m_outputMask[i] = false;
+                }
             }
-            for (int i = 0; i < m_dropoutOutLen; ++i)
+            if (count <= 0)
             {
-                m_outputMask[m_dropoutShuffle[i]] = true;
+                int i = Random.Range(0, m_neuronNum);
+                m_outputMask[i] = true;
             }
+        }
+
+        protected override float DropoutRate
+        {
+            get { return m_dropoutRate; }
         }
 
         protected override void compute(double[] input)

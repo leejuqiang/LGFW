@@ -281,21 +281,41 @@ namespace LGFW
             m_computer.initBp(delta, OutputMask);
         }
 
-        public List<object> toJson()
+        protected virtual float DropoutRate
         {
+            get { return 1; }
+        }
+
+        public Dictionary<string, object> toJson()
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
             List<object> l = new List<object>();
             for (int i = 0; i < m_matrix.Length; ++i)
             {
                 l.Add(m_matrix[i]);
             }
-            return l;
+            dict["weight"] = l;
+            dict["dropout"] = DropoutRate;
+            return dict;
         }
 
-        public void fromJson(List<object> l)
+        public void fromJson(Dictionary<string, object> dict, bool multiDropout)
         {
-            for (int i = 0; i < m_matrix.Length; ++i)
+            float r = (float)dict["dropout"];
+            List<object> l = (List<object>)dict["weight"];
+            if (multiDropout)
             {
-                m_matrix[i] = (double)l[i];
+                for (int i = 0; i < m_matrix.Length; ++i)
+                {
+                    m_matrix[i] = (double)l[i] * r;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < m_matrix.Length; ++i)
+                {
+                    m_matrix[i] = (double)l[i];
+                }
             }
         }
     }

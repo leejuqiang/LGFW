@@ -230,10 +230,20 @@ namespace LGFW
         /// <inheritdoc/>
         public override void initWithJson(string json)
         {
+            initDropoutWithJson(json, true);
+        }
+
+        /// <summary>
+        /// Initializes the weights from a json string
+        /// </summary>
+        /// <param name="json">The json string</param>
+        /// <param name="useDropout">If true, the weights will be multiply with the dropout rate</param>
+        public void initDropoutWithJson(string json, bool useDropout)
+        {
             List<object> l = (List<object>)MiniJSON.Json.Deserialize(json, true);
             for (int i = 0; i < l.Count; ++i)
             {
-                m_layers[i].fromJson((List<object>)l[i]);
+                m_layers[i].fromJson((Dictionary<string, object>)l[i], useDropout);
             }
         }
     }

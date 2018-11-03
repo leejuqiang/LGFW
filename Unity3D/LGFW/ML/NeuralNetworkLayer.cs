@@ -13,21 +13,35 @@ namespace LGFW
     /// <summary>
     /// Configuration for a neural network layer
     /// </summary>
+    [System.Serializable]
     public class NNlayerConfig
     {
         /// <summary>
         /// The layer's type
         /// </summary>
-        public NNLayerType m_type;
+        public NNLayerType m_type = NNLayerType.sigmoid;
         /// <summary>
         /// The number of the neurons
         /// </summary>
-        public int m_neuronNumber;
+        public int m_neuronNumber = 10;
+
+        /// <summary>
+        /// The dropout rate, 1 means no dropout
+        /// </summary>
+        public float m_dropoutRate = 1;
 
         public NNlayerConfig(NNLayerType type, int num)
         {
             m_type = type;
             m_neuronNumber = num;
+            m_dropoutRate = 1;
+        }
+
+        public NNlayerConfig(NNLayerType type, int num, float dropoutRate)
+        {
+            m_type = type;
+            m_neuronNumber = num;
+            m_dropoutRate = dropoutRate;
         }
     }
 
@@ -46,6 +60,16 @@ namespace LGFW
         public NeuralNetworkLayer m_next;
         public NNComputer m_computer;
 
+        public virtual bool[] OutputMask
+        {
+            get { return null; }
+        }
+
+        public virtual bool[] InputMask
+        {
+            get { return null; }
+            set { }
+        }
         public NeuralNetworkLayer(NNLayerType t, int neuronNum, int weightNum)
         {
             switch (t)
@@ -95,7 +119,11 @@ namespace LGFW
             }
         }
 
-        public void setTrainingMode(bool training)
+        public virtual void initDropout()
+        {
+        }
+
+        public virtual void setTrainingMode(bool training)
         {
             if (training)
             {
@@ -145,7 +173,7 @@ namespace LGFW
             return m_matrixGD[index];
         }
 
-        public void setBpDerivativeToGD()
+        public virtual void setBpDerivativeToGD()
         {
             for (int n = 0, i = 0; n < m_neuronNum; ++n)
             {
@@ -160,7 +188,7 @@ namespace LGFW
             }
         }
 
-        protected void compute(double[] input)
+        protected virtual void compute(double[] input)
         {
             for (int j = 0, index = 0, s = m_totalWeightNumber; j < m_neuronNum; ++j, ++s)
             {
@@ -192,14 +220,14 @@ namespace LGFW
             return s;
         }
 
-        public double[] output(double[] inputs)
+        public virtual double[] output(double[] inputs)
         {
             compute(inputs);
             if (m_computer.m_bpCache != null)
             {
                 m_computer.m_bpCache.m_inputs = inputs;
             }
-            m_computer.beforeComputeOutput();
+            m_computer.beforeComputeOutput(OutputMask);
             for (int i = 0; i < m_output.Length; ++i)
             {
                 m_output[i] = m_computer.computeMidToOut(m_midOutput[i], i);
@@ -235,9 +263,9 @@ namespace LGFW
             }
         }
 
-        public void bpDerivativeInToE(int inIndex)
+        public virtual void bpDerivativeInToE(int inIndex)
         {
-            m_computer.computeBpInToE(inIndex);
+            m_computer.computeBpInToE(inIndex, OutputMask);
         }
 
         public void setPreviousOutToE()
@@ -250,7 +278,7 @@ namespace LGFW
 
         public void initBpDerivative(double delta)
         {
-            m_computer.initBp(delta);
+            m_computer.initBp(delta, OutputMask);
         }
 
         public List<object> toJson()

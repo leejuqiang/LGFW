@@ -6,7 +6,7 @@ namespace LGFW
 {
     public class CNNMNISTData : MNISTBase
     {
-
+        public bool m_dropout;
         private ConvolutionalNN m_nn;
 
         void Start()
@@ -16,16 +16,16 @@ namespace LGFW
             // c1.m_stayInside = false;
             CNNPoolLayerConfig c2 = new CNNPoolLayerConfig(CNNLayerType.maxPooling, new Vector2Int(2, 2));
             NNlayerConfig[] lcs = new NNlayerConfig[2];
-            lcs[0] = new NNlayerConfig(NNLayerType.sigmoid, 10);
+            lcs[0] = new NNlayerConfig(NNLayerType.sigmoid, 10, 0.5f);
             lcs[1] = new NNlayerConfig(NNLayerType.sigmoid, 10);
-            m_nn = new ConvolutionalNN(new Vector2Int(24, 24), lcs, c1, c2);
+            m_nn = new ConvolutionalNN(new Vector2Int(24, 24), m_dropout, lcs, c1, c2);
 
             // CNNFilterLayerConfig c1 = new CNNFilterLayerConfig(CNNLayerType.sigmoidFilter, 2, new Vector2Int(3, 3));
             // CNNPoolLayerConfig c2 = new CNNPoolLayerConfig(CNNLayerType.maxPooling, new Vector2Int(2, 2));
             // m_nn = new ConvolutionalNN(NNLayerType.sigmoid, 10, new Vector2Int(5, 5), c1, c2);
 
             m_nn.randomParams();
-            m_nn.setAsTrainMode();
+            m_nn.setTrainingMode(true);
         }
 
         public void test()
@@ -33,8 +33,8 @@ namespace LGFW
             setTrainingData(m_nn);
             // m_nn.m_trainingSet.Clear();
             // m_nn.m_trainingSet.Add(new double[]{0, 1, 3, 4, 5, 1, -1, 2, 3, 4, 1, 1, 3, 4, 5, -1, -2, -3, 0, 0, 5, 4, 3, 2,1});
-            m_nn.test(0, 16);
-            m_nn.test(0, 5);
+            m_nn.testDropout(0, 16);
+            m_nn.testDropout(0, 5);
         }
 
         private void trainOnce()

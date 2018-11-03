@@ -15,7 +15,7 @@ namespace LGFW
             //nothing
         }
 
-        public virtual void beforeComputeOutput()
+        public virtual void beforeComputeOutput(bool[] outMask)
         {
             //nothing
         }
@@ -26,11 +26,14 @@ namespace LGFW
             return 1 / (1 + result);
         }
 
-        public virtual void initBp(double delta)
+        public virtual void initBp(double delta, bool[] outputMask)
         {
             for (int i = 0; i < m_layer.m_neuronNum; ++i)
             {
-                m_bpCache.m_derivativeMidToE[i] *= bpMidToOut(delta, i);
+                if (outputMask == null || outputMask[i])
+                {
+                    m_bpCache.m_derivativeMidToE[i] *= bpMidToOut(delta, i);
+                }
             }
         }
 
@@ -50,13 +53,16 @@ namespace LGFW
             return m_bpCache.m_derivativeMidToE[outIndex];
         }
 
-        public virtual void computeBpInToE(int inIndex)
+        public virtual void computeBpInToE(int inIndex, bool[] outMask)
         {
             double d = 0;
             int weightIndex = inIndex;
             for (int i = 0; i < m_layer.m_neuronNum; ++i)
             {
-                d += m_layer.m_matrix[weightIndex] * m_bpCache.m_derivativeMidToE[i];
+                if (outMask == null || outMask[i])
+                {
+                    d += m_layer.m_matrix[weightIndex] * m_bpCache.m_derivativeMidToE[i];
+                }
                 weightIndex += m_layer.m_weightsNumber;
             }
             m_bpCache.m_derivativeInToE[inIndex] = d;

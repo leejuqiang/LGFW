@@ -7,18 +7,18 @@ namespace LGFW
     public class MNISTData : MNISTBase
     {
 
+        public NNlayerConfig[] m_configs;
+        public bool m_dropout;
         public UITexture m_texture;
         private NeuralNetwork m_nn;
 
         // Use this for initialization
         void Start()
         {
-            NNlayerConfig c1 = new NNlayerConfig(NNLayerType.sigmoid, 30);
-            NNlayerConfig c2 = new NNlayerConfig(NNLayerType.sigmoid, 10);
-            m_nn = new NeuralNetwork(784, c1, c2);
+            m_nn = new NeuralNetwork(784, m_dropout, m_configs);
             m_nn.randomAllLayersParam();
             //m_layers [2].randomlyInitParams (-1, 1);
-            m_nn.setAsTrainMode();
+            m_nn.setTrainingMode(true);
             m_nn.m_costType = NNCostType.quadratic;
             m_nn.m_regularizationParam = 0;
             m_nn.m_totalTrainingData = m_totalTrainDataSize;
@@ -36,7 +36,8 @@ namespace LGFW
         public void test(int index)
         {
             setTrainingData(m_nn);
-            m_nn.testDerivative(index);
+            m_nn.testDropout();
+            // m_nn.testDerivative(index);
         }
 
         public void train()
@@ -57,7 +58,7 @@ namespace LGFW
             Debug.Log(m_nn.m_layers[0].value(0, 0));
 
             string s = System.IO.File.ReadAllText("Assets/np.txt");
-            m_nn.fromJson(s);
+            m_nn.initWithJson(s);
             Debug.Log(m_nn.m_layers[0].value(0, 0));
         }
 

@@ -118,6 +118,7 @@ namespace LGFW
         }
         public void testData(NNBase nn)
         {
+            nn.setTrainingMode(false);
             int count = 0;
             for (int i = 0; i < m_testDataLength; ++i)
             {

@@ -50,12 +50,21 @@ namespace LGFW
         }
 
         /// <summary>
-        /// Sets the neural network to training mode
+        /// Sets the neural network's training mode
         /// </summary>
-        public virtual void setAsTrainMode()
+        /// <param name="isTraining">Is training mod</param>
+        public virtual void setTrainingMode(bool isTraining)
         {
-            m_trainingSet = new List<double[]>();
-            m_trainingResultSet = new List<double[]>();
+            if (isTraining)
+            {
+                m_trainingSet = new List<double[]>();
+                m_trainingResultSet = new List<double[]>();
+            }
+            else
+            {
+                m_trainingResultSet = null;
+                m_trainingSet = null;
+            }
         }
 
         /// <summary>
@@ -93,6 +102,24 @@ namespace LGFW
                 return count / m_trainingSet.Count;
             }
             return 0;
+        }
+
+        /// <summary>
+        /// Saves the parameters to a json string
+        /// </summary>
+        /// <returns>The json string</returns>
+        public virtual string toJson()
+        {
+            return "";
+        }
+
+        /// <summary>
+        /// Initializes the parameters with a json string
+        /// </summary>
+        /// <param name="json">The json string</param>
+        public virtual void initWithJson(string json)
+        {
+
         }
     }
 }

@@ -26,24 +26,25 @@ namespace LGFW
     /// <summary>
     /// A filter layer configration
     /// </summary>
+    [System.Serializable]
     public class CNNFilterLayerConfig : CNNLayerConfig
     {
         /// <summary>
         /// Filter count
         /// </summary>
-        public int m_filterCount;
+        public int m_filterCount = 3;
         /// <summary>
         /// The filter's weights' size
         /// </summary>
-        public Vector2Int m_filterStride;
+        public Vector2Int m_filterStride = new Vector2Int(3, 3);
         /// <summary>
         /// The step of filter moving
         /// </summary>
-        public Vector2Int m_moveStep;
+        public Vector2Int m_moveStep = Vector2Int.one;
         /// <summary>
         /// If true, the filter won't move out of the input area
         /// </summary>
-        public bool m_stayInside;
+        public bool m_stayInside = true;
 
         /// <summary>
         /// If it's a multistep filter layer
@@ -67,12 +68,13 @@ namespace LGFW
     /// <summary>
     /// Configuration for pooling layer
     /// </summary>
+    [System.Serializable]
     public class CNNPoolLayerConfig : CNNLayerConfig
     {
         /// <summary>
         /// The pooling size for a block
         /// </summary>
-        public Vector2Int m_poolStride;
+        public Vector2Int m_poolStride = new Vector2Int(2, 2);
 
         public CNNPoolLayerConfig(CNNLayerType type, Vector2Int stride)
         {
@@ -147,6 +149,15 @@ namespace LGFW
         }
 
         public virtual void initBP()
+        {
+        }
+
+        public virtual List<object> toJson()
+        {
+            return new List<object>();
+        }
+
+        public virtual void fromJson(List<object> l)
         {
         }
     }

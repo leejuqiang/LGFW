@@ -18,8 +18,9 @@ namespace LGFW
         /// </summary>
         /// <param name="fullLayers">The configurations for the last full connection layers</param>
         /// <param name="inputSize">The area size</param>
+        /// <param name="dropout">If use dropout for full connected layers</param>
         /// <param name="configs">The configurations for each convolutional layers</param>
-        public ConvolutionalNN(Vector2Int inputSize, NNlayerConfig[] fullLayers, params CNNLayerConfig[] configs)
+        public ConvolutionalNN(Vector2Int inputSize, bool dropout, NNlayerConfig[] fullLayers, params CNNLayerConfig[] configs)
         {
             m_layers = new CNNLayer[configs.Length];
             m_lastLayers = new NeuralNetworkLayer[fullLayers.Length];
@@ -45,11 +46,6 @@ namespace LGFW
             }
             int max = m_layers.Length - 1;
             int w = m_layers[max].totalOutputSize();
-            for (int i = 0; i < fullLayers.Length; ++i)
-            {
-                m_lastLayers[i] = new NeuralNetworkLayer(fullLayers[i].m_type, fullLayers[i].m_neuronNumber, w);
-                w = m_lastLayers[i].m_neuronNum;
-            }
             for (int i = 0; i < m_layers.Length; ++i)
             {
                 if (i > 0)
@@ -62,6 +58,19 @@ namespace LGFW
                 }
             }
             max = m_lastLayers.Length - 1;
+            fullLayers[max].m_dropoutRate = 1;
+            for (int i = 0; i < fullLayers.Length; ++i)
+            {
+                if (dropout && fullLayers[i].m_dropoutRate < 1)
+                {
+                    m_lastLayers[i] = new NNDropoutLayer(fullLayers[i].m_type, fullLayers[i].m_neuronNumber, w, fullLayers[i].m_dropoutRate);
+                }
+                else
+                {
+                    m_lastLayers[i] = new NeuralNetworkLayer(fullLayers[i].m_type, fullLayers[i].m_neuronNumber, w);
+                }
+                w = m_lastLayers[i].m_neuronNum;
+            }
             for (int i = 0; i < m_lastLayers.Length; ++i)
             {
                 if (i > 0)
@@ -75,6 +84,18 @@ namespace LGFW
             }
         }
 
+        public void testDropout(int layer, int index)
+        {
+            double delta = 0.000001;
+            bpDerivative();
+            double e = error();
+            CNNFilterLayer l = (CNNFilterLayer)m_layers[0];
+            l.m_filters[layer].changeParams(index, delta);
+            e = error() - e;
+            e /= delta;
+            double e1 = l.m_filters[layer].getGD(index);
+            Debug.Log("bp " + e + " " + e1 + " " + (e / e1));
+        }
         public void test(int layer, int index)
         {
             double delta = 0.000001;
@@ -90,16 +111,16 @@ namespace LGFW
         }
 
         /// <inheritdoc/>
-        public override void setAsTrainMode()
+        public override void setTrainingMode(bool isTraining)
         {
-            base.setAsTrainMode();
+            base.setTrainingMode(isTraining);
             for (int i = 0; i < m_layers.Length; ++i)
             {
-                m_layers[i].setTrainMode(true);
+                m_layers[i].setTrainMode(isTraining);
             }
             for (int i = 0; i < m_lastLayers.Length; ++i)
             {
-                m_lastLayers[i].setTrainingMode(true);
+                m_lastLayers[i].setTrainingMode(isTraining);
             }
         }
 
@@ -143,9 +164,13 @@ namespace LGFW
             {
                 m_layers[i].clearGD();
             }
+            bool[] inMask = null;
             for (int i = 0; i < m_lastLayers.Length; ++i)
             {
+                m_lastLayers[i].InputMask = inMask;
                 m_lastLayers[i].clearGD();
+                m_lastLayers[i].initDropout();
+                inMask = m_lastLayers[i].OutputMask;
             }
             double a = 1.0 / m_trainingSet.Count;
             for (int t = 0; t < m_trainingSet.Count; ++t)
@@ -210,6 +235,36 @@ namespace LGFW
             for (int i = 0; i < m_lastLayers.Length; ++i)
             {
                 m_lastLayers[i].updateParamsByGD(rate);
+            }
+        }
+
+        /// <inheritdoc/>
+        public override string toJson()
+        {
+            List<object> l = new List<object>();
+            for (int i = 0; i < m_layers.Length; ++i)
+            {
+                l.Add(m_layers[i].toJson());
+            }
+            for (int i = 0; i < m_lastLayers.Length; ++i)
+            {
+                l.Add(m_lastLayers[i].toJson());
+            }
+            return MiniJSON.Json.Serialize(l, true);
+        }
+
+        /// <inheritdoc/>
+        public override void initWithJson(string json)
+        {
+            List<object> l = (List<object>)MiniJSON.Json.Deserialize(json);
+            int index = 0;
+            for (int i = 0; i < m_layers.Length; ++i, ++index)
+            {
+                m_layers[i].fromJson((List<object>)l[index]);
+            }
+            for (int i = 0; i < m_lastLayers.Length; ++i, ++index)
+            {
+                m_lastLayers[i].fromJson((List<object>)l[index]);
             }
         }
     }

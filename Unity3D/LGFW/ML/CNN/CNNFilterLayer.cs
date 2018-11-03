@@ -63,6 +63,24 @@ namespace LGFW
                 m_weightsGD = null;
             }
         }
+
+        public List<object> toJson()
+        {
+            List<object> l = new List<object>();
+            for (int i = 0; i < m_weights.Length; ++i)
+            {
+                l.Add(m_weights[i]);
+            }
+            return l;
+        }
+
+        public void fromJson(List<object> l)
+        {
+            for (int i = 0; i < m_weights.Length; ++i)
+            {
+                m_weights[i] = (double)l[i];
+            }
+        }
     }
 
     public class CNNFilterLayer : CNNLayer
@@ -279,6 +297,24 @@ namespace LGFW
                         index += m_inputSize.x;
                     }
                 }
+            }
+        }
+
+        public override List<object> toJson()
+        {
+            List<object> l = new List<object>();
+            for (int i = 0; i < m_filters.Length; ++i)
+            {
+                l.Add(m_filters[i].toJson());
+            }
+            return l;
+        }
+
+        public override void fromJson(List<object> l)
+        {
+            for (int i = 0; i < m_filters.Length; ++i)
+            {
+                m_filters[i].fromJson((List<object>)l[i]);
             }
         }
     }

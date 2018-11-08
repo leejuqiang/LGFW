@@ -202,7 +202,7 @@ namespace LGFW
             }
         }
 
-        public void addRegularizationToGD(double p)
+        public virtual void addRegularizationToGD(double p)
         {
             for (int i = 0; i < m_totalWeightNumber; ++i)
             {
@@ -210,7 +210,7 @@ namespace LGFW
             }
         }
 
-        public double getWeightSquare()
+        public virtual double getWeightSquare()
         {
             double s = 0;
             for (int i = 0; i < m_totalWeightNumber; ++i)

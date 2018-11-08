@@ -6,6 +6,7 @@ namespace LGFW
 {
     public class CNNMNISTData : MNISTBase
     {
+        public double m_cnnLambda;
         public bool m_dropout;
         private ConvolutionalNN m_nn;
 
@@ -19,6 +20,8 @@ namespace LGFW
             lcs[0] = new NNlayerConfig(NNLayerType.sigmoid, 10, 0.5f);
             lcs[1] = new NNlayerConfig(NNLayerType.sigmoid, 10);
             m_nn = new ConvolutionalNN(new Vector2Int(24, 24), m_dropout, lcs, c1, c2);
+            m_nn.m_regularizationLambda = m_lambda;
+            m_nn.m_cnnLambda = m_cnnLambda;
 
             // CNNFilterLayerConfig c1 = new CNNFilterLayerConfig(CNNLayerType.sigmoidFilter, 2, new Vector2Int(3, 3));
             // CNNPoolLayerConfig c2 = new CNNPoolLayerConfig(CNNLayerType.maxPooling, new Vector2Int(2, 2));

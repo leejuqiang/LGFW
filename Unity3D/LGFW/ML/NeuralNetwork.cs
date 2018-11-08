@@ -18,10 +18,6 @@ namespace LGFW
         /// </summary>
         public NeuralNetworkLayer[] m_layers;
         /// <summary>
-        /// The regularization parameter
-        /// </summary>
-        public double m_regularizationParam = 0;
-        /// <summary>
         /// The total number of the training data
         /// </summary>
         public int m_totalTrainingData;
@@ -98,21 +94,14 @@ namespace LGFW
             return ret;
         }
 
-        /// <inheritdoc/>
-        public override double error()
+        protected override double getWeightSquare()
         {
-            double count = base.error();
-            if (m_regularizationParam > 0)
+            double w = 0;
+            for (int i = 0; i < m_layers.Length; ++i)
             {
-                double w = 0;
-                for (int i = 0; i < m_layers.Length; ++i)
-                {
-                    w += m_layers[i].getWeightSquare();
-                }
-                w *= 0.5 * m_regularizationParam / m_totalTrainingData;
-                return w + count;
+                w += m_layers[i].getWeightSquare();
             }
-            return count;
+            return w;
         }
 
         private void bpDerivative(double delta = 0.000001)
@@ -155,12 +144,11 @@ namespace LGFW
                     m_layers[i].setBpDerivativeToGD();
                 }
             }
-            if (m_regularizationParam > 0)
+            if (m_regularizationLambda > 0)
             {
-                double p = m_regularizationParam / m_totalTrainingData;
                 for (int i = 0; i < m_layers.Length; ++i)
                 {
-                    m_layers[i].addRegularizationToGD(p);
+                    m_layers[i].addRegularizationToGD(m_regularizationLambda);
                 }
             }
         }

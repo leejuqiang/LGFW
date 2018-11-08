@@ -10,6 +10,7 @@ namespace LGFW
     public class ConvolutionalNN : NNBase
     {
 
+        public double m_cnnLambda;
         private CNNLayer[] m_layers;
         private NeuralNetworkLayer[] m_lastLayers;
 
@@ -82,6 +83,36 @@ namespace LGFW
                     m_lastLayers[i].m_next = m_lastLayers[i + 1];
                 }
             }
+        }
+
+        protected override double getWeightSquare()
+        {
+            double w = 0;
+            for (int i = 0; i < m_lastLayers.Length; ++i)
+            {
+                w += m_lastLayers[i].getWeightSquare();
+            }
+            return w;
+        }
+
+        protected double getCNNWeightSquare()
+        {
+            double w = 0;
+            for (int i = 0; i < m_layers.Length; ++i)
+            {
+                w += m_layers[i].getWeightSquare();
+            }
+            return w;
+        }
+
+        public override double error()
+        {
+            double count = base.error();
+            if (m_cnnLambda > 0)
+            {
+                count += getCNNWeightSquare() * 0.5 * m_cnnLambda;
+            }
+            return count;
         }
 
         public void testDropout(int layer, int index)
@@ -217,6 +248,20 @@ namespace LGFW
                 }
                 m_layers[0].setOutToE(inToE);
                 m_layers[0].setBpParams();
+            }
+            if (m_regularizationLambda > 0)
+            {
+                for (int i = 0; i < m_lastLayers.Length; ++i)
+                {
+                    m_lastLayers[i].addRegularizationToGD(m_regularizationLambda);
+                }
+            }
+            if (m_cnnLambda > 0)
+            {
+                for (int i = 0; i < m_layers.Length; ++i)
+                {
+                    m_layers[i].addRegularizationToGD(m_cnnLambda);
+                }
             }
         }
 

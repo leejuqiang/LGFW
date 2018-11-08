@@ -9,7 +9,10 @@ namespace LGFW
     /// </summary>
     public abstract class NNBase
     {
-
+        /// <summary>
+        /// The regularization lambda, regularization is 0.5 * lambda * sum(weight * weight)
+        /// </summary>
+        public double m_regularizationLambda = 0;
         /// <summary>
         /// The training data list
         /// </summary>
@@ -73,11 +76,9 @@ namespace LGFW
         /// <returns>The output</returns>
         public abstract double[] output();
 
-        /// <summary>
-        /// The error for the given traning data
-        /// </summary>
-        /// <returns>The error</returns>
-        public virtual double error()
+        protected abstract double getWeightSquare();
+
+        protected virtual double basicError()
         {
             double count = 0;
             for (int i = 0; i < m_trainingSet.Count; ++i)
@@ -95,13 +96,27 @@ namespace LGFW
             }
             if (m_costType == NNCostType.quadratic)
             {
-                return count / m_trainingSet.Count * 0.5;
+                count /= m_trainingSet.Count * 2;
             }
             else if (m_costType == NNCostType.entropy)
             {
-                return count / m_trainingSet.Count;
+                count /= m_trainingSet.Count;
             }
-            return 0;
+            return count;
+        }
+
+        /// <summary>
+        /// The error for the given traning data
+        /// </summary>
+        /// <returns>The error</returns>
+        public virtual double error()
+        {
+            double count = basicError();
+            if (m_regularizationLambda > 0)
+            {
+                count += 0.5 * m_regularizationLambda * getWeightSquare();
+            }
+            return count;
         }
 
         /// <summary>

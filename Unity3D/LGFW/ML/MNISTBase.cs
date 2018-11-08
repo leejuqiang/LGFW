@@ -15,6 +15,7 @@ namespace LGFW
         public int m_trainingSetSize = 15;
         public float m_learningRate = 5;
         public int m_trainingTimes = 10;
+        public double m_lambda;
 
         protected byte[] m_images;
         protected byte[] m_labels;

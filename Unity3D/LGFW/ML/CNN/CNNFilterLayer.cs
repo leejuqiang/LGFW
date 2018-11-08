@@ -317,5 +317,32 @@ namespace LGFW
                 m_filters[i].fromJson((List<object>)l[i]);
             }
         }
+
+        public override double getWeightSquare()
+        {
+            double ret = 0;
+            for (int i = 0; i < m_filters.Length; ++i)
+            {
+                double[] w = m_filters[i].m_weights;
+                for (int j = 0; j < w.Length; ++j)
+                {
+                    ret += w[j] * w[j];
+                }
+            }
+            return ret;
+        }
+
+        public override void addRegularizationToGD(double v)
+        {
+            for (int i = 0; i < m_filters.Length; ++i)
+            {
+                double[] w = m_filters[i].m_weights;
+                double[] gd = m_filters[i].m_weightsGD;
+                for (int j = 0; j < w.Length; ++j)
+                {
+                    gd[j] += v * w[j];
+                }
+            }
+        }
     }
 }

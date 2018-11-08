@@ -160,5 +160,12 @@ namespace LGFW
         public virtual void fromJson(List<object> l)
         {
         }
+
+        public virtual double getWeightSquare()
+        {
+            return 0;
+        }
+
+        public virtual void addRegularizationToGD(double v) { }
     }
 }

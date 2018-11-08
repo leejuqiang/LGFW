@@ -95,6 +95,54 @@ namespace LGFW
             }
         }
 
+        public override void addRegularizationToGD(double p)
+        {
+            int index = 0;
+            for (int i = 0; i < m_neuronNum; ++i)
+            {
+                if (m_outputMask == null || m_outputMask[i])
+                {
+                    for (int j = 0; j < m_weightsNumber; ++j)
+                    {
+                        if (m_inputMask == null || m_inputMask[j])
+                        {
+                            m_matrixGD[index] += m_matrix[index] * p;
+                        }
+                        ++index;
+                    }
+                }
+                else
+                {
+                    index += m_weightsNumber;
+                }
+            }
+        }
+
+        public override double getWeightSquare()
+        {
+            int index = 0;
+            double w = 0;
+            for (int i = 0; i < m_neuronNum; ++i)
+            {
+                if (m_outputMask == null || m_outputMask[i])
+                {
+                    for (int j = 0; j < m_weightsNumber; ++j)
+                    {
+                        if (m_inputMask == null || m_inputMask[j])
+                        {
+                            w += m_matrix[index] * m_matrix[index];
+                        }
+                        ++index;
+                    }
+                }
+                else
+                {
+                    index += m_weightsNumber;
+                }
+            }
+            return w;
+        }
+
         public override void setBpDerivativeToGD()
         {
             for (int n = 0, i = 0; n < m_neuronNum; ++n)

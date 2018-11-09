@@ -8,6 +8,7 @@ namespace LGFW
     {
         sigmoid,
         softMax,
+        liner,
     }
 
     /// <summary>
@@ -76,6 +77,9 @@ namespace LGFW
             {
                 case NNLayerType.softMax:
                     m_computer = new SoftMaxNNComputer();
+                    break;
+                case NNLayerType.liner:
+                    m_computer = new LinerComputer();
                     break;
                 case NNLayerType.sigmoid:
                 default:

@@ -15,12 +15,18 @@ namespace LGFW
         /// </summary>
         public bool m_reactWhenMultiTouch;
         /// <summary>
+        /// If not null, the component can't be touch if it returns false
+        /// </summary>
+        public CanTouch m_delegateCanTouch;
+        /// <summary>
         /// If true, the UIClip won't clip the touch of this widget
         /// </summary>
         public bool m_dontClip;
 
         protected int m_touchFingerId = -1;
         protected UIClip m_uiClip;
+
+        public delegate bool CanTouch();
 
         /// <summary>
         /// If the widget is being touched
@@ -41,11 +47,16 @@ namespace LGFW
             set { m_uiClip = value; }
         }
 
+        private bool checkTouchable()
+        {
+            return m_delegateCanTouch == null || m_delegateCanTouch();
+        }
+
         void OnPress(UITouch t)
         {
             if (m_touchFingerId < 0)
             {
-                if (m_reactWhenMultiTouch || CameraRay.TouchCount <= 1)
+                if (checkTouchable() && (m_reactWhenMultiTouch || CameraRay.TouchCount <= 1))
                 {
                     if (insideClipArea(t.m_hitPoint))
                     {
@@ -74,7 +85,7 @@ namespace LGFW
         {
             if (m_touchFingerId == t.m_id)
             {
-                if (m_reactWhenMultiTouch || CameraRay.TouchCount <= 1)
+                if (checkTouchable() && (m_reactWhenMultiTouch || CameraRay.TouchCount <= 1))
                 {
                     if (t.m_releaseInside)
                     {
@@ -95,7 +106,7 @@ namespace LGFW
         {
             if (m_touchFingerId == t.m_id)
             {
-                if (m_reactWhenMultiTouch || CameraRay.TouchCount <= 1)
+                if (checkTouchable() && (m_reactWhenMultiTouch || CameraRay.TouchCount <= 1))
                 {
                     doDrag(t);
                 }

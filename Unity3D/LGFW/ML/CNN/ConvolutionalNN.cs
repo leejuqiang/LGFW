@@ -9,7 +9,9 @@ namespace LGFW
     /// </summary>
     public class ConvolutionalNN : NNBase
     {
-
+        /// <summary>
+        /// Regularization lambda for cnn layers
+        /// </summary>
         public double m_cnnLambda;
         private CNNLayer[] m_layers;
         private NeuralNetworkLayer[] m_lastLayers;

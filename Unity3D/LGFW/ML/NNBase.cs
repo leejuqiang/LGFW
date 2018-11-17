@@ -42,7 +42,7 @@ namespace LGFW
             return ret;
         }
 
-        protected double entropyCost(double[] output, double[] result)
+        protected double likelihoodCost(double[] output, double[] result)
         {
             double ret = 0;
             for (int i = 0; i < output.Length; ++i)
@@ -89,16 +89,16 @@ namespace LGFW
                 {
                     count += quadraticCost(r, m_trainingResultSet[i]);
                 }
-                else if (m_costType == NNCostType.entropy)
+                else if (m_costType == NNCostType.likelihood)
                 {
-                    count += entropyCost(r, m_trainingResultSet[i]);
+                    count += likelihoodCost(r, m_trainingResultSet[i]);
                 }
             }
             if (m_costType == NNCostType.quadratic)
             {
                 count /= m_trainingSet.Count * 2;
             }
-            else if (m_costType == NNCostType.entropy)
+            else if (m_costType == NNCostType.likelihood)
             {
                 count /= m_trainingSet.Count;
             }

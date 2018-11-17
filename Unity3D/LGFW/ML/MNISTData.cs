@@ -19,7 +19,7 @@ namespace LGFW
             m_nn.randomAllLayersParam();
             //m_layers [2].randomlyInitParams (-1, 1);
             m_nn.setTrainingMode(true);
-            m_nn.m_costType = NNCostType.quadratic;
+            m_nn.m_costType = NNCostType.likelihood;
             m_nn.m_regularizationLambda = m_lambda;
             m_nn.m_totalTrainingData = m_totalTrainDataSize;
         }

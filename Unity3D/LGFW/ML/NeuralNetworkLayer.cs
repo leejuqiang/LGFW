@@ -247,7 +247,7 @@ namespace LGFW
             }
         }
 
-        public void setEntropyOutToE(double a, double[] b)
+        public void setLikelihoodOutToE(double a, double[] b)
         {
             BPCache bp = m_computer.m_bpCache;
             bp.m_derivativeMidToE = new double[m_neuronNum];

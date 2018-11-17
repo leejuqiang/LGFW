@@ -7,7 +7,7 @@ namespace LGFW
     public enum NNCostType
     {
         quadratic,
-        entropy,
+        likelihood,
     }
 
     public class NeuralNetwork : NNBase
@@ -126,7 +126,7 @@ namespace LGFW
                 }
                 else
                 {
-                    m_layers[m_layers.Length - 1].setEntropyOutToE(a, b);
+                    m_layers[m_layers.Length - 1].setLikelihoodOutToE(a, b);
                 }
                 for (int i = m_layers.Length - 1; i > 0; --i)
                 {

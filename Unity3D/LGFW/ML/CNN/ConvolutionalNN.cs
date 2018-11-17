@@ -222,7 +222,7 @@ namespace LGFW
                 }
                 else
                 {
-                    m_lastLayers[last].setEntropyOutToE(a, b);
+                    m_lastLayers[last].setLikelihoodOutToE(a, b);
                 }
 
                 for (int i = last; i >= 0; --i)

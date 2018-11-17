@@ -16,7 +16,7 @@ namespace LGFW
         [SerializeField]
         protected float m_height = 1;
         [SerializeField]
-        protected int m_partition = 10;
+        protected int m_segmentNumber = 10;
         [SerializeField]
         protected float m_anchorY = 0.5f;
 
@@ -95,17 +95,17 @@ namespace LGFW
         }
 
         /// <summary>
-        /// The partition number of this cylinder, with more partition number, the cylinder will be more circular
+        /// The segment number of this cylinder, with more segment number, the cylinder will be more circular
         /// </summary>
-        /// <value>The partition number</value>
-        public int Partition
+        /// <value>The segment number</value>
+        public int SegmentNumber
         {
-            get { return m_partition; }
+            get { return m_segmentNumber; }
             set
             {
-                if (m_partition != value)
+                if (m_segmentNumber != value)
                 {
-                    m_partition = value;
+                    m_segmentNumber = value;
                     repaint();
                 }
             }
@@ -281,10 +281,10 @@ namespace LGFW
         {
             float yMin = -m_anchorY * m_height;
             float yMax = yMin + m_height;
-            float a = 360.0f / m_partition;
+            float a = 360.0f / m_segmentNumber;
             Quaternion q = Quaternion.Euler(0, a, 0);
             Vector3 dir = new Vector3(m_radius, 0, 0);
-            for (int i = 0; i < m_partition; ++i)
+            for (int i = 0; i < m_segmentNumber; ++i)
             {
                 m_vertices.Add(new Vector3(dir.x, yMin, dir.z));
                 m_vertices.Add(new Vector3(dir.x, yMax, dir.z));
@@ -304,7 +304,7 @@ namespace LGFW
             Color32 tc = m_topColor;
             Color32 wc = m_sideColor;
 
-            for (int i = 0; i < m_partition; ++i)
+            for (int i = 0; i < m_segmentNumber; ++i)
             {
                 m_colors.Add(bc);
                 m_colors.Add(tc);
@@ -317,7 +317,7 @@ namespace LGFW
 
         protected override void updateIndex()
         {
-            int len = m_partition - 1;
+            int len = m_segmentNumber - 1;
             for (int i = 1; i < len; ++i)
             {
                 int ii = i << 1;
@@ -332,8 +332,8 @@ namespace LGFW
                 m_indexes.Add(ii);
                 m_indexes.Add(ii + 2);
             }
-            int s = m_partition * 2;
-            for (int i = 0; i < m_partition; ++i)
+            int s = m_segmentNumber * 2;
+            for (int i = 0; i < m_segmentNumber; ++i)
             {
                 m_indexes.Add(s);
                 m_indexes.Add(s + 3);
@@ -352,20 +352,20 @@ namespace LGFW
             Rect wr = m_wallAS == null ? (new Rect(0, 0, 1, 1)) : m_wallAS.m_uv;
             Vector2 bc = br.center;
             Vector2 tc = tr.center;
-            float a = 360.0f / m_partition;
+            float a = 360.0f / m_segmentNumber;
             float bra = Mathf.Min(br.width, br.height);
             float tra = Mathf.Min(tr.width, tr.height);
             Quaternion q = Quaternion.Euler(0, a, 0);
             Vector3 dir = new Vector3(0.5f, 0, 0);
-            for (int i = 0; i < m_partition; ++i)
+            for (int i = 0; i < m_segmentNumber; ++i)
             {
                 m_uvs.Add(new Vector2(dir.x * bra + bc.x, dir.z * bra + bc.y));
                 m_uvs.Add(new Vector2(dir.x * tra + tc.x, dir.z * tra + tc.y));
                 dir = q * dir;
             }
-            float step = wr.width / m_partition;
+            float step = wr.width / m_segmentNumber;
             float x = wr.xMin;
-            for (int i = 0; i <= m_partition; ++i)
+            for (int i = 0; i <= m_segmentNumber; ++i)
             {
                 m_uvs.Add(new Vector2(x, wr.yMin));
                 m_uvs.Add(new Vector2(x, wr.yMax));
@@ -375,15 +375,15 @@ namespace LGFW
 
         protected override void updateNormal()
         {
-            for (int i = 0; i < m_partition; ++i)
+            for (int i = 0; i < m_segmentNumber; ++i)
             {
                 m_normals.Add(new Vector3(0, -1, 0));
                 m_normals.Add(new Vector3(0, 1, 0));
             }
-            float a = 360.0f / m_partition;
+            float a = 360.0f / m_segmentNumber;
             Quaternion q = Quaternion.Euler(0, a, 0);
             Vector3 dir = new Vector3(1, 0, 0);
-            for (int i = 0; i < m_partition; ++i)
+            for (int i = 0; i < m_segmentNumber; ++i)
             {
                 m_normals.Add(dir);
                 m_normals.Add(dir);

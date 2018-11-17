@@ -86,9 +86,9 @@ namespace LGFW
         }
 
         /// <summary>
-        /// The split number of longitude and latitude, with larger split number, the sphere will be more circular
+        /// The segment number of longitude and latitude, with larger segment number, the sphere will be more circular
         /// </summary>
-        /// <value>The split number</value>
+        /// <value>The segment number</value>
         public Vector2Int GridNumber
         {
             get { return m_gridNumber; }

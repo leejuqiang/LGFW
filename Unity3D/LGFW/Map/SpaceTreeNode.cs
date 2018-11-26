@@ -38,9 +38,10 @@ namespace LGFW
             m_neighbors[index] = n;
         }
 
-        public void initNeighbor()
+        public void initLeaf()
         {
             m_neighbors = new SpaceTreeNode[6];
+            m_data = new HashSet<ISpaceTreeData>();
         }
 
         public SpaceTreeNode(Vector3 halfSize, Vector3 center, int depth, int maxDepth) : base(depth)

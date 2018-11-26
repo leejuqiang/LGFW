@@ -60,7 +60,6 @@ namespace LGFW
         public DecisionTreeNode(int depth)
         {
             m_depth = depth;
-            m_data = new HashSet<T>();
             m_children = new List<DecisionTreeNode<T>>();
             m_parent = null;
         }

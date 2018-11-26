@@ -63,7 +63,7 @@ namespace LGFW
                 {
                     for (int x = 0; x < len; ++x, ++i)
                     {
-                        m_leaves[i].initNeighbor();
+                        m_leaves[i].initLeaf();
                         m_leaves[i].m_index.Set(x, y, z);
                     }
                 }

@@ -39,7 +39,7 @@ namespace LGFW
             while (l.Count > 0)
             {
                 SpaceTreeNode2D n = l.Dequeue();
-                if (n.isLeaf)
+                if (n.IsLeaf)
                 {
                     m_leaves.Add(n);
                 }

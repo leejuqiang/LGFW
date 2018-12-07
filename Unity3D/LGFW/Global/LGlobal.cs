@@ -14,6 +14,13 @@ namespace LGFW
         /// The height of the screen, this is not the pixel in screen, this is a relative height in unity editor
         /// </summary>
         public float m_screenHeight = 1000;
+        /// <summary>
+        /// The count of timer used for analysising running time
+        /// </summary>
+        public int m_debugTimerCount;
+
+        private double[] m_debugTimers;
+        private System.DateTime[] m_debugTimeStarts;
 
         private static LGlobal m_instance;
 
@@ -58,6 +65,54 @@ namespace LGFW
         }
 
         /// <summary>
+        /// Starts a debug timer
+        /// </summary>
+        /// <param name="index">The index of the timer</param>
+        public void startDebugTimer(int index)
+        {
+            m_debugTimeStarts[index] = System.DateTime.Now;
+        }
+
+        /// <summary>
+        /// Stops a debug timer, the time of this timer will be updated
+        /// </summary>
+        /// <param name="index">The index of the timer</param>
+        public void stopDebugTimer(int index)
+        {
+            m_debugTimers[index] += (System.DateTime.Now - m_debugTimeStarts[index]).TotalMilliseconds;
+        }
+
+        /// <summary>
+        /// Clears a debug timer
+        /// </summary>
+        /// <param name="index">The index of the timer</param>
+        public void clearDebugTimer(int index)
+        {
+            m_debugTimers[index] = 0;
+        }
+
+        /// <summary>
+        /// Clears all debug timers
+        /// </summary>
+        public void clearDebugTimer()
+        {
+            for (int i = 0; i < m_debugTimers.Length; ++i)
+            {
+                m_debugTimers[i] = 0;
+            }
+        }
+
+        /// <summary>
+        /// Gets the time of a debug timer
+        /// </summary>
+        /// <param name="index">The index of the timer</param>
+        /// <returns>The time</returns>
+        public double timeOfDebugTimer(int index)
+        {
+            return m_debugTimers[index] / 1000;
+        }
+
+        /// <summary>
         /// Sets the server date
         /// </summary>
         /// <param name="timeStamp">The time stamp</param>
@@ -93,6 +148,8 @@ namespace LGFW
         {
             m_instance = this;
             m_standardDate = new System.DateTime(1970, 1, 1);
+            m_debugTimeStarts = new System.DateTime[m_debugTimerCount];
+            m_debugTimers = new double[m_debugTimerCount];
         }
 
         void OnDestroy()

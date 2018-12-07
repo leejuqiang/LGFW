@@ -56,7 +56,7 @@ namespace LGFW
         public SpaceTreeNode getLeafWithoutBound(Vector3 p)
         {
             SpaceTreeNode n = getChildByDataWithoutChecking(p);
-            while (!n.isLeaf)
+            while (!n.IsLeaf)
             {
                 n = n.getChildByDataWithoutChecking(p);
             }

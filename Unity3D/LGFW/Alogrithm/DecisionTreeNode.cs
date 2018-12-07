@@ -21,7 +21,7 @@ namespace LGFW
         /// If the node is a leaf
         /// </summary>
         /// <value>True if it's a leaf</value>
-        public bool isLeaf
+        public virtual bool IsLeaf
         {
             get { return m_children.Count <= 0; }
         }
@@ -87,7 +87,7 @@ namespace LGFW
         /// <returns>The leaf this data added to</returns>
         public virtual DecisionTreeNode<T> addData(T data)
         {
-            if (isLeaf)
+            if (IsLeaf)
             {
                 m_data.Add(data);
                 return this;

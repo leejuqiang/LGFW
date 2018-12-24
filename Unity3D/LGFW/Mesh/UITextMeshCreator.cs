@@ -19,7 +19,7 @@ namespace LGFW
         wrapWordEnd,
     }
 
-    public class UITextLine : MemoryPoolItem
+    public class UITextLine : MPItem
     {
         public int m_start;
         public int m_end;
@@ -36,7 +36,7 @@ namespace LGFW
         }
     }
 
-    public class UITextChar : MemoryPoolItem
+    public class UITextChar : MPItem
     {
         public int m_value;
         public UITextCharType m_type;
@@ -156,8 +156,8 @@ namespace LGFW
         public List<int> m_index = new List<int>();
 
         private List<UIFontRequestString> m_fontRequestStrings = new List<UIFontRequestString>();
-        private FlushMemoryPool m_pool = new FlushMemoryPool();
-        private FlushMemoryPool m_linePool = new FlushMemoryPool();
+        private FlushMemoryPool<UITextChar> m_pool = new FlushMemoryPool<UITextChar>(createTextChar, null);
+        private FlushMemoryPool<UITextLine> m_linePool = new FlushMemoryPool<UITextLine>(createTextLine, null);
 
         public Rect m_textArea;
         public string m_displayText;
@@ -177,6 +177,16 @@ namespace LGFW
                 return s;
             }
             return null;
+        }
+
+        private static UITextChar createTextChar(object data)
+        {
+            return new UITextChar();
+        }
+
+        private static UITextLine createTextLine(object data)
+        {
+            return new UITextLine();
         }
 
         protected int handleSpecialChar(UITextChar ch, int index, string text)
@@ -241,14 +251,14 @@ namespace LGFW
             return index;
         }
 
-        private bool isItASpeicalChar(char ch)
+        private bool isItASpecialChar(char ch)
         {
             return ch == SPECIAL_CHAR || ch == WRAP_WORD;
         }
 
         private void makeChars(string text, bool formatText)
         {
-            m_pool.flush(false);
+            m_pool.flush();
             if (formatText)
             {
                 bool isTrans = false;
@@ -269,9 +279,9 @@ namespace LGFW
                             isTrans = true;
                             continue;
                         }
-                        isSpecial = isItASpeicalChar(text[i]);
+                        isSpecial = isItASpecialChar(text[i]);
                     }
-                    UITextChar ch = m_pool.getAnItem<UITextChar>();
+                    UITextChar ch = m_pool.getAnItem();
                     if (isSpecial)
                     {
                         if (text[i] == SPECIAL_CHAR)
@@ -304,7 +314,7 @@ namespace LGFW
             {
                 for (int i = 0; i < text.Length; ++i)
                 {
-                    UITextChar ch = m_pool.getAnItem<UITextChar>();
+                    UITextChar ch = m_pool.getAnItem();
                     if (isNewLineChar(text[i]))
                     {
                         ch.m_type = UITextCharType.newLine;
@@ -350,9 +360,9 @@ namespace LGFW
             {
                 int s = size;
                 FontStyle st = style;
-                for (int i = 0; i < m_pool.Count; ++i)
+                for (int i = 0; i < m_pool.UsedCount; ++i)
                 {
-                    UITextChar tc = m_pool.getItemByIndex<UITextChar>(i);
+                    UITextChar tc = m_pool.getItemByIndex(i);
                     if (tc.m_type == UITextCharType.character)
                     {
                         addToRequestText((char)tc.m_value, s, st);
@@ -404,9 +414,9 @@ namespace LGFW
         {
             int s = t.FontSize;
             FontStyle st = t.Style;
-            for (int i = 0; i < m_pool.Count; ++i)
+            for (int i = 0; i < m_pool.UsedCount; ++i)
             {
-                UITextChar tc = m_pool.getItemByIndex<UITextChar>(i);
+                UITextChar tc = m_pool.getItemByIndex(i);
                 if (tc.m_type == UITextCharType.character)
                 {
                     t.TextFont.m_font.GetCharacterInfo((char)tc.m_value, out tc.m_info, s, st);
@@ -444,7 +454,7 @@ namespace LGFW
         {
             for (int i = tl.m_start; i <= tl.m_end; ++i)
             {
-                UITextChar tc = m_pool.getItemByIndex<UITextChar>(i);
+                UITextChar tc = m_pool.getItemByIndex(i);
                 float top = tc.Top;
                 float bot = tc.Bottom;
                 tl.m_top = Mathf.Max(top, tl.m_top);
@@ -459,7 +469,7 @@ namespace LGFW
             width = 0;
             while (index >= start)
             {
-                UITextChar tc = m_pool.getItemByIndex<UITextChar>(index);
+                UITextChar tc = m_pool.getItemByIndex(index);
                 if (isWrapMode)
                 {
                     if (tc.m_type == UITextCharType.wrapWordStart)
@@ -482,18 +492,18 @@ namespace LGFW
 
         private void makeLines(UIText t)
         {
-            m_linePool.flush(false);
-            if (m_pool.Count <= 0)
+            m_linePool.flush();
+            if (m_pool.UsedCount <= 0)
             {
                 return;
             }
-            UITextLine tl = m_linePool.getAnItem<UITextLine>();
+            UITextLine tl = m_linePool.getAnItem();
             tl.m_start = 0;
             bool lineHasWrapWord = true;
             bool wrapMode = false;
-            for (int i = 0; i < m_pool.Count; ++i)
+            for (int i = 0; i < m_pool.UsedCount; ++i)
             {
-                UITextChar tc = m_pool.getItemByIndex<UITextChar>(i);
+                UITextChar tc = m_pool.getItemByIndex(i);
                 float w = tc.Width;
                 tl.m_width += w;
                 bool newLine = tc.m_type == UITextCharType.newLine;
@@ -558,16 +568,16 @@ namespace LGFW
                 tl.m_end = i;
                 if (newLine)
                 {
-                    tl = m_linePool.getAnItem<UITextLine>();
+                    tl = m_linePool.getAnItem();
                     tl.m_start = i + 1;
                     lineHasWrapWord = true;
                 }
             }
             float minTop = t.FontSize * 0.8f;
             float minBot = t.FontSize * 0.2f;
-            for (int i = 0; i < m_linePool.Count; ++i)
+            for (int i = 0; i < m_linePool.UsedCount; ++i)
             {
-                tl = m_linePool.getItemByIndex<UITextLine>(i);
+                tl = m_linePool.getItemByIndex(i);
                 computeLineHeight(tl, minTop, minBot);
             }
         }
@@ -590,9 +600,9 @@ namespace LGFW
             m_textArea.xMin = pos.xMax;
             m_textArea.xMax = pos.xMin;
             m_textArea.yMax = pos.yMax;
-            for (int l = 0; l < m_linePool.Count; ++l)
+            for (int l = 0; l < m_linePool.UsedCount; ++l)
             {
-                UITextLine tl = m_linePool.getItemByIndex<UITextLine>(l);
+                UITextLine tl = m_linePool.getItemByIndex(l);
                 p.y -= tl.m_top;
                 if (t.TextAlignment == UIAlignmentX.left)
                 {
@@ -610,7 +620,7 @@ namespace LGFW
                 m_textArea.xMax = Mathf.Max(m_textArea.xMax, p.x + tl.m_width);
                 for (int i = tl.m_start; i <= tl.m_end; ++i)
                 {
-                    UITextChar tc = m_pool.getItemByIndex<UITextChar>(i);
+                    UITextChar tc = m_pool.getItemByIndex(i);
                     if (tc.m_type == UITextCharType.character)
                     {
                         rc.xMin = p.x + tc.m_info.minX;
@@ -683,9 +693,9 @@ namespace LGFW
             {
                 count = 16;
             }
-            for (int i = 0; i < m_pool.Count; ++i)
+            for (int i = 0; i < m_pool.UsedCount; ++i)
             {
-                UITextChar tc = m_pool.getItemByIndex<UITextChar>(i);
+                UITextChar tc = m_pool.getItemByIndex(i);
                 if (tc.m_type == UITextCharType.character)
                 {
                     m_uvs.Add(tc.m_info.uvBottomLeft);
@@ -715,9 +725,9 @@ namespace LGFW
             List<Color32> l = new List<Color32>();
             Color32 c = textColor;
             Color32 ec = effectColor;
-            for (int i = 0; i < m_pool.Count; ++i)
+            for (int i = 0; i < m_pool.UsedCount; ++i)
             {
-                UITextChar tc = m_pool.getItemByIndex<UITextChar>(i);
+                UITextChar tc = m_pool.getItemByIndex(i);
                 if (tc.m_type == UITextCharType.character)
                 {
                     if (t.Effect == UITextEffect.outline)

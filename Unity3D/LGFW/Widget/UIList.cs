@@ -54,7 +54,7 @@ namespace LGFW
         private Vector3 m_lastTouch;
         private UIClip m_clip;
         private BoxCollider2D m_collider;
-        private List<GameObjectPool<UIListCell>> m_cellPools = new List<GameObjectPool<UIListCell>>();
+        private List<MemoryPool<UIListCell>> m_cellPools = new List<MemoryPool<UIListCell>>();
         private Vector2 m_visibleRange;
         private LinkedList<UIListCell> m_allCells = new LinkedList<UIListCell>();
         private int m_dataLength;
@@ -288,14 +288,21 @@ namespace LGFW
             m_collider = this.GetComponent<BoxCollider2D>();
             for (int i = 0; i < m_cellPrefabs.Length; ++i)
             {
-                m_cellPools.Add(new GameObjectPool<UIListCell>(m_cellPrefabs[i].gameObject));
+                m_cellPools.Add(new MemoryPool<UIListCell>(createCell, i, 0));
             }
             initOffsetTrans();
         }
 
+        private UIListCell createCell(object data)
+        {
+            int index = (int)data;
+            GameObject go = GameObject.Instantiate<GameObject>(m_cellPrefabs[index].gameObject);
+            return go.GetComponent<UIListCell>();
+        }
+
         private void freeACell(UIListCell c)
         {
-            m_cellPools[c.ID].freeGameObject(c);
+            m_cellPools[c.ID].reclaimItem(c);
         }
 
         private int cellIdByDataIndex(int index)
@@ -337,8 +344,8 @@ namespace LGFW
                 }
             }
             int id = cellIdByDataIndex(dataIndex);
-            bool isNew = false;
-            UIListCell c = m_cellPools[id].getAnObject(out isNew);
+
+            UIListCell c = m_cellPools[id].getAnItem();
             c.ID = id;
             c.DataIndex = dataIndex;
             c.Awake();
@@ -349,7 +356,7 @@ namespace LGFW
                 obj = m_getDataByIndex(dataIndex);
             }
             c.setupCell(obj);
-            if (isNew && m_clip != null)
+            if (c.IsNew && m_clip != null)
             {
                 m_clip.addGameObjectToClip(c.gameObject, true);
             }

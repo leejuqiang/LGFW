@@ -25,12 +25,7 @@ namespace LGFW
         protected T m_end;
         protected float m_stopRange;
 
-        protected MemoryPool m_pool = new MemoryPool();
-
-        protected T createANode()
-        {
-            return m_pool.getAnItem<T>();
-        }
+        protected MemoryPool<T> m_pool = new MemoryPool<T>(createNode);
 
         /// <summary>
         /// Clears the map
@@ -66,6 +61,11 @@ namespace LGFW
             {
                 initRange();
             }
+        }
+
+        protected static T createNode(object data)
+        {
+            return new T();
         }
 
         protected abstract void initRange();

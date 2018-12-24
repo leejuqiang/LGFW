@@ -7,7 +7,7 @@ namespace LGFW
     /// <summary>
     /// Base class for a a* star node
     /// </summary>
-    public class NavAStarNode : MemoryPoolItem
+    public class NavAStarNode : MPItem
     {
 
         /// <summary>

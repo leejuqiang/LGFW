@@ -16,7 +16,7 @@ namespace LGFW
     /// <summary>
     /// A cell in a list
     /// </summary>
-    public class UIListCell : UIWidget
+    public class UIListCell : UIWidget, IMemoryPoolItem
     {
 
         [SerializeField]
@@ -29,6 +29,16 @@ namespace LGFW
         protected UIListCellVisible m_visible;
 
         protected int m_id;
+        protected bool m_isNew = true;
+
+        /// <summary>
+        /// If this item is just created or recycled
+        /// </summary>
+        /// <value></value>
+        public bool IsNew
+        {
+            get { return m_isNew; }
+        }
 
         /// <summary>
         /// The index of the cell
@@ -157,6 +167,26 @@ namespace LGFW
                 p.Set(v + m_margin.x, 0, 0);
             }
             m_trans.localPosition = p;
+        }
+
+        public void onInit()
+        {
+
+        }
+
+        public void onClear()
+        {
+            m_isNew = false;
+        }
+
+        public void onDestroy()
+        {
+            GameObject.Destroy(this.gameObject);
+        }
+
+        public bool checkToFree()
+        {
+            return false;
         }
 
         public void updateVisible(Vector2 range, bool isVertical)

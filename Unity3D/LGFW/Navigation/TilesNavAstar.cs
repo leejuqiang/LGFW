@@ -109,7 +109,7 @@ namespace LGFW
             {
                 for (int x = 0; x < m_width; ++x, ++index)
                 {
-                    TilesNavAstarNode n = createANode();
+                    TilesNavAstarNode n = m_pool.getAnItem();
                     n.m_id = index;
                     n.m_x = x;
                     n.m_y = y;

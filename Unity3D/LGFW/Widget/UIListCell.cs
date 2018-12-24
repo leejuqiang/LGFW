@@ -184,11 +184,6 @@ namespace LGFW
             GameObject.Destroy(this.gameObject);
         }
 
-        public bool checkToFree()
-        {
-            return false;
-        }
-
         public void updateVisible(Vector2 range, bool isVertical)
         {
             Vector3 p = m_trans.localPosition;

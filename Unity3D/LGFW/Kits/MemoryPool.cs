@@ -23,12 +23,6 @@ namespace LGFW
         /// Called when this item should be destory
         /// </summary>
         void onDestroy();
-
-        /// <summary>
-        /// Checks if the item should be reclaimed
-        /// </summary>
-        /// <returns>True if the item should be reclaimed</returns>
-        bool checkToFree();
     }
 
     /// <summary>
@@ -50,19 +44,20 @@ namespace LGFW
         {
 
         }
-
-        public virtual bool checkToFree()
-        {
-            return false;
-        }
     }
 
     /// <summary>
-    /// Base class for a referenced memory pool item
+    /// Base class for a reference memory pool item
     /// </summary>
     public class ReferenceMPItem : MPItem
     {
         protected int m_reference;
+        protected IMemoryPool m_pool;
+
+        public ReferenceMPItem(IMemoryPool pool)
+        {
+            m_pool = pool;
+        }
 
         public override void onInit()
         {
@@ -77,19 +72,26 @@ namespace LGFW
         public void release()
         {
             --m_reference;
+            if (m_reference <= 0)
+            {
+                m_pool.reclaimItem(this);
+            }
         }
+    }
 
-        public override bool checkToFree()
-        {
-            return m_reference <= 0;
-        }
+    /// <summary>
+    /// The interface for memory pool
+    /// </summary>
+    public interface IMemoryPool
+    {
+        bool reclaimItem(IMemoryPoolItem item);
     }
 
     /// <summary>
     /// A memory pool
     /// </summary>
     /// <typeparam name="T">The type of the items in this memory pool</typeparam>
-    public class MemoryPool<T> where T : IMemoryPoolItem
+    public class MemoryPool<T> : IMemoryPool where T : IMemoryPoolItem
     {
 
         protected HashSet<T> m_usedItems = new HashSet<T>();
@@ -113,8 +115,16 @@ namespace LGFW
         /// <returns>True if the item should be destroyed</returns>
         public delegate bool CheckToDestroyItem(T item);
 
+        /// <summary>
+        /// Delegate for checking if the item should be freed
+        /// </summary>
+        /// <param name="item">The item</param>
+        /// <returns>True if the item should be freed</returns>
+        public delegate bool CheckToFreeItem(T item);
+
         protected CreateNewItem m_createFunc;
-        protected CheckToDestroyItem m_checkFunc;
+        protected CheckToDestroyItem m_checkDestroyFunc;
+        protected CheckToFreeItem m_checkFreeFunc;
 
         /// <summary>
         /// The count of used items
@@ -159,10 +169,20 @@ namespace LGFW
         /// Delegate for checking if the item should be destroyed
         /// </summary>
         /// <value>The delegate</value>
-        public CheckToDestroyItem CheckItemFunc
+        public CheckToDestroyItem CheckDestroyFunc
         {
-            get { return m_checkFunc; }
-            set { m_checkFunc = value; }
+            get { return m_checkDestroyFunc; }
+            set { m_checkDestroyFunc = value; }
+        }
+
+        /// <summary>
+        /// Delegate for checking if the item should be freed
+        /// </summary>
+        /// <value>The delegate</value>
+        public CheckToFreeItem CheckFreeFunc
+        {
+            get { return m_checkFreeFunc; }
+            set { m_checkFreeFunc = value; }
         }
 
         /// <summary>
@@ -221,12 +241,13 @@ namespace LGFW
         /// </summary>
         /// <returns>False if the item has already been put back, otherwise true</returns>
         /// <param name="item">The item</param>
-        public bool reclaimItem(T item)
+        public bool reclaimItem(IMemoryPoolItem item)
         {
-            if (m_usedItems.Remove(item))
+            T it = (T)item;
+            if (m_usedItems.Remove(it))
             {
                 item.onClear();
-                m_freeItems.AddLast(item);
+                m_freeItems.AddLast(it);
                 return true;
             }
             return false;
@@ -270,25 +291,28 @@ namespace LGFW
         /// </summary>
         public void update()
         {
-            m_tempList.Clear();
-            foreach (T item in m_usedItems)
+            if (m_checkFreeFunc != null)
             {
-                if (item.checkToFree())
+                m_tempList.Clear();
+                foreach (T item in m_usedItems)
                 {
-                    m_tempList.Add(item);
+                    if (m_checkFreeFunc(item))
+                    {
+                        m_tempList.Add(item);
+                    }
+                }
+                for (int i = 0; i < m_tempList.Count; ++i)
+                {
+                    reclaimItem(m_tempList[i]);
                 }
             }
-            for (int i = 0; i < m_tempList.Count; ++i)
-            {
-                reclaimItem(m_tempList[i]);
-            }
-            if (m_maxFreeCount > 0 && m_checkFunc != null && m_freeItems.Count > m_maxFreeCount)
+            if (m_maxFreeCount > 0 && m_checkDestroyFunc != null && m_freeItems.Count > m_maxFreeCount)
             {
                 LinkedListNode<T> n = m_freeItems.First;
                 while (n != null)
                 {
                     LinkedListNode<T> temp = n.Next;
-                    if (m_checkFunc(n.Value))
+                    if (m_checkDestroyFunc(n.Value))
                     {
                         n.Value.onDestroy();
                         m_freeItems.Remove(n);

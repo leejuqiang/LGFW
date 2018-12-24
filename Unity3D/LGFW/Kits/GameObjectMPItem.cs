@@ -23,10 +23,5 @@ namespace LGFW
         {
             GameObject.Destroy(this.gameObject);
         }
-
-        public virtual bool checkToFree()
-        {
-            return false;
-        }
     }
 }

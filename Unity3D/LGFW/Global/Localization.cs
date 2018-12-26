@@ -104,14 +104,11 @@ namespace LGFW
             {
                 m_currentLanguage = Application.systemLanguage;
             }
-            m_currentText = null;
-            for (int i = 0; i < m_localizeTexts.Length; ++i)
+            getTextDataByLang();
+            if (m_currentText == null)
             {
-                if (m_localizeTexts[i].applyForLanguage(m_currentLanguage))
-                {
-                    m_currentText = m_localizeTexts[i];
-                    break;
-                }
+                m_currentLanguage = m_defaultLanguage;
+                getTextDataByLang();
             }
             if (m_currentText == null && m_localizeTexts.Length > 0)
             {
@@ -120,6 +117,19 @@ namespace LGFW
             if (m_currentText != null)
             {
                 m_currentText.initData();
+            }
+        }
+
+        private void getTextDataByLang()
+        {
+            m_currentText = null;
+            for (int i = 0; i < m_localizeTexts.Length; ++i)
+            {
+                if (m_localizeTexts[i].applyForLanguage(m_currentLanguage))
+                {
+                    m_currentText = m_localizeTexts[i];
+                    break;
+                }
             }
         }
 

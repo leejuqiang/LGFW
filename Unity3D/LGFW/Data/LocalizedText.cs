@@ -7,9 +7,10 @@ namespace LGFW
     /// <summary>
     /// A text with a key
     /// </summary>
-    [SerializeField]
+    [System.Serializable]
     public class LocalizedTextData : StringIdData
     {
+        [DataCombineText]
         /// <summary>
         /// The text
         /// </summary>

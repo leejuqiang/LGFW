@@ -46,13 +46,13 @@ namespace LGFW
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class DataSplit : Attribute
     {
-        private char m_split;
+        private string m_split;
 
         /// <summary>
-        /// Gets the split char
+        /// Gets the split char array
         /// </summary>
-        /// <value>The split char</value>
-        public char SplitChar
+        /// <value>The split char array</value>
+        public string SplitString
         {
             get { return m_split; }
         }
@@ -62,16 +62,16 @@ namespace LGFW
         /// </summary>
         public DataSplit()
         {
-            m_split = ',';
+            m_split = ",";
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LGFW.DataSplit"/> class
         /// </summary>
-        /// <param name="splitChar">The split char</param>
-        public DataSplit(char splitChar)
+        /// <param name="splitString">The split char array</param>
+        public DataSplit(string splitString)
         {
-            m_split = splitChar;
+            m_split = splitString;
         }
     }
 }

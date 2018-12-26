@@ -90,5 +90,25 @@ namespace LGFW
         {
             get { return m_dataList.Count; }
         }
+
+        /// <summary>
+        /// Checks the data after processed
+        /// </summary>
+        public virtual void checkData()
+        {
+            HashSet<K> set = new HashSet<K>();
+            for (int i = 0; i < m_dataList.Count; ++i)
+            {
+                K id = m_dataList[i].getID();
+                if (set.Contains(id))
+                {
+                    Debug.LogError("duplicate id " + id + " in " + this.GetType().ToString());
+                }
+                else
+                {
+                    set.Add(id);
+                }
+            }
+        }
     }
 }

@@ -74,6 +74,18 @@ namespace LGFW
             return false;
         }
 
+        public static Object createOrLoadAsset(string path, System.Type t)
+        {
+            Object o = AssetDatabase.LoadAssetAtPath(path, t);
+            if (o == null)
+            {
+                o = ScriptableObject.CreateInstance(t);
+                AssetDatabase.CreateAsset(o, path);
+                AssetDatabase.Refresh();
+            }
+            return o;
+        }
+
         public static string createAssetAtSelectedPath(Object obj, string title, string name)
         {
             string path = openSaveToFolderPanel(title);

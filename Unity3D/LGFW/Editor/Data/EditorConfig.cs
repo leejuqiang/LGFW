@@ -6,10 +6,14 @@ using UnityEditor;
 namespace LGFW
 {
     [System.Serializable]
-    public class JsonDataConfig
+    public class ExcelConfig
     {
         public string m_dataPath;
         public string m_assetPath;
+        public string m_scriptPath;
+        public bool m_isLocalizedText;
+
+        public string m_customDBExtension;
 
         public string[] m_keys;
         public string[] m_alias;
@@ -45,45 +49,50 @@ namespace LGFW
         }
 
         public string m_dataFieldPrefix = "m_";
-        public JsonDataConfig[] m_jsonData;
-        public string[] m_processExcels;
+        public ExcelConfig[] m_excelData;
 
-        public JsonDataConfig getDataConfig(string path)
+        public ExcelConfig getDataConfig(string path)
         {
-            if (m_jsonData == null)
+            if (m_excelData == null)
             {
                 return null;
             }
-            for (int i = 0; i < m_jsonData.Length; ++i)
+            for (int i = 0; i < m_excelData.Length; ++i)
             {
-                if (m_jsonData[i].m_dataPath == path)
+                if (m_excelData[i].m_dataPath == path)
                 {
-                    return m_jsonData[i];
+                    return m_excelData[i];
                 }
             }
             return null;
-        }
-
-        public bool isExcelData(string path)
-        {
-            if (m_processExcels == null)
-            {
-                return false;
-            }
-            for (int i = 0; i < m_processExcels.Length; ++i)
-            {
-                if (m_processExcels[i] == path)
-                {
-                    return true;
-                }
-            }
-            return false;
         }
 
         [MenuItem("LGFW/Editor/Config", false, (int)'c')]
         public static void selectConfig()
         {
             Selection.activeObject = EditorConfig.Instance;
+        }
+
+        public static Dictionary<string, object> getTempConfig()
+        {
+            string path = "temp.json";
+            Dictionary<string, object> dict = null;
+            if (LGFWKit.fileExists(path))
+            {
+                string js = LGFWKit.readTextFromFile(path);
+                dict = (Dictionary<string, object>)MiniJSON.Json.Deserialize(js, true);
+            }
+            if (dict == null)
+            {
+                dict = new Dictionary<string, object>();
+            }
+            return dict;
+        }
+
+        public static void saveTempConfig(Dictionary<string, object> dict)
+        {
+            string js = MiniJSON.Json.Serialize(dict, true);
+            LGFWKit.writeTextToFile("temp.json", js);
         }
     }
 }

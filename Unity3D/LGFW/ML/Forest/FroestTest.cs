@@ -105,7 +105,7 @@ namespace LGFW
             Queue<DCTreeNodeBase> q = new Queue<DCTreeNodeBase>();
             DCTreeNodeBase.train(m_data, m_attributes, m_tree, q);
             Dictionary<string, object> dict = m_tree.toJson();
-            string js = MiniJSON.Json.Serialize(dict, true);
+            string js = Json.encode(dict, true);
             LGFWKit.writeTextToFile("Assets/tree.json", js);
             t = Time.realtimeSinceStartup - t;
             Debug.Log("finish train " + t);

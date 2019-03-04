@@ -212,7 +212,7 @@ namespace LGFW
             {
                 l.Add(m_layers[i].toJson());
             }
-            return MiniJSON.Json.Serialize(l, true);
+            return Json.encode(l, true);
         }
 
         /// <inheritdoc/>
@@ -228,7 +228,7 @@ namespace LGFW
         /// <param name="useDropout">If true, the weights will be multiply with the dropout rate</param>
         public void initDropoutWithJson(string json, bool useDropout)
         {
-            List<object> l = (List<object>)MiniJSON.Json.Deserialize(json, true);
+            List<object> l = (List<object>)Json.decode(json);
             for (int i = 0; i < l.Count; ++i)
             {
                 m_layers[i].fromJson((Dictionary<string, object>)l[i], useDropout);

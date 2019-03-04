@@ -13,10 +13,6 @@ namespace LGFW
         /// The text file for the json
         /// </summary>
         public TextAsset m_jsonText;
-        /// <summary>
-        /// If this json text should be deserialized using format
-        /// </summary>
-        public bool m_isJsonFormatted;
         public JsonTreeKey[] m_keys;
         private object m_obj;
 
@@ -31,17 +27,16 @@ namespace LGFW
             {
                 return;
             }
-            showJson(m_jsonText.text, m_isJsonFormatted);
+            showJson(m_jsonText.text);
         }
 
         /// <summary>
         /// Shows the json
         /// </summary>
         /// <param name="js">The json string</param>
-        /// <param name="isFormat">If deserialize this string using format</param>
-        public void showJson(string js, bool isFormat)
+        public void showJson(string js)
         {
-            m_obj = MiniJSON.Json.Deserialize(js, isFormat);
+            m_obj = Json.decode(js);
             m_keyDict = new Dictionary<string, JsonTreeKey>();
             for (int i = 0; i < m_keys.Length; ++i)
             {

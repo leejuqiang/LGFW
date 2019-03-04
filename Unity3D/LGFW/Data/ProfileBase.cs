@@ -236,7 +236,7 @@ namespace LGFW
                 d["data"] = m_dict;
                 d["time"] = m_timeStamps;
                 d["type"] = m_typeDict;
-                string json = MiniJSON.Json.Serialize(d, true);
+                string json = Json.encode(d, true);
                 b = System.Text.Encoding.UTF8.GetBytes(json);
             }
             b = encode(b, m_version);
@@ -315,7 +315,7 @@ namespace LGFW
             else
             {
                 string json = System.Text.Encoding.UTF8.GetString(b);
-                Dictionary<string, object> d = (Dictionary<string, object>)MiniJSON.Json.Deserialize(json, true);
+                Dictionary<string, object> d = (Dictionary<string, object>)Json.decode(json);
                 Dictionary<string, object> td = (Dictionary<string, object>)d["time"];
                 foreach (string k in td.Keys)
                 {

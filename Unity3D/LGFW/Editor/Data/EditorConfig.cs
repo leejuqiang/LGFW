@@ -80,7 +80,7 @@ namespace LGFW
             if (LGFWKit.fileExists(path))
             {
                 string js = LGFWKit.readTextFromFile(path);
-                dict = (Dictionary<string, object>)MiniJSON.Json.Deserialize(js, true);
+                dict = (Dictionary<string, object>)Json.decode(js);
             }
             if (dict == null)
             {
@@ -91,7 +91,7 @@ namespace LGFW
 
         public static void saveTempConfig(Dictionary<string, object> dict)
         {
-            string js = MiniJSON.Json.Serialize(dict, true);
+            string js = Json.encode(dict, true);
             LGFWKit.writeTextToFile("temp.json", js);
         }
     }

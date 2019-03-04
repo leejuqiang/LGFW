@@ -164,7 +164,7 @@ namespace LGFW
             {
                 l.Add(m_trees[i].toJson());
             }
-            return MiniJSON.Json.Serialize(dict, true);
+            return Json.encode(dict, true);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace LGFW
         /// <param name="json">The json string</param>
         public void fromJson(string json)
         {
-            Dictionary<string, object> dict = (Dictionary<string, object>)MiniJSON.Json.Deserialize(json, true);
+            Dictionary<string, object> dict = (Dictionary<string, object>)Json.decode(json);
             m_treeNumber = (int)dict["treeNum"];
             m_maxError = (double)dict["error"];
             m_subsetNumber = (int)dict["setNum"];

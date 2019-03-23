@@ -37,7 +37,7 @@ namespace LGFW
                 string s = o.ToString();
                 for (int i = 0; i < s.Length; ++i)
                 {
-                    if (s[i] == '\"' || s[i] == '\\')
+                    if (s[i] == '"' || s[i] == '\\')
                     {
                         sb.Append('\\');
                     }
@@ -180,6 +180,25 @@ namespace LGFW
             return -1;
         }
 
+        private static void transChar(char ch, StringBuilder sb)
+        {
+            switch (ch)
+            {
+                case 'n':
+                    sb.Append('\n');
+                    break;
+                case 't':
+                    sb.Append('\t');
+                    break;
+                case 'r':
+                    sb.Append('\r');
+                    break;
+                default:
+                    sb.Append(ch);
+                    break;
+            }
+        }
+
         private static string parseString(string js, ref int index, StringBuilder sb)
         {
             if (js[index] != '\"')
@@ -194,7 +213,7 @@ namespace LGFW
                 if (isTrans)
                 {
                     isTrans = false;
-                    sb.Append(ch);
+                    transChar(ch, sb);
                 }
                 else
                 {

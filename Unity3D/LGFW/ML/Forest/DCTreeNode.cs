@@ -112,7 +112,7 @@ namespace LGFW
         public void setLabel(Dictionary<int, int> count)
         {
             m_isLeaf = true;
-            int max = 0;
+            int max = -1;
             int maxIndex = -1;
             foreach (int k in count.Keys)
             {
@@ -178,8 +178,14 @@ namespace LGFW
                         big.Add(data[i]);
                     }
                 }
-                ret[0] = small;
-                ret[1] = big;
+                if (small.Count > 0)
+                {
+                    ret[0] = small;
+                }
+                if (big.Count > 0)
+                {
+                    ret[1] = big;
+                }
             }
             return ret;
         }

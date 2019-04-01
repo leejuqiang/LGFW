@@ -96,6 +96,7 @@ namespace LGFW
                 foreach (string k in dict.Keys)
                 {
                     printObject(k, sb, format);
+                    sb.Append(":");
                     if (!printObject(dict[k], sb, format))
                     {
                         return false;
@@ -303,7 +304,7 @@ namespace LGFW
             for (++index; index < js.Length; ++index)
             {
                 char ch = js[index];
-                if ((ch >= '0' && ch <= '9') || ch == '.')
+                if ((ch >= '0' && ch <= '9') || ch == '.' || ch == '-')
                 {
                 }
                 else
@@ -411,7 +412,7 @@ namespace LGFW
                 case 'F':
                     return parseBool(js, ref index);
                 default:
-                    if (ch <= '9' && ch >= '0')
+                    if ((ch <= '9' && ch >= '0') || ch == '-')
                     {
                         return parseNumber(js, ref index, false);
                     }

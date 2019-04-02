@@ -246,16 +246,19 @@ namespace LGFW
                 {
                     return null;
                 }
-                object o = parseValue(js, ref index, sb);
-                if (o == null)
+                if (js[index] != ']')
                 {
-                    return null;
-                }
-                l.Add(o);
-                index = nextChar(js, index);
-                if (index < 0)
-                {
-                    return null;
+                    object o = parseValue(js, ref index, sb);
+                    if (o == null)
+                    {
+                        return null;
+                    }
+                    l.Add(o);
+                    index = nextChar(js, index);
+                    if (index < 0)
+                    {
+                        return null;
+                    }
                 }
                 if (js[index] == ']')
                 {
@@ -430,35 +433,38 @@ namespace LGFW
                 {
                     return null;
                 }
-                string key = parseString(js, ref index, sb);
-                if (string.IsNullOrEmpty(key))
+                if (js[index] == '"')
                 {
-                    return null;
-                }
-                index = nextChar(js, index);
-                if (index < 0)
-                {
-                    return null;
-                }
-                if (js[index] != ':')
-                {
-                    return null;
-                }
-                index = nextChar(js, index + 1);
-                if (index < 0)
-                {
-                    return null;
-                }
-                object o = parseValue(js, ref index, sb);
-                if (o == null)
-                {
-                    return null;
-                }
-                dict[key] = o;
-                index = nextChar(js, index);
-                if (index < 0)
-                {
-                    return null;
+                    string key = parseString(js, ref index, sb);
+                    if (string.IsNullOrEmpty(key))
+                    {
+                        return null;
+                    }
+                    index = nextChar(js, index);
+                    if (index < 0)
+                    {
+                        return null;
+                    }
+                    if (js[index] != ':')
+                    {
+                        return null;
+                    }
+                    index = nextChar(js, index + 1);
+                    if (index < 0)
+                    {
+                        return null;
+                    }
+                    object o = parseValue(js, ref index, sb);
+                    if (o == null)
+                    {
+                        return null;
+                    }
+                    dict[key] = o;
+                    index = nextChar(js, index);
+                    if (index < 0)
+                    {
+                        return null;
+                    }
                 }
                 if (js[index] == '}')
                 {

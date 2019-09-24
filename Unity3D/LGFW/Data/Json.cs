@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Text;
+using System.Reflection;
 
 namespace LGFW
 {
@@ -12,6 +13,110 @@ namespace LGFW
     /// </summary>
     public class Json
     {
+        private static object serializeSingleType(System.Type t, object obj, bool enumAsNumber)
+        {
+            if (t.IsPrimitive || t == typeof(string))
+            {
+                return obj;
+            }
+            else if (t.IsEnum)
+            {
+                if (enumAsNumber)
+                {
+                    System.Type ut = t.GetEnumUnderlyingType();
+                    return System.Convert.ChangeType(obj, ut);
+                }
+                else
+                {
+                    return obj.ToString();
+                }
+            }
+            else if (t.IsArray)
+            {
+                List<object> ret = new List<object>();
+                System.Array arr = (System.Array)obj;
+                for (int i = 0; i < arr.Length; ++i)
+                {
+                    ret.Add(serializeSingleType(t.GetElementType(), arr.GetValue(i), enumAsNumber));
+                }
+                return ret;
+            }
+            else if (t.IsGenericType)
+            {
+                List<object> ret = new List<object>();
+                ICollection l = (ICollection)obj;
+                foreach (object o in l)
+                {
+                    ret.Add(serializeSingleType(t.GetGenericArguments()[0], o, enumAsNumber));
+                }
+                return ret;
+            }
+            else
+            {
+                return serializeClass(t, obj, enumAsNumber);
+            }
+        }
+
+        private static Dictionary<string, object> serializeClass(System.Type t, object obj, bool enumAsNumber)
+        {
+            FieldInfo[] fields = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            Dictionary<string, FieldInfo> fmap = new Dictionary<string, FieldInfo>();
+            for (int i = 0; i < fields.Length; ++i)
+            {
+                FieldInfo f = fields[i];
+                if (hasAttribute(f, typeof(NoJson)))
+                {
+                    continue;
+                }
+                if (hasAttribute(f, typeof(System.NonSerializedAttribute)))
+                {
+                    continue;
+                }
+                if (f.IsPublic || hasAttribute(f, typeof(SerializeField)))
+                {
+                    object attr = GetAttribute(f, typeof(JsonName));
+                    if (attr == null)
+                    {
+                        fmap.Add(f.Name, f);
+                    }
+                    else
+                    {
+                        fmap.Add(((JsonName)attr).Name, f);
+                    }
+                }
+            }
+            Dictionary<string, object> ret = new Dictionary<string, object>();
+            foreach (string key in fmap.Keys)
+            {
+                FieldInfo f = fmap[key];
+                ret[key] = serializeSingleType(f.FieldType, f.GetValue(obj), enumAsNumber);
+            }
+            return ret;
+        }
+
+        private static System.Attribute GetAttribute(FieldInfo finfo, System.Type attrType)
+        {
+            return finfo.GetCustomAttribute(attrType, true);
+        }
+
+        private static bool hasAttribute(FieldInfo finfo, System.Type attrType)
+        {
+            return GetAttribute(finfo, attrType) != null;
+        }
+
+        /// <summary>
+        /// Serializes an object into a json string
+        /// </summary>
+        /// <param name="obj"> The object</param>
+        /// <param name="enumAsNumber">If true, the enum will be serialized as a number, otherwise a enum will be the a string represents its name</param>
+        /// <param name="format">If true, the numerical type will be added a prefix, so it will be decode as the same type, otherwise, all numerical type will be decode as double</param>
+        /// <returns></returns>
+        public static string objectToJson(object obj, bool enumAsNumber, bool format = false)
+        {
+            Dictionary<string, object> dict = serializeClass(obj.GetType(), obj, enumAsNumber);
+            return encode(dict, format);
+        }
+
         private static void logError(string js, int index)
         {
             if (index < 0 || index >= js.Length)

@@ -156,7 +156,7 @@ namespace LGFW
             return ret;
         }
 
-        private static object[] getAttribute(FieldInfo fInfo)
+        public static object[] getAttribute(FieldInfo fInfo)
         {
             return fInfo.GetCustomAttributes(true);
         }

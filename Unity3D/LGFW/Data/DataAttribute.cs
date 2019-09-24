@@ -6,7 +6,7 @@ using System;
 namespace LGFW
 {
     /// <summary>
-    /// Mark this column in excel will combine all the cells of it with a specific string
+    /// Marks this column in excel will combine all the cells of it with a specific string
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class DataCombineText : Attribute
@@ -41,7 +41,39 @@ namespace LGFW
     }
 
     /// <summary>
-    /// Mark that this value will be split by a specific char into an array
+    /// Marks this field won't be serialized into json
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class NoJson : Attribute
+    {
+
+    }
+
+    /// <summary>
+    /// Marks this field will be serialized into json using this name as the key instead of the variable name
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class JsonName : Attribute
+    {
+        private string m_name;
+
+        /// <summary>
+        /// The key name
+        /// </summary>
+        /// <value>The key name</value>
+        public string Name
+        {
+            get { return m_name; }
+        }
+
+        public JsonName(string name)
+        {
+            m_name = name;
+        }
+    }
+
+    /// <summary>
+    /// Marks that this value will be split by a specific char into an array
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class DataSplit : Attribute

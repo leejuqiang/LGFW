@@ -6,6 +6,14 @@ using UnityEditor;
 namespace LGFW
 {
     [System.Serializable]
+    public class JsonConfig
+    {
+        public ScriptableObject m_asset;
+        public bool m_enumAsNumber;
+        public bool m_useFormat;
+    }
+
+    [System.Serializable]
     public class ExcelConfig
     {
         public string m_dataPath;
@@ -31,6 +39,29 @@ namespace LGFW
         }
     }
 
+    [System.Serializable]
+    public class TextureImporterConfig
+    {
+        public TextureImporterType m_textureType = TextureImporterType.Default;
+        public TextureImporterShape m_textureShape = TextureImporterShape.Texture2D;
+        public TextureImporterAlphaSource m_alphaSource = TextureImporterAlphaSource.FromInput;
+        public bool m_readable = false;
+        public bool m_sRGB = false;
+        public bool m_alphaIsTransparency = true;
+        public bool m_enableMipMap = false;
+        public TextureWrapMode m_wrapMode = TextureWrapMode.Clamp;
+        public FilterMode m_filter = FilterMode.Bilinear;
+        public TextureImporterCompression m_compression = TextureImporterCompression.Uncompressed;
+        public int m_maxTextureSize = 2048;
+        public SpriteImportMode m_spriteMode = SpriteImportMode.None;
+        public TextureImporterNPOTScale m_npot = TextureImporterNPOTScale.None;
+
+        public float m_pixelPerUnit = 1;
+        public SpriteMeshType m_spriteMeshType = SpriteMeshType.FullRect;
+        public bool m_enableSpritePhysicsShape = false;
+        public bool m_enable;
+    }
+
     public class EditorConfig : ScriptableObject
     {
 
@@ -48,8 +79,11 @@ namespace LGFW
             }
         }
 
+        public TextureImporterConfig m_defaultTextureImporter;
+
         public string m_dataFieldPrefix = "m_";
         public ExcelConfig[] m_excelData;
+        public JsonConfig[] m_jsonExport;
 
         public ExcelConfig getDataConfig(string path)
         {
@@ -71,6 +105,25 @@ namespace LGFW
         public static void selectConfig()
         {
             Selection.activeObject = EditorConfig.Instance;
+        }
+
+        [MenuItem("LGFW/Editor/Export Json Configuration", false, (int)'c')]
+        public static void exportJson()
+        {
+            string path = LEditorKits.openSaveToFolderPanel("Select a folder");
+            if (!string.IsNullOrEmpty(path))
+            {
+                EditorConfig ec = EditorConfig.Instance;
+                foreach (JsonConfig jc in ec.m_jsonExport)
+                {
+                    if (jc.m_asset != null)
+                    {
+                        string js = Json.objectToJson(jc.m_asset, jc.m_enumAsNumber, jc.m_useFormat);
+                        string savePath = path + "/" + jc.m_asset.name + ".json";
+                        LGFWKit.writeTextToFile(savePath, js);
+                    }
+                }
+            }
         }
 
         public static Dictionary<string, object> getTempConfig()

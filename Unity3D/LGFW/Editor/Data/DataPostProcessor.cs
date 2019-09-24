@@ -31,14 +31,15 @@ namespace LGFW
                     }
                 }
                 dict.Remove("excel");
-                EditorConfig.saveTempConfig(dict);
             }
+            EditorConfig.saveTempConfig(dict);
         }
 
         public static void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] movedFromPath)
         {
             EditorConfig ec = EditorConfig.Instance;
             List<object> l = new List<object>();
+            List<object> jsonL = new List<object>();
             for (int i = 0; i < imported.Length; ++i)
             {
                 ExcelConfig c = ec.getDataConfig(imported[i]);
@@ -69,11 +70,14 @@ namespace LGFW
                     }
                 }
             }
-            if (l.Count > 0)
+            if (l.Count > 0 || jsonL.Count > 0)
             {
                 AssetDatabase.Refresh();
                 Dictionary<string, object> dict = EditorConfig.getTempConfig();
-                dict["excel"] = l;
+                if (l.Count > 0)
+                {
+                    dict["excel"] = l;
+                }
                 EditorConfig.saveTempConfig(dict);
             }
         }

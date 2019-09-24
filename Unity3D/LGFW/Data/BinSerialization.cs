@@ -114,14 +114,28 @@ namespace LGFW
         {
             get
             {
-                float f = System.BitConverter.ToSingle(m_buffer, m_offset);
+                float f = 0;
+                if (System.BitConverter.IsLittleEndian)
+                {
+                    byte[] b = reverseByte(m_buffer, m_offset, 4);
+                    f = System.BitConverter.ToSingle(b, 0);
+                }
+                else
+                {
+                    f = System.BitConverter.ToSingle(m_buffer, m_offset);
+                }
                 m_offset += 4;
                 return f;
             }
 
             set
             {
+
                 byte[] b = System.BitConverter.GetBytes(value);
+                if (System.BitConverter.IsLittleEndian)
+                {
+                    reverseByte(b);
+                }
                 writeByteArray(b);
             }
         }
@@ -143,7 +157,16 @@ namespace LGFW
         {
             get
             {
-                double d = System.BitConverter.ToDouble(m_buffer, m_offset);
+                double d = 0;
+                if (System.BitConverter.IsLittleEndian)
+                {
+                    byte[] b = reverseByte(m_buffer, m_offset, 8);
+                    d = System.BitConverter.ToDouble(b, 0);
+                }
+                else
+                {
+                    d = System.BitConverter.ToDouble(m_buffer, m_offset);
+                }
                 m_offset += 8;
                 return d;
             }
@@ -151,6 +174,10 @@ namespace LGFW
             set
             {
                 byte[] b = System.BitConverter.GetBytes(value);
+                if (System.BitConverter.IsLittleEndian)
+                {
+                    reverseByte(b);
+                }
                 writeByteArray(b);
             }
         }
@@ -597,6 +624,28 @@ namespace LGFW
                 ++m_offset;
                 m_buffer[m_offset] = (byte)(value & 0xff);
                 ++m_offset;
+            }
+        }
+
+        private byte[] reverseByte(byte[] b, int start, int length)
+        {
+            byte[] ret = new byte[length];
+            System.Array.Copy(ret, 0, b, start, length);
+            reverseByte(ret);
+            return ret;
+        }
+
+        private void reverseByte(byte[] b)
+        {
+            int start = 0;
+            int end = b.Length - 1;
+            while (start < end)
+            {
+                byte temp = b[start];
+                b[start] = b[end];
+                b[end] = temp;
+                ++start;
+                ++end;
             }
         }
 

@@ -33,10 +33,11 @@ namespace LGFW
         /// Constructor
         /// </summary>
         /// <param name="inputNumber">The input number of the nerual network</param>
-        public NeuralNetwork(int inputNumber)
+        public NeuralNetwork(int inputNumber, number learningRate)
         {
             m_layers = new List<NNLayerBase>();
             m_inputNumber = inputNumber;
+            m_learningRate = learningRate;
         }
 
         /// <summary>

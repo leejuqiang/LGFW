@@ -26,7 +26,7 @@ namespace LGFW
         {
             readData();
 
-            m_nn = new NeuralNetwork(784);
+            m_nn = new NeuralNetwork(784, 0.001);
             NNLayerBase l1 = new NNConvolutionLayer(1, 1, new Vector2Int(28, 28), new Vector2Int(2, 2), new Vector2Int(1, 1), true);
             // l1.setDropoutRate(0.3f);
             m_nn.addLayer(l1);
@@ -34,7 +34,7 @@ namespace LGFW
             m_nn.addLayer(l2);
             l1 = new NNLinearLayer(10);
             // l1.setDropoutRate(0.3f);
-            l2 = new NNSigmoidLayer();
+            l2 = new NNSoftMaxLayer();
             m_nn.addLayer(l1);
             m_nn.addLayer(l2);
             m_nn.initParameter();

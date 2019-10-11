@@ -82,6 +82,7 @@ namespace LGFW
         {
             LinkedListNode<Transform> n = l.First;
             Transform t = m_skinMeshRender.transform;
+#if UNITY_EDITOR
             while (n != null)
             {
                 Transform tc = LEditorKits.getChildTransformByName(t, n.Value.name);
@@ -97,11 +98,13 @@ namespace LGFW
                 t = tc;
                 n = n.Next;
             }
+#endif
             return t;
         }
 
         private void createBones(MeshEditorBone[] bones)
         {
+#if UNITY_EDITOR
             if (m_skinMeshRender == null)
             {
                 return;
@@ -114,10 +117,12 @@ namespace LGFW
                 ts[i] = t;
             }
             m_skinMeshRender.bones = ts;
+#endif
         }
 
         public void createMesh()
         {
+#if UNITY_EDITOR
             if (string.IsNullOrEmpty(m_savePath))
             {
                 return;
@@ -241,6 +246,7 @@ namespace LGFW
             }
             me.triangles = indexL.ToArray();
             UnityEditor.EditorUtility.SetDirty(me);
+#endif
         }
 
 #if UNITY_EDITOR

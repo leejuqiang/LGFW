@@ -36,6 +36,7 @@ namespace LGFW
 
         public void createMaterial()
         {
+#if UNITY_EDITOR
             if (m_material == null)
             {
                 string path = LEditorKits.getAssetDirectory(this);
@@ -47,6 +48,7 @@ namespace LGFW
                 UnityEditor.AssetDatabase.CreateAsset(m, path + "/" + this.name + ".mat");
                 m_material = m;
             }
+#endif
         }
 
 #if UNITY_EDITOR

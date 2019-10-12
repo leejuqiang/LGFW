@@ -8,56 +8,35 @@ namespace LGFW
 {
     public class WindowDebugParam
     {
-        public int m_int;
-        public float m_float;
-        public double m_double;
-        public string m_string;
-        public bool m_bool;
-        public Vector2 m_vector2;
-        public Vector3 m_vector3;
-        public Vector4 m_vector4;
-        public Rect m_rect;
+        public string m_name;
+        public object m_value;
+        public List<object> m_list;
 
-        public object getValue(ParameterInfo p)
+        public bool resizeList(int size)
         {
-            System.Type t = p.ParameterType;
-            if (t == typeof(int))
+            if (size == m_list.Count)
             {
-                return m_int;
+                return false;
             }
-            if (t == typeof(float))
+            if (size < m_list.Count)
             {
-                return m_float;
+                m_list.RemoveRange(size, m_list.Count - size);
             }
-            if (t == typeof(double))
+            else
             {
-                return m_double;
+                while (m_list.Count < size)
+                {
+                    if (m_list.Count > 0)
+                    {
+                        m_list.Add(m_list[m_list.Count - 1]);
+                    }
+                    else
+                    {
+                        m_list.Add(null);
+                    }
+                }
             }
-            if (t == typeof(string))
-            {
-                return m_string;
-            }
-            if (t == typeof(bool))
-            {
-                return m_bool;
-            }
-            if (t == typeof(Vector2))
-            {
-                return m_vector2;
-            }
-            if (t == typeof(Vector3))
-            {
-                return m_vector3;
-            }
-            if (t == typeof(Vector4))
-            {
-                return m_vector4;
-            }
-            if (t == typeof(Rect))
-            {
-                return m_rect;
-            }
-            return null;
+            return true;
         }
     }
 
@@ -69,6 +48,7 @@ namespace LGFW
         private string m_searchText;
         private GameObject m_lastGo;
         private bool m_includeInherit;
+        private bool m_includePrivate;
 
         private MonoBehaviour[] m_monos;
         private string[] m_monoNames;
@@ -127,9 +107,12 @@ namespace LGFW
             }
         }
 
-        private bool checkParam(ParameterInfo p)
+        private bool supportParameterType(System.Type t)
         {
-            System.Type t = p.ParameterType;
+            if (t.IsEnum)
+            {
+                return true;
+            }
             if (t == typeof(int))
             {
                 return true;
@@ -169,44 +152,118 @@ namespace LGFW
             return false;
         }
 
-        private void drawParam(ParameterInfo p, int i)
+        private bool isList(System.Type t)
+        {
+            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>);
+        }
+
+        private bool checkParam(ParameterInfo p)
         {
             System.Type t = p.ParameterType;
+            if (t.IsArray)
+            {
+                return supportParameterType(t.GetElementType());
+            }
+            if (isList(t))
+            {
+                return supportParameterType(t.GetGenericArguments()[0]);
+            }
+            return supportParameterType(t);
+        }
+
+        private object getObjectValue<T>(object obj)
+        {
+            T ret = default;
+            if (obj != null)
+            {
+                ret = (T)obj;
+            }
+            return ret;
+        }
+
+        private object drawEnum(System.Type t, object obj, string name)
+        {
+            System.Array arr = System.Enum.GetValues(t);
+            System.Enum e = EditorGUILayout.EnumPopup(name, (System.Enum)System.Enum.ToObject(t, getObjectValue<int>(obj)));
+            return (int)System.Convert.ChangeType(e, System.Enum.GetUnderlyingType(t));
+        }
+
+        private void drawList(System.Type t, WindowDebugParam p, string name)
+        {
+            if (p.m_list == null)
+            {
+                p.m_list = new List<object>();
+            }
+            EditorGUILayout.LabelField(name);
+            ++EditorGUI.indentLevel;
+            int s = EditorGUILayout.IntField("size", p.m_list.Count);
+            p.resizeList(s);
+            for (int i = 0; i < s; ++i)
+            {
+                p.m_list[i] = drawValue(t, p.m_list[i], i.ToString());
+            }
+            --EditorGUI.indentLevel;
+        }
+
+        private object drawValue(System.Type t, object obj, string name)
+        {
+            if (t.IsEnum)
+            {
+                return drawEnum(t, obj, name);
+            }
             if (t == typeof(int))
             {
-                m_paramValues[i].m_int = EditorGUILayout.IntField(p.Name, m_paramValues[i].m_int);
+                return EditorGUILayout.IntField(name, (int)(getObjectValue<int>(obj)));
             }
             else if (t == typeof(float))
             {
-                m_paramValues[i].m_float = EditorGUILayout.FloatField(p.Name, m_paramValues[i].m_float);
+                return EditorGUILayout.FloatField(name, (float)getObjectValue<float>(obj));
             }
             else if (t == typeof(double))
             {
-                m_paramValues[i].m_double = EditorGUILayout.DoubleField(p.Name, m_paramValues[i].m_double);
+                return EditorGUILayout.DoubleField(name, (double)getObjectValue<double>(obj));
             }
             else if (t == typeof(string))
             {
-                m_paramValues[i].m_string = EditorGUILayout.TextField(p.Name, m_paramValues[i].m_string);
+                return EditorGUILayout.TextField(name, getObjectValue<string>(obj).ToString());
             }
             else if (t == typeof(bool))
             {
-                m_paramValues[i].m_bool = EditorGUILayout.Toggle(p.Name, m_paramValues[i].m_bool);
+                return EditorGUILayout.Toggle(name, (bool)getObjectValue<bool>(obj));
             }
             else if (t == typeof(Vector2))
             {
-                m_paramValues[i].m_vector2 = EditorGUILayout.Vector2Field(p.Name, m_paramValues[i].m_vector2);
+                return EditorGUILayout.Vector2Field(name, (Vector2)getObjectValue<Vector2>(obj));
             }
             else if (t == typeof(Vector3))
             {
-                m_paramValues[i].m_vector3 = EditorGUILayout.Vector3Field(p.Name, m_paramValues[i].m_vector3);
+                return EditorGUILayout.Vector3Field(name, (Vector3)getObjectValue<Vector3>(obj));
             }
             else if (t == typeof(Vector4))
             {
-                m_paramValues[i].m_vector4 = EditorGUILayout.Vector4Field(p.Name, m_paramValues[i].m_vector4);
+                return EditorGUILayout.Vector4Field(name, (Vector4)getObjectValue<Vector4>(obj));
             }
             else if (t == typeof(Rect))
             {
-                m_paramValues[i].m_rect = EditorGUILayout.RectField(p.Name, m_paramValues[i].m_rect);
+                return EditorGUILayout.RectField(name, (Rect)getObjectValue<Rect>(obj));
+            }
+            return null;
+        }
+
+        private void drawParam(ParameterInfo p, int i)
+        {
+            System.Type t = p.ParameterType;
+            if (t.IsArray)
+            {
+                drawList(t.GetElementType(), m_paramValues[i], p.Name);
+            }
+            else if (isList(t))
+            {
+                drawList(t.GetGenericArguments()[0], m_paramValues[i], p.Name);
+            }
+            else
+            {
+                m_paramValues[i].m_value = drawValue(t, m_paramValues[i].m_value, p.Name);
             }
         }
 
@@ -238,10 +295,14 @@ namespace LGFW
             {
                 MonoBehaviour m = m_monos[m_selectMono];
                 System.Type t = m.GetType();
-                BindingFlags flag = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+                BindingFlags flag = BindingFlags.Public | BindingFlags.Instance;
                 if (!m_includeInherit)
                 {
                     flag |= BindingFlags.DeclaredOnly;
+                }
+                if (m_includePrivate)
+                {
+                    flag |= BindingFlags.NonPublic;
                 }
                 MethodInfo[] infos = t.GetMethods(flag);
                 for (int i = 0; i < infos.Length; ++i)
@@ -280,10 +341,21 @@ namespace LGFW
             {
                 return;
             }
+            bool change = false;
             bool inherit = EditorGUILayout.Toggle("Include Inheritance", m_includeInherit);
             if (inherit != m_includeInherit)
             {
+                change = true;
                 m_includeInherit = inherit;
+            }
+            bool includePrivate = EditorGUILayout.Toggle("Include private", m_includePrivate);
+            if (includePrivate != m_includePrivate)
+            {
+                change = true;
+                m_includePrivate = includePrivate;
+            }
+            if (change)
+            {
                 findAllFunctions();
             }
             int index = EditorGUILayout.Popup("Script", m_selectMono, m_monoNames);
@@ -326,7 +398,26 @@ namespace LGFW
                     object[] os = new object[ps.Length];
                     for (int i = 0; i < os.Length; ++i)
                     {
-                        os[i] = m_paramValues[i].getValue(ps[i]);
+                        System.Type pt = ps[i].ParameterType;
+                        if (pt.IsArray)
+                        {
+                            var arr = System.Array.CreateInstance(pt.GetElementType(), m_paramValues[i].m_list.Count);
+                            System.Array.Copy(arr, m_paramValues[i].m_list.ToArray(), m_paramValues[i].m_list.Count);
+                            os[i] = arr;
+                        }
+                        else if (isList(pt))
+                        {
+                            IList l = (IList)System.Activator.CreateInstance(pt);
+                            for (int j = 0; j < m_paramValues[i].m_list.Count; ++j)
+                            {
+                                l.Add(m_paramValues[i].m_list[j]);
+                            }
+                            os[i] = l;
+                        }
+                        else
+                        {
+                            os[i] = m_paramValues[i].m_value;
+                        }
                     }
                     object o = m_displayMethods[m_selectFunction].Invoke(m_monos[m_selectMono], os);
                     if (o != null)

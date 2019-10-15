@@ -118,7 +118,7 @@ namespace LGFW
                 {
                     if (jc.m_asset != null)
                     {
-                        string js = Json.objectToJson(jc.m_asset, jc.m_enumAsNumber, jc.m_useFormat);
+                        string js = Json.encode(JsonSerializer.serializeObject(jc.m_asset, jc.m_enumAsNumber, true), jc.m_useFormat);
                         string savePath = path + "/" + jc.m_asset.name + ".json";
                         LGFWKit.writeTextToFile(savePath, js);
                     }

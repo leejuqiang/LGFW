@@ -166,7 +166,15 @@ namespace LGFW
             {
                 m_selectFunction = 0;
             }
-            m_selectFunction = EditorGUILayout.Popup("Method", m_selectFunction, m_displayFunctions.ToArray());
+            int select = EditorGUILayout.Popup("Method", m_selectFunction, m_displayFunctions.ToArray());
+            if (select != m_selectFunction)
+            {
+                m_selectFunction = select;
+                for (int i = 0; i < m_paramValues.Count; ++i)
+                {
+                    m_paramValues[i] = null;
+                }
+            }
             if (m_selectFunction < m_displayMethods.Count)
             {
                 EditorGUILayout.LabelField("Parameters");
@@ -193,7 +201,7 @@ namespace LGFW
                     object[] os = new object[ps.Length];
                     for (int i = 0; i < ps.Length; ++i)
                     {
-                        os[i] = m_drawer.convertBack(ps[i].ParameterType, m_paramValues[i]);
+                        os[i] = m_paramValues[i];
                     }
                     object o = m_displayMethods[m_selectFunction].Invoke(m_monos[m_selectMono], os);
                     if (o != null)

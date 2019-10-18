@@ -312,7 +312,7 @@ namespace LGFW
             }
             if (t.IsArray)
             {
-                return drawList(JsonSerializer.arrayToList(o), t.GetElementType(), name, parentName);
+                return convertBack(t, drawList(JsonSerializer.arrayToList(o), t.GetElementType(), name, parentName));
             }
             if (o == null)
             {
@@ -320,17 +320,17 @@ namespace LGFW
             }
             if (JsonSerializer.isList(t))
             {
-                return drawList(JsonSerializer.ilistToList(o), t.GetGenericArguments()[0], name, parentName);
+                return convertBack(t, drawList(JsonSerializer.ilistToList(o), t.GetGenericArguments()[0], name, parentName));
             }
             if (JsonSerializer.isDictionary(t))
             {
                 Dictionary<object, object> dict = JsonSerializer.idictionaryToDict(o);
                 var ts = t.GetGenericArguments();
-                return drawDict(dict, ts[0], ts[1], name, parentName);
+                return convertBack(t, drawDict(dict, ts[0], ts[1], name, parentName));
             }
             if (JsonSerializer.isSet(t))
             {
-                return drawSet(JsonSerializer.isetToList(o), t.GetGenericArguments()[0], name, parentName);
+                return convertBack(t, drawSet(JsonSerializer.isetToList(o), t.GetGenericArguments()[0], name, parentName));
             }
             bool isShow = true;
             string pn = drawFoldOut(parentName, name, ref isShow);
@@ -343,7 +343,6 @@ namespace LGFW
                 {
                     object value = fields[i].GetValue(o);
                     value = drawObject(value, fields[i].FieldType, names[i], pn);
-                    value = convertBack(fields[i].FieldType, value);
                     fields[i].SetValue(o, value);
                 }
                 --EditorGUI.indentLevel;

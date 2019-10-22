@@ -5,86 +5,100 @@ using UnityEngine;
 namespace LGFW
 {
     /// <summary>
-    /// Base class for a a* star node
+    /// Base class for an a* star node
     /// </summary>
-    public class NavAStarNode : MPItem
+    public class NavAStarNode : GraphNode
     {
-
         /// <summary>
-        /// The id
+        /// The estimate cost to the end node, h value
         /// </summary>
-        public int m_id;
-
+        public float m_h;
         /// <summary>
-        /// The g value
-        /// </summary>
-        public float m_g;
-        /// <summary>
-        /// The cost to the end node
-        /// </summary>
-        public float m_cost;
-        /// <summary>
-        /// The cost won't change
+        /// The cost of the node
         /// </summary>
         public float m_fixCost;
-        /// <summary>
-        /// Used for linked list
-        /// </summary>
-        public NavAStarNode m_previous;
-        /// <summary>
-        /// Used for linked list
-        /// </summary>
-        public NavAStarNode m_next;
-
         /// <summary>
         /// The parent node
         /// </summary>
         public NavAStarNode m_parent;
         /// <summary>
-        /// A flag to decide the node is in map
+        /// A flag to decide if the node is accessible
         /// </summary>
-        public bool m_map;
-        /// <summary>
-        /// If the node is closed
-        /// </summary>
-        public bool m_close;
+        public bool m_accessible;
 
-        /// <summary>
-        /// The total cost, h value
-        /// </summary>
-        public float m_finalCost;
+        protected float m_g;
 
+        protected float m_f;
         /// <summary>
-        /// Clears the node's flag
+        /// The f value, g + h
         /// </summary>
         /// <value></value>
-        public virtual bool Clear
+        public float F
         {
-            get { return m_map; }
+            get { return m_f; }
         }
 
         /// <summary>
-        /// Resets the nodes
+        ///  The total cost, g value
+        /// </summary>
+        /// <value></value>
+        public float G
+        {
+            get { return m_g; }
+            set
+            {
+                m_g = value;
+                m_f = m_g + m_h;
+            }
+        }
+
+        /// <summary>
+        /// The distance to the end node
+        /// </summary>
+        public float m_range;
+
+        public NavAStarNode(int id) : base(id)
+        {
+
+        }
+
+        /// <summary>
+        /// Computes the h value to the end node
+        /// </summary>
+        /// <param name="end">The end node</param>
+        public virtual void computeH(NavAStarNode end)
+        {
+        }
+
+        /// <summary>
+        /// Computes the distance to the end node
+        /// </summary>
+        /// <param name="end">The end node</param>
+        public virtual void computeRange(NavAStarNode end)
+        {
+
+        }
+
+        /// <inheritdoc>
+        public override bool Visited
+        {
+            get { return !m_accessible || m_visited; }
+            set
+            {
+                m_visited = value;
+            }
+        }
+
+        /// <summary>
+        /// Resets the node
         /// </summary>
         public virtual void reset()
         {
-            m_close = false;
-            m_g = -1;
-            m_cost = -1;
+            m_h = 0;
             m_parent = null;
-        }
-
-        /// <summary>
-        /// Computes the final cost
-        /// </summary>
-        public void computeCost()
-        {
-            m_finalCost = m_cost + m_g + m_fixCost;
-        }
-
-        public virtual string print()
-        {
-            return "";
+            m_visited = false;
+            m_g = 0;
+            m_range = -1;
         }
     }
 }

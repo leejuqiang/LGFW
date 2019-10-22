@@ -923,6 +923,7 @@ namespace LGFW
             LEditorKits.addComponentToSelectedObjects<Maze>(true);
         }
 
+        public List<TilesNavAstarNode> m_path;
         private void OnDrawGizmos()
         {
             if (m_matrix != null && m_matrix.Length == m_width * m_height)
@@ -978,6 +979,16 @@ namespace LGFW
                         }
                     }
                 }
+
+                if (m_path != null)
+                {
+                    Gizmos.color = Color.yellow;
+                    for (int i = 0; i < m_path.Count; ++i)
+                    {
+                        Gizmos.DrawSphere(new Vector3(m_path[i].m_x, m_path[i].m_y, 0), 0.5f);
+                    }
+                }
+
                 Gizmos.color = co;
             }
         }

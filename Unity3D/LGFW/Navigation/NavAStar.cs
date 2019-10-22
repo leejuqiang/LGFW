@@ -8,42 +8,18 @@ namespace LGFW
     /// An a* navigation base class
     /// </summary>
     /// <typeparam name="T">The type of the node</typeparam>
-    public abstract class NavAStar<T> : MonoBehaviour where T : NavAStarNode, new()
+    public class NavAStar<T> : Graph<T> where T : NavAStarNode
     {
-
-        public const byte EMPTY = 1;
-        public const byte FILLED = 0;
-        public const byte RANGE = 2;
-
-        protected T[] m_nodes;
-
-        protected NavAStarNode m_openHead;
-        protected NavAStarNode m_openEnd;
-        protected T[] m_surroundNodes;
-        protected int m_surroundNodesCount;
         protected T m_start;
         protected T m_end;
         protected float m_stopRange;
 
-        protected MemoryPool<T> m_pool = new MemoryPool<T>(createNode);
-
-        /// <summary>
-        /// Clears the map
-        /// </summary>
-        public virtual void clearMap()
+        /// <inheritdoc>
+        public override void clear()
         {
-            if (m_nodes != null)
-            {
-                for (int i = 0; i < m_nodes.Length; ++i)
-                {
-                    m_pool.reclaimItem(m_nodes[i]);
-                }
-            }
-            m_nodes = null;
+            base.clear();
             m_start = null;
             m_end = null;
-            m_openEnd = null;
-            m_openHead = null;
         }
 
         /// <summary>
@@ -51,24 +27,15 @@ namespace LGFW
         /// </summary>
         public virtual void clearSearch()
         {
-            m_openHead = null;
-            m_openEnd = null;
-            for (int i = 0; i < m_nodes.Length; ++i)
+            m_openSet.Clear();
+            m_openList.Clear();
+            m_start = null;
+            m_end = null;
+            for (int i = 0; i < m_nodes.Count; ++i)
             {
                 m_nodes[i].reset();
             }
-            if (m_stopRange > 0)
-            {
-                initRange();
-            }
         }
-
-        protected static T createNode(object data)
-        {
-            return new T();
-        }
-
-        protected abstract void initRange();
 
         /// <summary>
         /// Gets a path to a node based on the navigation information last searching
@@ -90,147 +57,69 @@ namespace LGFW
             return p;
         }
 
-        protected void removeOpenHead()
+        protected bool addToOpenList(T n, T parent, float edgeCost)
         {
-            if (m_openHead.m_next == null)
+            if (n.Visited)
             {
-                m_openHead = null;
-                m_openEnd = null;
-                return;
+                return false;
             }
-            m_openHead = m_openHead.m_next;
-            m_openHead.m_previous = null;
+            float g = parent.G + n.m_fixCost + edgeCost;
+            if (m_openSet.Contains(n))
+            {
+                if (g < n.G)
+                {
+                    n.G = g;
+                    n.m_parent = parent;
+                }
+                return false;
+            }
+            n.m_parent = parent;
+            n.G = g;
+            m_openSet.Add(n);
+            m_openList.Add(n);
+            return true;
         }
 
-        protected void moveForward(NavAStarNode n)
+        protected T getFromOpenList()
         {
-            n.m_previous.m_next = n.m_next;
-            if (n.m_next != null)
+            float min = m_openList[0].F;
+            int index = 0;
+            for (int i = 1; i < m_openList.Count; ++i)
             {
-                n.m_next.m_previous = n.m_previous;
-            }
-            else
-            {
-                m_openEnd = n.m_previous;
-            }
-            NavAStarNode p = n.m_previous.m_previous;
-            while (p != null)
-            {
-                if (p.m_finalCost < n.m_finalCost)
+                if (m_openList[i].F < min)
                 {
-                    n.m_previous = p;
-                    n.m_next = p.m_next;
-                    p.m_next = n;
-                    n.m_next.m_previous = n;
-                    return;
+                    min = m_openList[i].F;
+                    index = i;
                 }
             }
-            n.m_previous = null;
-            n.m_next = m_openHead;
-            m_openHead.m_previous = n;
-            m_openHead = n;
+            var ret = m_openList[index];
+            int last = m_openList.Count - 1;
+            m_openList[index] = m_openList[last];
+            m_openList.RemoveAt(last);
+            m_openSet.Remove(ret);
+            ret.Visited = true;
+            return ret;
         }
 
-        protected void addToOpenList(NavAStarNode n)
+        protected bool isEnd(T n)
         {
-            if (m_openHead == null)
+            if (!n.m_accessible)
             {
-                n.m_next = null;
-                n.m_previous = null;
-                m_openHead = n;
-                m_openEnd = n;
-                return;
+                return false;
             }
-            NavAStarNode t = m_openHead;
-            while (t != null)
+            if (n == m_end)
             {
-                if (t.m_finalCost >= n.m_finalCost)
+                return true;
+            }
+            if (m_stopRange > 0)
+            {
+                if (n.m_range >= 0 && n.m_range <= m_stopRange)
                 {
-                    n.m_next = t;
-                    n.m_previous = t.m_previous;
-                    t.m_previous = n;
-                    if (n.m_previous == null)
-                    {
-                        m_openHead = n;
-                    }
-                    else
-                    {
-                        n.m_previous.m_next = n;
-                    }
-                    return;
+                    return true;
                 }
-                t = t.m_next;
             }
-            n.m_next = null;
-            n.m_previous = m_openEnd;
-            m_openEnd.m_next = n;
-            m_openEnd = n;
+            return false;
         }
-
-        protected abstract void findSurroundNodes(T n);
-        protected abstract float computeCost(T n);
-        protected abstract float computeG(T n, T parent);
-
-        protected void searchNode(T n)
-        {
-            findSurroundNodes(n);
-            for (int i = 0; i < m_surroundNodesCount; ++i)
-            {
-                T t = m_surroundNodes[i];
-                if (t == null)
-                {
-                    continue;
-                }
-                if (t == m_end)
-                {
-                    t.m_parent = n;
-                    m_openHead = t;
-                    return;
-                }
-                else
-                {
-                    if (t.Clear && !t.m_close)
-                    {
-                        if (t.m_g < 0)
-                        {
-                            t.m_parent = n;
-                            t.m_g = computeG(t, n);
-                            if (t.m_cost < 0)
-                            {
-                                t.m_cost = computeCost(t);
-                            }
-                            t.computeCost();
-                            addToOpenList(t);
-                        }
-                        else
-                        {
-                            float g = computeG(t, n);
-                            if (g < t.m_g)
-                            {
-                                t.m_parent = n;
-                                t.m_g = g;
-                                t.computeCost();
-                                moveNodeInList(t);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        protected void moveNodeInList(NavAStarNode n)
-        {
-            if (m_openHead.m_next == null)
-            {
-                return;
-            }
-            if (n.m_previous != null && n.m_finalCost < n.m_previous.m_finalCost)
-            {
-                moveForward(n);
-            }
-        }
-
-        protected abstract float getRangeOfNodes(T node1, T node2);
 
         /// <summary>
         /// Finds a path from start node to end node
@@ -254,62 +143,61 @@ namespace LGFW
         /// <returns>The last node of the path</returns>
         public virtual T findPath(T start, T end, float range = 0)
         {
-            m_start = start;
-            m_end = end;
             m_stopRange = range;
             clearSearch();
             if (start == null || end == null)
             {
                 return null;
             }
+            if (!start.m_accessible || !end.m_accessible)
+            {
+                return null;
+            }
+            m_start = start;
+            m_end = end;
+            if (isEnd(start))
+            {
+                end.m_parent = null;
+                return end;
+            }
             if (m_stopRange > 0)
             {
-                float r = getRangeOfNodes(start, end);
-                if (r <= m_stopRange)
+                for (int i = 0; i < m_nodes.Count; ++i)
                 {
-                    start.m_parent = null;
-                    return start;
+                    m_nodes[i].computeH(m_end);
+                    m_nodes[i].computeRange(m_end);
                 }
             }
             else
             {
-                if (!start.Clear || !end.Clear)
+                for (int i = 0; i < m_nodes.Count; ++i)
                 {
-                    return null;
-                }
-                if (start == end)
-                {
-                    end.m_parent = null;
-                    return end;
+                    m_nodes[i].computeH(m_end);
                 }
             }
-
-            start.m_close = true;
-            addToOpenList(start);
-            while (m_openHead != null)
+            m_start.G = 0;
+            m_openSet.Add(m_start);
+            m_openList.Add(m_start);
+            T n = null;
+            while (m_openList.Count > 0)
             {
-                NavAStarNode n = m_openHead;
-                if (n == end)
+                n = getFromOpenList();
+                for (int i = 0; i < n.m_outEdge.Count; ++i)
                 {
-                    break;
-                }
-                removeOpenHead();
-                n.m_close = true;
-                searchNode((T)n);
-            }
-            if (end.m_parent == null)
-            {
-                return null;
-            }
-            if (m_stopRange > 0)
-            {
-                end = (T)end.m_parent;
-                while (end != start && getRangeOfNodes(end, m_end) < m_stopRange)
-                {
-                    end = (T)end.m_parent;
+                    var nn = (T)n.m_outEdge[i].m_end;
+                    if (isEnd(nn))
+                    {
+                        nn.m_parent = n;
+                        n = nn;
+                        return nn;
+                    }
+                    else
+                    {
+                        addToOpenList(nn, n, n.m_outEdge[i].m_cost);
+                    }
                 }
             }
-            return end;
+            return null;
         }
     }
 }

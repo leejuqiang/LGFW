@@ -128,23 +128,15 @@ namespace LGFW
             return ret;
         }
 
-        /// <summary>
-        /// If from node[0], each node can be visited, then this graph is fully connected
-        /// </summary>
-        /// <returns>True if the graph is fully connected</returns>
-        public virtual bool isFullyConnected()
+        protected bool isFullyConnectedFromNode(T node)
         {
-            if (m_nodes.Count <= 0)
-            {
-                return false;
-            }
             for (int i = 0; i < m_nodes.Count; ++i)
             {
                 m_nodes[i].Visited = false;
             }
             m_openList.Clear();
             m_openSet.Clear();
-            tryToAddToOpenList(m_nodes[0]);
+            tryToAddToOpenList(node);
             while (m_openList.Count > 0)
             {
                 var n = removeFromOpenList();
@@ -161,6 +153,26 @@ namespace LGFW
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// If from a node in the graph, each node can be visited, then this graph is fully connected
+        /// </summary>
+        /// <returns>True if the graph is fully connected</returns>
+        public virtual bool isFullyConnected()
+        {
+            if (m_nodes.Count <= 0)
+            {
+                return false;
+            }
+            for (int i = 0; i < m_nodes.Count; ++i)
+            {
+                if (isFullyConnectedFromNode(m_nodes[i]))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

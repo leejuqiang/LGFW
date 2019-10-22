@@ -294,6 +294,21 @@ namespace LGFW
             return false;
         }
 
+        public static object intToEnum(int v, System.Type eType)
+        {
+            var arr = System.Enum.GetValues(eType);
+            var ut = eType.GetEnumUnderlyingType();
+            for (int i = 0; i < arr.Length; ++i)
+            {
+                int e = (int)System.Convert.ChangeType(arr.GetValue(i), ut);
+                if (e == v)
+                {
+                    return arr.GetValue(i);
+                }
+            }
+            return arr.GetValue(0);
+        }
+
         /// <summary>
         /// Deserialize a object from a json object
         /// </summary>
@@ -314,7 +329,7 @@ namespace LGFW
                 if (enumAsNumber)
                 {
                     e = (int)value;
-                    return System.Enum.GetValues(t).GetValue(e);
+                    return intToEnum(e, t);
                 }
                 return stringToObject(t, value.ToString());
             }

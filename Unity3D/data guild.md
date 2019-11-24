@@ -60,3 +60,13 @@ This creates a file "parseExcel.sh" under the same folder. You can check the fil
 
 Now you are all set. Each time you update your spread sheet, the processor automatically update files {spread sheet name}\_{sheet name}.json and {spread sheet name}\_{sheet name}.asset. If you have a spread sheet "test.xls", in this file, you have 2 sheets "MyData1" and "MyData2", then 4 files are updated, "test_MyData1.json", "test_MyData2.json", "test_MyData1.asset"  and ""test_MyData2.asset".  
 .json file is the json format of the spread sheet. .asset is the data you use in Unity3D.
+
+### Localization
+To generate localization data, you need to set the sheet name to "Localization" (not the spread sheet name). The column named "id" is treated as the text id. And each column with another name is treated as a language. Each of them is output as a single asset, with the name of {column name}.asset. See an example:
+
+| id      | en      | en1       |
+| ------ | ------ | -------- |
+| hello      | hello      | hi    |
+| ok      | ok      | okay    |
+
+2 .asset fiels are outputed, "en.asset" and "en1.asset", they are assets with type LocalizedText.

@@ -70,3 +70,7 @@ To generate localization data, you need to set the sheet name to "Localization" 
 | ok      | ok      | okay    |
 
 2 .asset fiels are outputed, "en.asset" and "en1.asset", they are assets with type LocalizedText.
+
+### Note
+There are somthing you need to know. Spread sheet doesn't always store string as the value of a cell. So make sure to consider the data type of the cell. If a cell is a number, then a value like 1.00000 becomes 1. So if you want a string 1.00000， change the type to text. And for date type, the string is different based on the date format of the spread sheet.  
+The text in a cell support escape character '\'. So you can use \n, \r, \t and \\. The invisible characters at the end of the text is removed. If you want to keep them, put one '\' at the end of the text.

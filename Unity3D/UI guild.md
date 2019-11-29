@@ -15,5 +15,8 @@ You should attach a CanvasGroup to a UIPanel. Because if you have a CanvasGroup,
 
 The UIPanelManager has 2 functions pushToStack() and popFromStack(). pushToStack() is used to create a functionality that you open a panel, and the last opened panel is automatically closed. Then you can use popFromStack() to close the current one and open the last one. Here you will need to understand forward and backward. You can think they are just 2 groups. When you push a panel, the old panel is closed backward and the new one is opend forward. When you pop the panel, the top panel of the stack is closed forward and poped, the next one is opend backward. You can use the same state for both forward and backward if you don't need different behaviors for switching to a panel and switching back to a panel.
 
+### UIList
+The menu "LGFW -> UI -> UIList" creates an UIList under the selected GameObject.  
+UIList is a ScrollRect. This menu will create the necessary component for you. What you need to do is assign a UIListCell to cell prefab. This should be a subclass of UIListCell from a prefab or an inactive GameObject. Change the values of ScrollRect. Attach a layout component to anchor.
 
 [Back to main guild page](https://github.com/leejuqiang/LGFW/blob/master/README.md)

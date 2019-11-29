@@ -14,3 +14,6 @@ The UIPanel has 4 special states, openForward, openBackward, closeForward and cl
 You should attach a CanvasGroup to a UIPanel. Because if you have a CanvasGroup, when you switching a state, the state may plays some animation, the CanvasGroup can block the input for buttons until the animation finished.   
 
 The UIPanelManager has 2 functions pushToStack() and popFromStack(). pushToStack() is used to create a functionality that you open a panel, and the last opened panel is automatically closed. Then you can use popFromStack() to close the current one and open the last one. Here you will need to understand forward and backward. You can think they are just 2 groups. When you push a panel, the old panel is closed backward and the new one is opend forward. When you pop the panel, the top panel of the stack is closed forward and poped, the next one is opend backward. You can use the same state for both forward and backward if you don't need different behaviors for switching to a panel and switching back to a panel.
+
+
+[Back to main guild page](https://github.com/leejuqiang/LGFW/blob/master/README.md)

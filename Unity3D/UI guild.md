@@ -1,3 +1,7 @@
+### Component
+
+All components under UI are subclasses of BaseMono. So you can call Awake() and Start() multiple times, but doAwake() and doStart() only be called once. You should override doAwake() and doStart() instead Awake() and Start().
+
 ### UIPanelManager
 
 A panel is an interface of UI. Such as shop, player, etc. UIPanelManager is the manager for all panels.  
@@ -18,6 +22,7 @@ The UIPanelManager has 2 functions pushToStack() and popFromStack(). pushToStack
 ### UIList
 The menu "LGFW -> UI -> UIList XXX" creates 4 kinds of UIList under the selected GameObject. They are vertical and horizontal finite list and vertical and horizontal infinite loop list.   
 A finite UIList is a ScrollRect. This menu will create the necessary component for you. What you need to do is assign a UIListCell to cell prefab. This should be a subclass of UIListCell from a prefab or an inactive GameObject. Change the values of ScrollRect. And the layout component attached to the anchor.  
-A infinite loop UIList is a ScrollRect but can keep spin forever. This kind of list will create a list of cells 3 times the data when you call setDataList(). So it's the developer's responsibility to make sure the cells for 1 time the original data list is long enough to cover the whole ScrollRect. Same as the finite list, you need to assign the UIListCell, change the values of ScrollRect and layout component. Also there must be an Unity's EventTrigger component on the same GameObject as the UIList, and this trigger listens to 3 event, BeginDrag should call UIList.onPress, EndDrag should call UIList.onRelease and Drag should call UIList.onDrag. The event OnValueChange of ScrollRect in the ScrollRect should call UIList.onValueChange. But don't worry, the menu item has set all of those events for you. Because the infinite loop list block the draging on ScrallRect, so you can only choose vertical or horizontal. If you check vertical, then it doesn't matter if you check horizontal or not.
+A infinite loop UIList is a ScrollRect but can keep spin forever. This kind of list will create a list of cells 3 times the data when you call setDataList(). So it's the developer's responsibility to make sure the cells for 1 time the original data list is long enough to cover the whole ScrollRect. Same as the finite list, you need to assign the UIListCell, change the values of ScrollRect and layout component. Also there must be an Unity's EventTrigger component on the same GameObject as the UIList, and this trigger listens to 3 event, BeginDrag should call UIList.onPress, EndDrag should call UIList.onRelease and Drag should call UIList.onDrag. The event OnValueChange of ScrollRect in the ScrollRect should call UIList.onValueChange. But don't worry, the menu item has set all of those events for you.  
+Because the infinite loop list block the draging on ScrallRect, so you can only choose vertical or horizontal. If you check vertical, then it doesn't matter if you check horizontal or not. Also, the infinite loop doesn't support scale Anchor or a list cell. You can scale objects under the cell instead, or the list itself.
 
 [Back to main guild page](https://github.com/leejuqiang/LGFW/blob/master/README.md)

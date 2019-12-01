@@ -22,7 +22,10 @@ namespace LGFW
             for (int i = 0; i < targets.Length; ++i)
             {
                 UITween t = (UITween)targets[i];
-                t.stop();
+                if (t != null)
+                {
+                    t.stop();
+                }
             }
         }
 
@@ -35,7 +38,7 @@ namespace LGFW
                 for (int i = 0; i < targets.Length; ++i)
                 {
                     UITween t = (UITween)targets[i];
-                    t.forceAwake();
+                    t.resetFlag();
                     t.reset(t.m_isForward);
                     t.play(t.m_isForward);
                 }

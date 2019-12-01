@@ -5,23 +5,22 @@ using UnityEngine;
 namespace LGFW
 {
     /// <summary>
-    /// Tween for position
+    /// Tween for rotation with an angle and an axis
     /// </summary>
-    public class UITweenPosition : UITween
+    public class UITweenAngle : UITween
     {
-
         /// <summary>
-        /// From position
+        /// From angle, in angle degree
         /// </summary>
-        public Vector3 m_from;
+        public float m_from;
         /// <summary>
-        /// To position
+        /// To angle, in angle degree
         /// </summary>
-        public Vector3 m_to;
+        public float m_to;
         /// <summary>
-        /// If ignore the z value
+        /// The axis which the angle around
         /// </summary>
-        public bool m_ignoreZ = true;
+        public Vector3 m_axis = Vector3.forward;
 
         private Transform m_trans;
 
@@ -40,19 +39,15 @@ namespace LGFW
 
         protected override void updateTween(float f)
         {
-            Vector3 v = Vector3.LerpUnclamped(m_from, m_to, f);
-            if (m_ignoreZ)
-            {
-                v.z = m_trans.localPosition.z;
-            }
-            m_trans.localPosition = v;
+            float a = Mathf.LerpUnclamped(m_from, m_to, f);
+            m_trans.localRotation = Quaternion.AngleAxis(a, m_axis);
         }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("LGFW/Tween/TweenPosition", false, (int)'p')]
+        [UnityEditor.MenuItem("LGFW/Tween/TweenAngle", false, (int)'r')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedObjects<UITweenPosition>(false);
+            LEditorKits.addComponentToSelectedObjects<UITweenAngle>(false);
         }
 #endif
     }

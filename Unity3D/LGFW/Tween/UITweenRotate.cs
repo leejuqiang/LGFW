@@ -21,28 +21,31 @@ namespace LGFW
 
         private Transform m_trans;
 
-        protected override void resetFromCurrentValue()
-        {
-            base.resetFromCurrentValue();
-            m_from = m_trans.localRotation.eulerAngles;
-        }
-
-        protected override void resetToCurrentValue()
-        {
-            base.resetToCurrentValue();
-            m_to = m_trans.localRotation.eulerAngles;
-        }
-
         protected override void doAwake()
         {
-            base.doAwake();
-            m_trans = this.transform;
+            if (m_trans == null)
+            {
+                m_trans = this.transform;
+            }
         }
 
-        protected override void applyFactor(float f)
+        protected override void editorAwake()
         {
-            Vector3 v = Vector3.Lerp(m_from, m_to, f);
+            doAwake();
+        }
+
+        protected override void updateTween(float f)
+        {
+            Vector3 v = Vector3.LerpUnclamped(m_from, m_to, f);
             m_trans.localRotation = Quaternion.Euler(v);
         }
+
+#if UNITY_EDITOR
+        [UnityEditor.MenuItem("LGFW/Tween/TweenRotate", false, (int)'r')]
+        public static void addToGameObjects()
+        {
+            LEditorKits.addComponentToSelectedObjects<UITweenRotate>(false);
+        }
+#endif
     }
 }

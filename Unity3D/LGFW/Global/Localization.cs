@@ -151,11 +151,23 @@ namespace LGFW
         /// <param name="id">The key</param>
         public static string getString(string id)
         {
-            if (Localization.Instance.m_currentText != null)
+            if (Localization.Instance != null && Localization.Instance.m_currentText != null)
             {
                 return Localization.Instance.m_currentText.getText(id);
             }
             return id;
+        }
+
+        /// <summary>
+        /// Gets a string formated using the localized string
+        /// </summary>
+        /// <param name="id">The id of the string</param>
+        /// <param name="args">The arguments used to format the string</param>
+        /// <returns>The formated string</returns>
+        public static string getFormatedString(string id, params object[] args)
+        {
+            string s = getString(id);
+            return string.Format(s, args);
         }
     }
 }

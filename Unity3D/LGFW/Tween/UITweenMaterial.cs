@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LGFW
 {
     /// <summary>
-    /// Tween for values in shader
+    /// Tween for values in a shader
     /// </summary>
     public class UITweenMaterial : UITween
     {
@@ -49,31 +49,42 @@ namespace LGFW
         /// </summary>
         public string m_colorName;
 
-        private MeshRenderer m_render;
+        /// <summary>
+        /// The MeshRenderer which has the material. If null, uses the one on the same GameObject
+        /// </summary>
+        public MeshRenderer m_render;
 
         protected override void doAwake()
         {
-            base.doAwake();
-            m_render = this.GetComponent<MeshRenderer>();
+            if (m_render == null)
+            {
+                m_render = this.gameObject.GetComponent<MeshRenderer>();
+            }
         }
 
-        protected override void applyFactor(float f)
+        protected override void editorAwake()
+        {
+            doAwake();
+        }
+
+
+        protected override void updateTween(float f)
         {
             if (m_render != null)
             {
                 if (!string.IsNullOrEmpty(m_vectorName))
                 {
-                    Vector4 v = Vector4.Lerp(m_fromVector, m_toVector, f);
+                    Vector4 v = Vector4.LerpUnclamped(m_fromVector, m_toVector, f);
                     m_render.sharedMaterial.SetVector(m_vectorName, v);
                 }
                 if (!string.IsNullOrEmpty(m_colorName))
                 {
-                    Color c = Color.Lerp(m_fromColor, m_toColor, f);
+                    Color c = Color.LerpUnclamped(m_fromColor, m_toColor, f);
                     m_render.sharedMaterial.SetColor(m_colorName, c);
                 }
                 if (!string.IsNullOrEmpty(m_floatName))
                 {
-                    float v = Mathf.Lerp(m_fromFloat, m_toFloat, f);
+                    float v = Mathf.LerpUnclamped(m_fromFloat, m_toFloat, f);
                     m_render.sharedMaterial.SetFloat(m_floatName, v);
                 }
             }

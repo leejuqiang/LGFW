@@ -24,8 +24,8 @@ namespace LGFW
         /// <summary>
         /// The key of the data
         /// </summary>
-        [DataCombineText]
         public string m_id;
+
 
         /// <inheritdoc/>
         public string getID()
@@ -35,19 +35,28 @@ namespace LGFW
     }
 
     /// <summary>
+    /// A dataset that can map the data with its id
+    /// </summary>
+    public abstract class DataSetDictionary : ScriptableObject
+    {
+        /// <summary>
+        /// Initialize the dataset
+        /// </summary>
+        public abstract void initData();
+    }
+
+    /// <summary>
     /// A ScriptableObject stores all the data implement IData<K>, T is the type of the data
     /// </summary>
-    public class DataSetBase<T, K> : ScriptableObject where T : IData<K>
+    public class DataSetBase<T, K> : DataSetDictionary where T : IData<K>
     {
-
-        [SerializeField]
-        protected List<T> m_dataList;
+        public List<T> m_dataList;
         protected Dictionary<K, T> m_dict;
 
         /// <summary>
-        /// Initialize all data
+        /// Initialize all data, creates a map to store data
         /// </summary>
-        public virtual void initData()
+        public override void initData()
         {
             m_dict = new Dictionary<K, T>();
             for (int i = 0; i < m_dataList.Count; ++i)

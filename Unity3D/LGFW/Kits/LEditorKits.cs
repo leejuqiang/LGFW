@@ -103,6 +103,16 @@ namespace LGFW
             return go;
         }
 
+        public static T[] getComponentsFromSelectedObjects<T>() where T : Component
+        {
+            List<T> l = new List<T>();
+            foreach (GameObject go in Selection.gameObjects)
+            {
+                l.AddRange(go.GetComponents<T>());
+            }
+            return l.ToArray();
+        }
+
         public static T[] addComponentToSelectedObjects<T>(bool notAddIfExist) where T : Component
         {
             List<T> l = new List<T>();

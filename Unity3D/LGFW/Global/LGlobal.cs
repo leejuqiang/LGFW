@@ -9,11 +9,6 @@ namespace LGFW
     /// </summary>
     public class LGlobal : MonoBehaviour
     {
-
-        /// <summary>
-        /// The height of the screen, this is not the pixel in screen, this is a relative height in unity editor
-        /// </summary>
-        public float m_screenHeight = 1000;
         /// <summary>
         /// The count of timer used for analysising running time
         /// </summary>

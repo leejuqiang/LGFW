@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 namespace LGFW
 {
     /// <summary>
-    /// Tween for alpha
+    /// Tween for alpha of a panel, it changes the alpha of a CanvasGroup.
     /// </summary>
-    public class UITweenAlpha : UITween
+    public class UITweenPanelAlpha : UITween
     {
         /// <summary>
-        /// The UI Graphic. If null, uses the one found on the same GameObject
+        /// The CanvasGroup. If null, uses the one found on the same GameObject
         /// </summary>
-        public Graphic m_graphic;
+        public CanvasGroup m_group;
         /// <summary>
         /// The from alpha
         /// </summary>
@@ -26,9 +25,9 @@ namespace LGFW
 
         protected override void doAwake()
         {
-            if (m_graphic == null)
+            if (m_group == null)
             {
-                m_graphic = this.gameObject.GetComponent<Graphic>();
+                m_group = this.gameObject.GetComponent<CanvasGroup>();
             }
         }
 
@@ -39,20 +38,18 @@ namespace LGFW
 
         protected override void updateTween(float f)
         {
-            if (m_graphic != null)
+            if (m_group != null)
             {
                 float a = Mathf.LerpUnclamped(m_from, m_to, f);
-                Color c = m_graphic.color;
-                c.a = a;
-                m_graphic.color = c;
+                m_group.alpha = a;
             }
         }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("LGFW/Tween/TweenAlpha", false, (int)'a')]
+        [UnityEditor.MenuItem("LGFW/Tween/TweenPanelAlpha", false, (int)'p')]
         public static void addToGameObjects()
         {
-            LEditorKits.addComponentToSelectedObjects<UITweenAlpha>(false);
+            LEditorKits.addComponentToSelectedObjects<UITweenPanelAlpha>(false);
         }
 #endif
     }

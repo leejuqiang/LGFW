@@ -1,56 +1,55 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace LGFW
 {
     /// <summary>
-    /// Tween for color
+    /// A tween change the color of an UI Graphic
     /// </summary>
     public class UITweenColor : UITween
     {
-
         /// <summary>
-        /// From color
+        /// The UI Graphic. If null, uses the one found on the same GameObject
+        /// </summary>
+        public Graphic m_graphic;
+        /// <summary>
+        /// The from Color
         /// </summary>
         public Color m_from;
         /// <summary>
-        /// To color
+        /// The to Color
         /// </summary>
         public Color m_to;
-
-        private UIMesh m_mesh;
+        /// <summary>
+        /// If also change the alpha which changing the color
+        /// </summary>
+        public bool m_includeAlpha = true;
 
         protected override void doAwake()
         {
-            base.doAwake();
-            m_mesh = this.GetComponent<UIMesh>();
-        }
-
-        protected override void resetFromCurrentValue()
-        {
-            base.resetFromCurrentValue();
-            if (m_mesh != null)
+            if (m_graphic == null)
             {
-                m_from = m_mesh.CurrentColor;
+                m_graphic = this.gameObject.GetComponent<Graphic>();
             }
         }
 
-        protected override void resetToCurrentValue()
+        protected override void editorAwake()
         {
-            base.resetToCurrentValue();
-            if (m_mesh != null)
-            {
-                m_to = m_mesh.CurrentColor;
-            }
+            doAwake();
         }
 
-        protected override void applyFactor(float f)
+        protected override void updateTween(float f)
         {
-            if (m_mesh != null)
+            if (m_graphic != null)
             {
-                Color c = Color.Lerp(m_from, m_to, f);
-                m_mesh.CurrentColor = c;
+                Color c = Color.LerpUnclamped(m_from, m_to, f);
+                if (!m_includeAlpha)
+                {
+                    c.a = m_graphic.color.a;
+                }
+                m_graphic.color = c;
             }
         }
 

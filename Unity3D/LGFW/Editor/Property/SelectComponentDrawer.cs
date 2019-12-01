@@ -64,6 +64,7 @@ namespace LGFW
             if (titles != null)
             {
                 rc.x += 40;
+                rc.width -= 40;
                 rc.y += h + 1;
                 index = EditorGUI.Popup(rc, index, titles);
                 property.objectReferenceValue = ts[index];

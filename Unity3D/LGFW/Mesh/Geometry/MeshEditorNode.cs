@@ -66,48 +66,48 @@ namespace LGFW
             return v;
         }
 
-        public Vector2 computeUV(UIImage image)
-        {
-            if (m_uvType == MeshEditorNodeUV.custom)
-            {
-                return m_customUV;
-            }
-            else
-            {
-                if (image == null)
-                {
-                    return Vector2.zero;
-                }
-                if (m_uvType == MeshEditorNodeUV.selfPosition)
-                {
-                    return computeUVByTrans(Trans, image);
-                }
-                else
-                {
-                    return computeUVByTrans(m_uvNode, image);
-                }
-            }
-        }
+        // public Vector2 computeUV(UIImage image)
+        // {
+        //     if (m_uvType == MeshEditorNodeUV.custom)
+        //     {
+        //         return m_customUV;
+        //     }
+        //     else
+        //     {
+        //         if (image == null)
+        //         {
+        //             return Vector2.zero;
+        //         }
+        //         if (m_uvType == MeshEditorNodeUV.selfPosition)
+        //         {
+        //             return computeUVByTrans(Trans, image);
+        //         }
+        //         else
+        //         {
+        //             return computeUVByTrans(m_uvNode, image);
+        //         }
+        //     }
+        // }
 
-        private Vector2 computeUVByTrans(Transform t, UIImage image)
-        {
-            Vector3 v = t.position;
-            v = image.Trans.InverseTransformPoint(v);
-            Rect rc = image.LocalPosition;
-            v.x = (v.x - rc.xMin) / rc.width;
-            v.y = (v.y - rc.yMin) / rc.height;
-            if (image is UISprite)
-            {
-                UISprite s = (UISprite)image;
-                UIAtlasSprite a = s.AtlasSprite;
-                if (a != null)
-                {
-                    v.x = a.m_uv.xMin + v.x * a.m_uv.width;
-                    v.y = a.m_uv.yMin + v.y * a.m_uv.height;
-                }
-            }
-            return v;
-        }
+        // private Vector2 computeUVByTrans(Transform t, UIImage image)
+        // {
+        //     Vector3 v = t.position;
+        //     v = image.Trans.InverseTransformPoint(v);
+        //     Rect rc = image.LocalPosition;
+        //     v.x = (v.x - rc.xMin) / rc.width;
+        //     v.y = (v.y - rc.yMin) / rc.height;
+        //     if (image is UISprite)
+        //     {
+        //         UISprite s = (UISprite)image;
+        //         UIAtlasSprite a = s.AtlasSprite;
+        //         if (a != null)
+        //         {
+        //             v.x = a.m_uv.xMin + v.x * a.m_uv.width;
+        //             v.y = a.m_uv.yMin + v.y * a.m_uv.height;
+        //         }
+        //     }
+        //     return v;
+        // }
 
         void Update()
         {

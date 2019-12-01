@@ -9,7 +9,7 @@ namespace LGFW
 
         public int m_order;
         public Vector3 m_referencePoint;
-        public UIImage m_texture;
+        //public UIImage m_texture;
         public MeshEditorNode[] m_externalNodes;
         public MeshFilter m_importedMesh;
         public MeshEditorBone m_planeBone;
@@ -34,7 +34,7 @@ namespace LGFW
             MeshEditorNode[] ns = this.gameObject.GetComponentsInChildren<MeshEditorNode>(false);
             for (int i = 0; i < ns.Length; ++i)
             {
-                uv[ns[i].m_cacheIndex] = ns[i].computeUV(m_texture);
+               // uv[ns[i].m_cacheIndex] = ns[i].computeUV(m_texture);
             }
             l.AddRange(ns);
             if (m_externalNodes != null)

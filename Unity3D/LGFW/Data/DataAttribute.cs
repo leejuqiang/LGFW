@@ -6,7 +6,7 @@ using System;
 namespace LGFW
 {
     /// <summary>
-    /// Marks this column in excel will combine all the cells of it with a specific string
+    /// Marks this column in excel combining all the cells of it with a specific string
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class DataCombineText : Attribute
@@ -38,6 +38,15 @@ namespace LGFW
         {
             m_combineText = CombineText;
         }
+    }
+
+    /// <summary>
+    /// Marks this column in excel not combining cells and using the value of the first cell
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class DontCombineText : Attribute
+    {
+
     }
 
     /// <summary>

@@ -11,30 +11,33 @@ namespace LGFW
         loop,
     }
 
-    public enum UITweenReset
-    {
-        none,
-        toCurrent,
-        fromCurrent,
-    }
-
     public enum UITweenFinish
     {
         none,
         deactiveWhenForward,
         deactiveWhenBackward,
+        deactive,
+    }
+
+    public enum UITweenState
+    {
+        forwardDelay,
+        backwardDelay,
+        playForward,
+        playBackward,
     }
 
     /// <summary>
-    /// The base class for tween
+    /// The base class for tween.
+    /// Sub calss should implement updateTween(float f), f is the sample factor
     /// </summary>
-    public abstract class UITween : MonoBehaviour
+    public abstract class UITween : BaseMono
     {
 
         /// <summary>
         /// The duration of the tween
         /// </summary>
-        public float m_duration;
+        public float m_duration = 1;
         /// <summary>
         /// The delay for forward playing
         /// </summary>
@@ -52,18 +55,17 @@ namespace LGFW
         /// </summary>
         public TimeScaleID m_timeScale = TimeScaleID.unity;
         /// <summary>
-        /// The animation curve
-        /// </summary>
-        public AnimationCurve m_curve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
-
-        /// <summary>
         /// The deactive mode when finishing
         /// </summary>
         public UITweenFinish m_deactiveWhenFinish;
         /// <summary>
-        /// Reset mode of the tween
+        /// The animation curve
         /// </summary>
-        public UITweenReset m_resetMode;
+        public AnimationCurve m_curve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
+        /// <summary>
+        /// If use the curve to compute the sample factor. If false, uses the linear interpolating
+        /// </summary>
+        public bool m_useCurve = true;
         /// <summary>
         /// If played forward
         /// </summary>
@@ -80,10 +82,8 @@ namespace LGFW
 
         protected float m_factor;
         protected float m_t;
-        protected bool m_isInDelay;
+        protected UITweenState m_state;
         protected bool m_isPlaying;
-        protected float m_lastFactor;
-        protected bool m_hasAwake;
 
         /// <summary>
         /// If the tween is playing
@@ -95,10 +95,10 @@ namespace LGFW
         }
 
         /// <summary>
-        /// The factor for interpolation
+        /// The sample factor for interpolation
         /// </summary>
         /// <value></value>
-        public float Factor
+        public float SampleFactor
         {
             get { return m_factor; }
             set
@@ -107,10 +107,11 @@ namespace LGFW
                 if (m_factor != value)
                 {
                     m_factor = value;
-                    m_isInDelay = false;
-                    m_lastFactor = m_factor;
+                    m_isPlaying = false;
+                    m_state = m_isForward ? UITweenState.playForward : UITweenState.playBackward;
                     m_t = m_duration * m_factor;
-                    applyFactor(m_curve.Evaluate(m_factor));
+                    Awake();
+                    updateTween(computeFactor());
                 }
             }
         }
@@ -142,6 +143,7 @@ namespace LGFW
             if (m_duration > 0)
             {
                 m_isPlaying = true;
+                m_state = m_isForward ? UITweenState.forwardDelay : UITweenState.backwardDelay;
             }
         }
 
@@ -151,26 +153,6 @@ namespace LGFW
         public void stop()
         {
             m_isPlaying = false;
-        }
-
-        public void forceAwake()
-        {
-            m_hasAwake = false;
-            Awake();
-        }
-
-        public void Awake()
-        {
-            if (!m_hasAwake)
-            {
-                doAwake();
-                m_hasAwake = true;
-            }
-        }
-
-        protected virtual void doAwake()
-        {
-            //todo
         }
 
         protected virtual void OnDestroy()
@@ -204,61 +186,48 @@ namespace LGFW
             reset(m_isForward);
         }
 
+        protected float computeFactor()
+        {
+            if (m_useCurve)
+            {
+                return m_curve.Evaluate(m_factor);
+            }
+            return m_factor;
+        }
+
         /// <summary>
         /// Resets the tween
         /// </summary>
         /// <param name="isForward">If forward</param>
         public virtual void reset(bool isForward)
         {
+            Awake();
             m_isForward = isForward;
             m_isPlaying = false;
+            m_t = 0;
             if (m_isForward)
             {
                 m_factor = 0;
-                m_lastFactor = 0;
-                m_isInDelay = m_forwardDelay > 0;
-                m_t = 0;
+                m_state = UITweenState.forwardDelay;
             }
             else
             {
                 m_factor = 1;
-                m_lastFactor = 1;
-                m_isInDelay = m_backwardDelay > 0;
-                m_t = m_isInDelay ? m_backwardDelay : m_duration;
+                m_state = UITweenState.backwardDelay;
             }
-            if (m_resetMode == UITweenReset.fromCurrent)
-            {
-                resetFromCurrentValue();
-            }
-            else if (m_resetMode == UITweenReset.toCurrent)
-            {
-                resetToCurrentValue();
-            }
-            else
-            {
-                resetValue();
-            }
-            applyFactor(m_curve.Evaluate(m_factor));
-        }
-
-        protected virtual void resetValue()
-        {
-            //todo
-        }
-
-        protected virtual void resetFromCurrentValue()
-        {
-            //todo
-        }
-
-        protected virtual void resetToCurrentValue()
-        {
-            //todo
+            updateTween(computeFactor());
         }
 
         public virtual void LateUpdate()
         {
-            manualUpdate(TimeScales.Instance.getDeltaTime(m_timeScale));
+            if (TimeScales.Instance == null)
+            {
+                manualUpdate(Time.deltaTime);
+            }
+            else
+            {
+                manualUpdate(TimeScales.Instance.getDeltaTime(m_timeScale));
+            }
         }
 
         /// <summary>
@@ -269,15 +238,20 @@ namespace LGFW
         {
             if (m_isPlaying)
             {
+                Awake();
                 updateDelta(dt);
             }
         }
 
-        protected abstract void applyFactor(float f);
+        protected abstract void updateTween(float f);
 
         protected virtual void onFinish()
         {
-            if (m_deactiveWhenFinish == UITweenFinish.deactiveWhenForward && m_isForward)
+            if (m_deactiveWhenFinish == UITweenFinish.deactive)
+            {
+                this.gameObject.SetActive(false);
+            }
+            else if (m_deactiveWhenFinish == UITweenFinish.deactiveWhenForward && m_isForward)
             {
                 this.gameObject.SetActive(false);
             }
@@ -291,90 +265,95 @@ namespace LGFW
             }
         }
 
-        protected void updateDelta(float dt)
+        protected bool handleEndCase()
         {
-            bool end = false;
-            if (m_isForward)
+            if (m_mode == UITweenMode.once)
             {
-                m_t += dt;
-                if (m_isInDelay)
+                m_factor = m_state == UITweenState.playForward ? 1 : 0;
+                return true;
+            }
+            if (m_mode == UITweenMode.loop)
+            {
+                if (m_state == UITweenState.playForward)
                 {
-                    if (m_t >= m_forwardDelay)
-                    {
-                        m_t -= m_forwardDelay;
-                        m_isInDelay = false;
-                        m_factor = m_t / m_duration;
-                    }
+                    m_t -= m_duration;
                 }
                 else
                 {
-                    if (m_t >= m_duration)
-                    {
-                        end = true;
-                    }
+                    m_t += m_duration;
                 }
+                m_factor = m_t / m_duration;
+                return false;
+            }
+            if (m_state == UITweenState.playForward)
+            {
+                m_t -= m_duration;
+                m_t = m_duration - m_t;
+                m_state = UITweenState.playBackward;
+            }
+            else
+            {
+                m_t = -m_t;
+                m_state = UITweenState.playForward;
+            }
+            m_factor = m_t / m_duration;
+            return false;
+        }
+
+        protected void updateDelta(float dt)
+        {
+            if (m_state != UITweenState.playBackward)
+            {
+                m_t += dt;
             }
             else
             {
                 m_t -= dt;
-                if (m_isInDelay)
+            }
+            if (m_state == UITweenState.forwardDelay)
+            {
+                if (m_t > m_forwardDelay)
                 {
-                    if (m_t <= 0)
-                    {
-                        m_t += m_duration;
-                        m_isInDelay = false;
-                        m_factor = m_t / m_duration;
-                    }
+                    m_t -= m_forwardDelay;
+                    m_state = UITweenState.playForward;
+                }
+            }
+            else if (m_state == UITweenState.backwardDelay)
+            {
+                if (m_t > m_backwardDelay)
+                {
+                    m_t -= m_backwardDelay;
+                    m_t = m_duration - m_t;
+                    m_state = UITweenState.playBackward;
+                }
+            }
+            bool end = false;
+            if (m_state == UITweenState.playForward)
+            {
+                if (m_t >= m_duration)
+                {
+                    end = handleEndCase();
                 }
                 else
                 {
-                    if (m_t <= 0)
-                    {
-                        end = true;
-                    }
+                    m_factor = m_t / m_duration;
                 }
             }
+            else if (m_state == UITweenState.playBackward)
+            {
+                if (m_t <= 0)
+                {
+                    end = handleEndCase();
+                }
+                else
+                {
+                    m_factor = m_t / m_duration;
+                }
+            }
+            updateTween(computeFactor());
             if (end)
             {
-                if (m_mode == UITweenMode.pingpong)
-                {
-                    m_isForward = !m_isForward;
-                    if (m_isForward)
-                    {
-                        m_t = -m_t;
-                    }
-                    else
-                    {
-                        m_t = m_duration + m_duration - m_t;
-                    }
-                }
-                else if (m_mode == UITweenMode.loop)
-                {
-                    if (m_isForward)
-                    {
-                        m_t -= m_duration;
-                    }
-                    else
-                    {
-                        m_t += m_duration;
-                    }
-                }
-                else
-                {
-                    m_isPlaying = false;
-                }
-            }
-            if (!m_isInDelay)
-            {
-                m_factor = Mathf.Clamp01(m_t / m_duration);
-            }
-            if (m_factor != m_lastFactor)
-            {
-                applyFactor(m_curve.Evaluate(m_factor));
-                m_lastFactor = m_factor;
-            }
-            if (end && !m_isPlaying)
-            {
+                m_isPlaying = false;
                 onFinish();
             }
         }

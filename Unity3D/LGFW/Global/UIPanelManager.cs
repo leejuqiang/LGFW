@@ -9,32 +9,6 @@ namespace LGFW
     /// </summary>
     public class UIPanelManager : MonoBehaviour
     {
-
-        /// <summary>
-        /// Called when a panel begins to open
-        /// </summary>
-        public const string E_OPEN = "OnOpen";
-        /// <summary>
-        /// Called when a panel finishes opening
-        /// </summary>
-        public const string E_OPEN_FINISH = "OnFinishOpen";
-        /// <summary>
-        /// Called when a panel begins to close
-        /// </summary>
-        public const string E_CLOSE = "OnClose";
-        /// <summary>
-        /// Called when a panel finishes closing
-        /// </summary>
-        public const string E_CLOSE_FINISH = "OnFinishClose";
-        /// <summary>
-        /// Called when a panel is assigned new data, or refreshed
-        /// </summary>
-        public const string E_DATA = "OnData";
-        /// <summary>
-        /// Called when player presses back key of a panel
-        /// </summary>
-        public const string E_BACK_KEY = "OnBackKey";
-
         private static UIPanelManager m_instance;
 
         /// <summary>
@@ -47,11 +21,12 @@ namespace LGFW
         }
 
         /// <summary>
-        /// If true, panels will received back key event
+        /// If true, panels will received the escape key as a back
         /// </summary>
         public bool m_useBackKey = true;
 
-        private LinkedList<UIPanelGroup> m_groups = new LinkedList<UIPanelGroup>();
+        private HashSet<UIPanelGroup> m_groups = new HashSet<UIPanelGroup>();
+        private LinkedList<UIPanel> m_openStack = new LinkedList<UIPanel>();
 
         void Awake()
         {
@@ -63,23 +38,30 @@ namespace LGFW
             m_instance = null;
         }
 
+        /// <summary>
+        /// Opens a panel and push it to the stack, you can use popFromStack() to close this panel later
+        /// </summary>
+        /// <param name="p">The panel</param>
+        /// <param name="data">The data used to open this panel</param>
+        public void pushToStack(UIPanel p, UIPanelData data)
+        {
+            var n = m_openStack.Last;
+            if (n != null)
+            {
+                if (n.Value == p)
+                {
+                    p.refresh(data);
+                    return;
+                }
+                n.Value.close(false);
+            }
+            p.open(true, data);
+            m_openStack.AddLast(p);
+        }
+
         public void addGroup(UIPanelGroup g)
         {
-            LinkedListNode<UIPanelGroup> n = m_groups.First;
-            while (n != null)
-            {
-                if (n.Value == g)
-                {
-                    return;
-                }
-                if (n.Value.m_nearZ < g.m_nearZ)
-                {
-                    m_groups.AddBefore(n, g);
-                    return;
-                }
-                n = n.Next;
-            }
-            m_groups.AddLast(g);
+            m_groups.Add(g);
         }
 
         public void removeGroup(UIPanelGroup g)
@@ -88,115 +70,120 @@ namespace LGFW
         }
 
         /// <summary>
-        /// Gets the custom script on a panel
-        /// </summary>
-        /// <returns>The custom script</returns>
-        /// <param name="id">The id of the panel</param>
-        /// <typeparam name="T">Type of the script</typeparam>
-        public T getCustomPanel<T>(string id) where T : MonoBehaviour
-        {
-            UIPanel p = getUIPanel(id);
-            if (p != null)
-            {
-                return p.GetComponent<T>();
-            }
-            return null;
-        }
-
-        /// <summary>
         /// Gets the UIPanel by id
         /// </summary>
-        /// <returns>The UIPanel</returns>
+        /// <returns>The subclass of UIPanel with type T</returns>
         /// <param name="id">The id</param>
-        public UIPanel getUIPanel(string id)
+        /// <typeparam name="T">Type of the UIPanel</typeparam>
+        public T getUIPanel<T>(string id) where T : UIPanel
         {
-            UIPanelGroup g = null;
-            return getUIPanel(id, out g);
-        }
-
-        private UIPanel getUIPanel(string id, out UIPanelGroup g)
-        {
-            g = null;
-            LinkedListNode<UIPanelGroup> n = m_groups.First;
-            while (n != null)
+            foreach (UIPanelGroup g in m_groups)
             {
-                UIPanel p = n.Value.getPanel(id);
+                UIPanel p = g.getPanel(id);
                 if (p != null)
                 {
-                    g = n.Value;
-                    return p;
+                    return (T)p;
                 }
-                n = n.Next;
             }
             return null;
-        }
-
-        private UIPanel createPanel(UIPanel p, UIPanelGroup g)
-        {
-            GameObject go = ResourceManager.Instance.initPrefab(p.gameObject);
-            Transform t = go.transform;
-            t.parent = g.Trans;
-            t.localPosition = Vector3.zero;
-            p = go.GetComponent<UIPanel>();
-            p.PanelGroup = g;
-            return p;
         }
 
         /// <summary>
         /// Opens a panel
         /// </summary>
         /// <param name="id">The id of the panel</param>
-        /// <param name="panelTweenId">Play the tween list of this id when open</param>
-        public void openPanel(string id, string panelTweenId = "")
+        public void openPanel(string id)
         {
-            UIPanelGroup g = null;
-            UIPanel p = getUIPanel(id, out g);
+            openPanel(id, true, null);
+        }
+
+        /// <summary>
+        /// Opens a panel
+        /// </summary>
+        /// <param name="id">The id of the panel</param>
+        /// <param name="isForward">Is open forward</param>
+        public void openPanel(string id, bool isForward)
+        {
+            openPanel(id, isForward, null);
+        }
+
+        /// <summary>
+        /// Opens a panel
+        /// </summary>
+        /// <param name="id">The id of the panel</param>
+        /// <param name="data">The data for the panel</param>
+        /// <param name="isForward">Is open forward</param>
+        public void openPanel(string id, bool isForward, UIPanelData data)
+        {
+            UIPanel p = getUIPanel<UIPanel>(id);
             if (p == null)
             {
                 return;
             }
-            if (p.m_panelType == UIPanelType.popup)
-            {
-                p = createPanel(p, g);
-            }
-            if (p.Visible)
-            {
-                return;
-            }
-            if (!string.IsNullOrEmpty(panelTweenId))
-            {
-                p.changePanelTweens(panelTweenId);
-            }
-            g.addToOpenedPanel(p);
-            p.gameObject.SetActive(true);
-            p.open();
+            p.open(isForward, data);
         }
 
         /// <summary>
         /// Closes a panel
         /// </summary>
-        /// <param name="p">The UIPanel</param>
-        /// <param name="panelTweenId">Play the tween list of this id when close</param>
-        public void closePanel(UIPanel p, string panelTweenId = "")
+        /// <param name="id">The id of the panel</param>
+        public void closePanel(string id)
         {
-            if (!p.Visible)
+            closePanel(id, true);
+        }
+
+        /// <summary>
+        /// Back to the last panel
+        /// </summary>
+        public void popFromStack()
+        {
+            var n = m_openStack.Last;
+            if (n != null)
+            {
+                n.Value.close(true);
+                m_openStack.RemoveLast();
+                n = m_openStack.Last;
+                if (n != null)
+                {
+                    n.Value.open(false);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Closes a panel
+        /// </summary>
+        /// <param name="id">The id of the panel</param>
+        /// <param name="isForward">Is close forward</param>
+        public void closePanel(string id, bool isForward)
+        {
+            UIPanel p = getUIPanel<UIPanel>(id);
+            if (p == null)
             {
                 return;
             }
-            LinkedListNode<UIPanelGroup> n = m_groups.Last;
-            while (n != null)
+            p.close(isForward);
+        }
+
+        private int sortGroups(UIPanelGroup l, UIPanelGroup r)
+        {
+            return r.m_order - l.m_order;
+        }
+
+        private UIPanel getTopPanel()
+        {
+            List<UIPanelGroup> l = new List<UIPanelGroup>();
+            l.AddRange(m_groups);
+            l.Sort(sortGroups);
+            for (int i = 0; i < l.Count; ++i)
             {
-                if (n.Value.removeFromOpenedPanel(p))
+                var p = l[i].getTopPanel();
+                if (p != null)
                 {
-                    if (!string.IsNullOrEmpty(panelTweenId))
-                    {
-                        p.changePanelTweens(panelTweenId);
-                    }
-                    p.close();
-                    return;
+                    return p;
                 }
-                n = n.Previous;
             }
+            return null;
         }
 
         void Update()
@@ -205,20 +192,10 @@ namespace LGFW
             {
                 if (Input.GetKeyUp(KeyCode.Escape))
                 {
-                    LinkedListNode<UIPanelGroup> n = m_groups.Last;
-                    while (n != null)
+                    var p = getTopPanel();
+                    if (p != null)
                     {
-                        UIPanel p = n.Value.onBackKey();
-                        if (p != null)
-                        {
-                            if (p.Visible)
-                            {
-                                p.gameObject.SendMessage(E_BACK_KEY, SendMessageOptions.DontRequireReceiver);
-                                closePanel(p);
-                            }
-                            break;
-                        }
-                        n = n.Previous;
+                        p.onPressBackKey();
                     }
                 }
             }

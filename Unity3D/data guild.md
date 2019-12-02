@@ -76,4 +76,7 @@ There are somthing you need to know. Spread sheet doesn't always store string as
 The text in a cell support escape character '\'. So you can use \n, \r, \t and \\. The invisible characters at the end of the text is removed. If you want to keep them, put one '\' at the end of the text.
 
 
+### Texture Importer Configuration
+The menu "LGFW -> Asset -> create texture importer configuration" can create a configuration under a folder specificed by you. This configuration controls the texture importing configuration when a texture under the same folder is first time imported. Please keep in mind moving a texture is not importing, so the configuration won't change.
+
 [Back to main guild page](https://github.com/leejuqiang/LGFW/blob/master/README.md)

@@ -29,8 +29,6 @@ namespace LGFW
         [HideInInspector]
         protected string m_sprite;
 
-        protected UIAtlasSprite m_atlasSprite;
-
         protected Vector2 m_latitudeAng;
         protected Vector2 m_longitudeAng;
 
@@ -80,7 +78,7 @@ namespace LGFW
                 if (m_radius != value)
                 {
                     m_radius = value;
-                    m_updateFlag |= UIMesh.FLAG_VERTEX;
+                    m_flag |= FLAG_VERTEX;
                 }
             }
         }
@@ -114,7 +112,7 @@ namespace LGFW
                 if (m_color != value)
                 {
                     m_color = value;
-                    m_updateFlag |= UIMesh.FLAG_COLOR;
+                    m_flag |= FLAG_COLOR;
                 }
             }
         }
@@ -131,10 +129,7 @@ namespace LGFW
                 if (m_sprite != value)
                 {
                     m_sprite = value;
-                    if (m_atlas != null)
-                    {
-                        onAtlasChanged();
-                    }
+                    m_flag |= FLAG_UV;
                 }
             }
         }
@@ -151,24 +146,11 @@ namespace LGFW
                 if (m_atlas != value)
                 {
                     m_atlas = value;
-                    onAtlasChanged();
+                    m_flag |= FLAG_UV;
                 }
             }
         }
 
-        protected void onAtlasChanged()
-        {
-            if (m_atlas != null)
-            {
-                m_atlasSprite = m_atlas.getSprite(m_sprite);
-                m_render.sharedMaterial = m_atlas.m_material;
-            }
-            else
-            {
-                m_atlasSprite = null;
-            }
-            m_updateFlag |= UIMesh.FLAG_UV;
-        }
 
         /// <inheritdoc/>
         public override void reset()
@@ -176,7 +158,6 @@ namespace LGFW
             base.reset();
             onLatitudeChange();
             onLongitudeChange();
-            onAtlasChanged();
         }
 
         protected void clampVector(ref Vector2 v)
@@ -232,9 +213,13 @@ namespace LGFW
         protected override void updateUV()
         {
             Rect uv = new Rect(0, 0, 1, 1);
-            if (m_atlasSprite != null)
+            if (m_atlas != null)
             {
-                uv = m_atlasSprite.m_uv;
+                var s = m_atlas.getSprite(m_sprite);
+                if (s != null)
+                {
+                    uv = s.m_uv;
+                }
             }
             if (m_uvForWholeSphere)
             {
@@ -298,6 +283,24 @@ namespace LGFW
         }
 
 #if UNITY_EDITOR
+        public override void onSelectedSprite(UIAtlasSprite s, int id)
+        {
+            m_sprite = s == null ? "" : s.m_name;
+            EditorChanged = true;
+        }
+
+        public override UIAtlas editorGetAtlas()
+        {
+            return m_atlas;
+        }
+
+        public override void getSelectSprite(List<string> labels, List<UIAtlasSprite> values, List<int> ids)
+        {
+            labels.Add("Sprite");
+            values.Add(m_atlas == null ? null : m_atlas.getSprite(m_sprite));
+            ids.Add(0);
+        }
+
         [UnityEditor.MenuItem("LGFW/Geometry/Sphere", false, (int)'s')]
         public static void addToGameObjects()
         {

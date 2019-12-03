@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.U2D;
 
 namespace LGFW
 {
@@ -9,14 +11,18 @@ namespace LGFW
     /// </summary>
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
-    public abstract class GeometryMesh : MonoBehaviour
+    public abstract class GeometryMesh : BaseMono
     {
+        public const int FLAG_VERTEX = 1 << 4;
+        public const int FLAG_UV = 1 << 5;
+        public const int FLAG_COLOR = 1 << 6;
+        public const int FLAG_INDEX = 1 << 7;
+        public const int FLAG_NORMAL = 1 << 8;
+        public const int FLAG_TIP = 1 << 9;
 
         protected MeshFilter m_filter;
         protected MeshRenderer m_render;
 
-        protected bool m_hasAwake;
-        protected int m_updateFlag;
         protected List<Vector3> m_vertices = new List<Vector3>();
         protected List<Vector2> m_uvs = new List<Vector2>();
         protected List<Color32> m_colors = new List<Color32>();
@@ -27,6 +33,12 @@ namespace LGFW
         [SerializeField]
         protected bool m_hasNormal;
 
+#if UNITY_EDITOR
+        public bool EditorChanged
+        {
+            get; set;
+        }
+#endif
         /// <summary>
         /// If the mesh has normal
         /// </summary>
@@ -39,17 +51,32 @@ namespace LGFW
                 if (m_hasNormal != value)
                 {
                     m_hasNormal = value;
-                    m_updateFlag |= UIMesh.FLAG_NORMAL;
+                    m_flag |= FLAG_NORMAL;
                 }
             }
         }
 
-        public void Awake()
+        public MeshFilter Mesh
         {
-            if (!m_hasAwake)
+            get
             {
-                m_hasAwake = true;
-                doAwake();
+                if (m_filter == null)
+                {
+                    m_filter = this.GetComponent<MeshFilter>();
+                }
+                return m_filter;
+            }
+        }
+
+        public MeshRenderer Renderer
+        {
+            get
+            {
+                if (m_render == null)
+                {
+                    m_render = this.GetComponent<MeshRenderer>();
+                }
+                return m_render;
             }
         }
 
@@ -58,7 +85,7 @@ namespace LGFW
         /// </summary>
         public virtual void repaint()
         {
-            m_updateFlag = 0xffff;
+            m_flag |= 0xfff0;
             m_mesh.Clear();
         }
 
@@ -79,13 +106,16 @@ namespace LGFW
             m_colors.Clear();
         }
 
-        protected virtual void doAwake()
+        protected override void editorAwake()
         {
-            m_filter = this.GetComponent<MeshFilter>();
-            m_render = this.GetComponent<MeshRenderer>();
+            doAwake();
+        }
+
+        protected override void doAwake()
+        {
             m_mesh = new Mesh();
             m_mesh.MarkDynamic();
-            m_filter.sharedMesh = m_mesh;
+            Mesh.sharedMesh = m_mesh;
             reset();
         }
 
@@ -96,26 +126,22 @@ namespace LGFW
 
         public virtual void LateUpdate()
         {
-            if (m_render.sharedMaterial == null)
-            {
-                return;
-            }
-            if (m_updateFlag != 0)
+            if ((m_flag & 0xfff0) != 0)
             {
                 preLateUpdate();
-                if ((m_updateFlag & UIMesh.FLAG_VERTEX) > 0)
+                if ((m_flag & FLAG_VERTEX) != 0)
                 {
                     m_vertices.Clear();
                     updateVertex();
                     m_mesh.vertices = m_vertices.ToArray();
                 }
-                if ((m_updateFlag & UIMesh.FLAG_UV) > 0)
+                if ((m_flag & FLAG_UV) != 0)
                 {
                     m_uvs.Clear();
                     updateUV();
                     m_mesh.uv = m_uvs.ToArray();
                 }
-                if ((m_updateFlag & UIMesh.FLAG_NORMAL) > 0)
+                if ((m_flag & FLAG_NORMAL) != 0)
                 {
                     if (m_hasNormal)
                     {
@@ -128,19 +154,19 @@ namespace LGFW
                         m_mesh.normals = null;
                     }
                 }
-                if ((m_updateFlag & UIMesh.FLAG_COLOR) > 0)
+                if ((m_flag & FLAG_COLOR) != 0)
                 {
                     m_colors.Clear();
                     updateColor();
                     m_mesh.colors32 = m_colors.ToArray();
                 }
-                if ((m_updateFlag & UIMesh.FLAG_INDEX) > 0)
+                if ((m_flag & FLAG_INDEX) != 0)
                 {
                     m_indexes.Clear();
                     updateIndex();
                     m_mesh.triangles = m_indexes.ToArray();
                 }
-                m_updateFlag = 0;
+                m_flag &= 0xf;
             }
         }
 
@@ -150,6 +176,18 @@ namespace LGFW
         protected abstract void updateColor();
         protected abstract void updateIndex();
 
+
+#if UNITY_EDITOR
+
+        public virtual void onSelectedSprite(UIAtlasSprite s, int id)
+        {
+
+        }
+
+        public virtual void onEditorChanged()
+        {
+
+        }
         protected void testDrawNormal(float len)
         {
             if (!m_hasNormal || m_vertices.Count != m_normals.Count)
@@ -165,5 +203,16 @@ namespace LGFW
                 Gizmos.DrawLine(p1, p2);
             }
         }
+
+        public virtual UIAtlas editorGetAtlas()
+        {
+            return null;
+        }
+
+        public virtual void getSelectSprite(List<string> labels, List<UIAtlasSprite> values, List<int> ids)
+        {
+
+        }
     }
+#endif
 }

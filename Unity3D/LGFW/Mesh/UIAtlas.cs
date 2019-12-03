@@ -15,18 +15,9 @@ namespace LGFW
         [HideInInspector]
         private List<UIAtlasSprite> m_allSprites;
         /// <summary>
-        /// The Material of this atlas
-        /// </summary>
-        public Material m_material;
-        /// <summary>
         /// The padding used when building this atlas
         /// </summary>
         public int m_padding = 1;
-
-        /// <summary>
-        /// The folders contains the images which will be included by the atlas
-        /// </summary>
-        public string[] m_sourceFolders;
         /// <summary>
         /// Should the subfolders of source folders also be included
         /// </summary>
@@ -43,6 +34,18 @@ namespace LGFW
         /// If true, the color in this atlas will multiply the alpha, and the atlas will have no alpha
         /// </summary>
         public bool m_premultiplyAlpha;
+
+        [SerializeField]
+        private Texture2D m_texture;
+
+        /// <summary>
+        /// The texture of the atlas
+        /// </summary>
+        /// <value>The texture</value>
+        public Texture2D AtlasTexture
+        {
+            get { return m_texture; }
+        }
 
         private Dictionary<string, UIAtlasSprite> m_spritesDict;
 
@@ -111,12 +114,12 @@ namespace LGFW
                 UIAtlasSprite uas = new UIAtlasSprite(l[i].name);
                 m_allSprites.Add(uas);
                 uas.m_atlas = this;
-                uas.m_originalSize = new Vector2(l[i].width, l[i].height);
                 l[i] = processTexture(l[i]);
                 if (m_enableTrim)
                 {
-                    l[i] = trimTexture(l[i], out uas.m_trimMargin);
+                    l[i] = trimTexture(l[i]);
                 }
+                uas.m_pixelSize = new Vector2(l[i].width, l[i].height);
             }
 
             Texture2D atex = new Texture2D(2, 2, TextureFormat.ARGB32, false);
@@ -130,37 +133,21 @@ namespace LGFW
                 multiplyAlpha(atex);
             }
 
-            Shader uis = Shader.Find("LGFW/ui");
-            Shader uisPMA = Shader.Find("LGFW/uiPMA");
             string dirPath = LEditorKits.getAssetDirectory(this);
-            if (m_material == null)
-            {
-                m_material = new Material(m_premultiplyAlpha ? uisPMA : uis);
-                UnityEditor.AssetDatabase.CreateAsset(m_material, dirPath + "/" + this.name + ".mat");
-            }
-            if (m_material.shader == uis && m_premultiplyAlpha)
-            {
-                m_material.shader = uisPMA;
-            }
-            else if (m_material.shader == uisPMA && !m_premultiplyAlpha)
-            {
-                m_material.shader = uis;
-            }
             string imagePath = "";
-            if (m_material.mainTexture == null)
+            if (m_texture == null)
             {
                 imagePath = dirPath + "/" + this.name + ".png";
             }
             else
             {
-                imagePath = LEditorKits.getPathStartWithAssets(UnityEditor.AssetDatabase.GetAssetPath(m_material.mainTexture));
+                imagePath = LEditorKits.getPathStartWithAssets(UnityEditor.AssetDatabase.GetAssetPath(m_texture));
             }
             byte[] b = atex.EncodeToPNG();
             System.IO.File.WriteAllBytes(imagePath, b);
             UnityEditor.AssetDatabase.Refresh();
             atex = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(imagePath);
-            m_material.mainTexture = atex;
-            UnityEditor.EditorUtility.SetDirty(m_material);
+            m_texture = atex;
             UnityEditor.EditorUtility.SetDirty(this);
         }
 
@@ -203,9 +190,8 @@ namespace LGFW
             return true;
         }
 
-        private Texture2D trimTexture(Texture2D t, out Vector4 trimMargin)
+        private Texture2D trimTexture(Texture2D t)
         {
-            trimMargin = Vector4.zero;
             Color[] cols = t.GetPixels();
             int left = 0;
             int right = t.width - 1;
@@ -227,24 +213,49 @@ namespace LGFW
             {
                 --top;
             }
-            if (left > m_trimWhenEmptyLagerThen || right > m_trimWhenEmptyLagerThen || bot > m_trimWhenEmptyLagerThen || top > m_trimWhenEmptyLagerThen)
+            bool trim = false;
+            if (left > m_trimWhenEmptyLagerThen)
             {
-                --left;
-                ++right;
-                --bot;
-                ++top;
-                trimMargin.x = Mathf.Max(0, (float)left / t.width);
-                trimMargin.y = Mathf.Max(0, 1 - (float)right / t.width);
-                trimMargin.z = Mathf.Max(0, 1 - (float)top / t.height);
-                trimMargin.w = Mathf.Max(0, (float)bot / t.height);
-                int newW = right - left - 1;
-                int newH = top - bot - 1;
+                trim = true;
+            }
+            else
+            {
+                left = 0;
+            }
+            if (t.width - 1 - right > m_trimWhenEmptyLagerThen)
+            {
+                trim = true;
+            }
+            else
+            {
+                right = t.width - 1;
+            }
+            if (bot > m_trimWhenEmptyLagerThen)
+            {
+                trim = true;
+            }
+            else
+            {
+                bot = 0;
+            }
+            if (t.height - 1 - top > m_trimWhenEmptyLagerThen)
+            {
+                trim = true;
+            }
+            else
+            {
+                top = t.height - 1;
+            }
+            if (trim)
+            {
+                int newW = right - left + 1;
+                int newH = top - bot + 1;
                 int len = newW * newH;
                 Color[] newCols = new Color[len];
                 int index = 0;
-                for (int i = bot + 1; i < top; ++i)
+                for (int i = bot; i <= top; ++i)
                 {
-                    for (int j = left + 1; j < right; ++j)
+                    for (int j = left; j <= right; ++j)
                     {
                         newCols[index] = cols[j + i * t.width];
                         ++index;
@@ -268,11 +279,9 @@ namespace LGFW
         private List<Texture2D> collectTextures()
         {
             List<Texture2D> l = new List<Texture2D>();
-            for (int i = 0; i < m_sourceFolders.Length; ++i)
-            {
-                DirectoryInfo dinfo = new DirectoryInfo(m_sourceFolders[i]);
-                collectTexturesInDir(dinfo, l);
-            }
+            string dir = LEditorKits.getAssetDirectory(this);
+            DirectoryInfo dinfo = new DirectoryInfo(dir);
+            collectTexturesInDir(dinfo, l);
             return l;
         }
 
@@ -282,6 +291,10 @@ namespace LGFW
             {
                 string p = LEditorKits.getPathStartWithAssets(finfo.FullName);
                 Texture2D tex = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(p);
+                if (tex == m_texture)
+                {
+                    continue;
+                }
                 if (tex != null)
                 {
                     l.Add(tex);

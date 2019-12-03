@@ -13,16 +13,15 @@ public class BaseMono : MonoBehaviour
 
     public void Awake()
     {
-        if (!Application.isPlaying)
+        if (!hasAwaken())
         {
             m_flag |= 1;
-            editorAwake();
-        }
-        else
-        {
-            if (!hasAwaken())
+            if (!Application.isPlaying)
             {
-                m_flag |= 1;
+                editorAwake();
+            }
+            else
+            {
                 doAwake();
             }
         }
@@ -67,16 +66,16 @@ public class BaseMono : MonoBehaviour
 
     public void Start()
     {
-        if (!Application.isPlaying)
+        if (!hasStarted())
         {
             m_flag |= 2;
-            editorStart();
-        }
-        else
-        {
-            if (!hasStarted())
+            if (!Application.isPlaying)
             {
-                m_flag |= 2;
+
+                editorStart();
+            }
+            else
+            {
                 doStart();
             }
         }

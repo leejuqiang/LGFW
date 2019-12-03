@@ -18,15 +18,27 @@ namespace LGFW
         /// All the edges in the graph
         /// </summary>
         public List<GraphEdge<T>> m_edges;
-
-        protected HashSet<T> m_openSet;
         protected List<T> m_openList;
+        protected bool m_isDoubleDirection;
 
-        public Graph()
+        /// <summary>
+        /// If the graph is a double direction graph
+        /// </summary>
+        /// <value></value>
+        public bool IsDoubleDirection
         {
+            get { return m_isDoubleDirection; }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="doubleDirection">If the graph is a double direction graph</param>
+        public Graph(bool doubleDirection)
+        {
+            m_isDoubleDirection = doubleDirection;
             m_nodes = new List<T>();
             m_edges = new List<GraphEdge<T>>();
-            m_openSet = new HashSet<T>();
             m_openList = new List<T>();
         }
 
@@ -38,7 +50,6 @@ namespace LGFW
             m_nodes.Clear();
             m_edges.Clear();
             m_openList.Clear();
-            m_openSet.Clear();
         }
 
         /// <summary>
@@ -69,22 +80,37 @@ namespace LGFW
         /// </summary>
         public void initNodeFromEdge()
         {
-            HashSet<int> nodes = new HashSet<int>();
+            HashSet<GraphNode> nodes = new HashSet<GraphNode>();
             for (int i = 0; i < m_edges.Count; ++i)
             {
                 var e = m_edges[i];
-                if (!nodes.Contains(e.m_from.ID))
+                if (!nodes.Contains(e.m_from))
                 {
-                    nodes.Add(e.m_from.ID);
+                    nodes.Add(e.m_from);
                     m_nodes.Add(e.m_from);
                 }
-                if (!nodes.Contains(e.m_to.ID))
+                if (!nodes.Contains(e.m_to))
                 {
-                    nodes.Add(e.m_to.ID);
+                    nodes.Add(e.m_to);
                     m_nodes.Add(e.m_to);
                 }
-                e.m_from.addOutEdge(e.m_to, e.m_cost);
-                e.m_to.addInEdge(e.m_from, e.m_cost);
+                if (m_isDoubleDirection)
+                {
+                    e.m_from.addToConnected(e.m_to);
+                    e.m_to.addToConnected(e.m_from);
+                }
+                else
+                {
+                    e.m_from.addOutEdge(e.m_to, e.m_cost);
+                    e.m_to.addInEdge(e.m_from, e.m_cost);
+                }
+            }
+            if (m_isDoubleDirection)
+            {
+                for (int i = 0; i < m_nodes.Count; ++i)
+                {
+                    m_nodes[i].createEdgeFromConnected();
+                }
             }
         }
 
@@ -93,6 +119,21 @@ namespace LGFW
         /// </summary>
         public void initEdgeFromNode()
         {
+            if (m_isDoubleDirection)
+            {
+                for (int i = 0; i < m_nodes.Count; ++i)
+                {
+                    for (int j = 0; j < m_nodes[i].m_outEdge.Count; ++j)
+                    {
+                        m_nodes[i].addToConnected(m_nodes[i].m_outEdge[j].m_end);
+                    }
+                    for (int j = 0; j < m_nodes[i].m_inEdge.Count; ++j)
+                    {
+                        m_nodes[i].addToConnected(m_nodes[i].m_inEdge[j].m_end);
+                    }
+                    m_nodes[i].createEdgeFromConnected();
+                }
+            }
             for (int i = 0; i < m_nodes.Count; ++i)
             {
                 for (int j = 0; j < m_nodes[i].m_outEdge.Count; ++j)
@@ -109,10 +150,10 @@ namespace LGFW
 
         protected virtual bool tryToAddToOpenList(T n)
         {
-            if (!n.Visited && !m_openSet.Contains(n))
+            if (!n.Visited)
             {
                 m_openList.Add(n);
-                m_openSet.Add(n);
+                n.Visited = true;
                 return true;
             }
             return false;
@@ -122,9 +163,7 @@ namespace LGFW
         {
             int i = m_openList.Count - 1;
             var ret = m_openList[i];
-            m_openSet.Remove(ret);
             m_openList.RemoveAt(i);
-            ret.Visited = true;
             return ret;
         }
 
@@ -135,7 +174,6 @@ namespace LGFW
                 m_nodes[i].Visited = false;
             }
             m_openList.Clear();
-            m_openSet.Clear();
             tryToAddToOpenList(node);
             while (m_openList.Count > 0)
             {
@@ -165,14 +203,18 @@ namespace LGFW
             {
                 return false;
             }
+            if (m_isDoubleDirection)
+            {
+                return isFullyConnectedFromNode(m_nodes[0]);
+            }
             for (int i = 0; i < m_nodes.Count; ++i)
             {
-                if (isFullyConnectedFromNode(m_nodes[i]))
+                if (!isFullyConnectedFromNode(m_nodes[i]))
                 {
-                    return true;
+                    return false;
                 }
             }
-            return false;
+            return true;
         }
     }
 }

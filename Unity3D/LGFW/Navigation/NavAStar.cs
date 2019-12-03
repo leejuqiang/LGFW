@@ -14,6 +14,11 @@ namespace LGFW
         protected T m_end;
         protected float m_stopRange;
 
+        public NavAStar() : base(true)
+        {
+
+        }
+
         /// <inheritdoc>
         public override void clear()
         {
@@ -27,7 +32,6 @@ namespace LGFW
         /// </summary>
         public virtual void clearSearch()
         {
-            m_openSet.Clear();
             m_openList.Clear();
             m_start = null;
             m_end = null;
@@ -59,12 +63,8 @@ namespace LGFW
 
         protected bool addToOpenList(T n, T parent, float edgeCost)
         {
-            if (n.Visited)
-            {
-                return false;
-            }
             float g = parent.G + n.m_fixCost + edgeCost;
-            if (m_openSet.Contains(n))
+            if (n.Visited)
             {
                 if (g < n.G)
                 {
@@ -75,7 +75,7 @@ namespace LGFW
             }
             n.m_parent = parent;
             n.G = g;
-            m_openSet.Add(n);
+            n.Visited = true;
             m_openList.Add(n);
             return true;
         }
@@ -96,7 +96,6 @@ namespace LGFW
             int last = m_openList.Count - 1;
             m_openList[index] = m_openList[last];
             m_openList.RemoveAt(last);
-            m_openSet.Remove(ret);
             ret.Visited = true;
             return ret;
         }
@@ -176,7 +175,7 @@ namespace LGFW
                 }
             }
             m_start.G = 0;
-            m_openSet.Add(m_start);
+            m_start.Visited = true;
             m_openList.Add(m_start);
             T n = null;
             while (m_openList.Count > 0)
@@ -185,15 +184,10 @@ namespace LGFW
                 for (int i = 0; i < n.m_outEdge.Count; ++i)
                 {
                     var nn = (T)n.m_outEdge[i].m_end;
+                    addToOpenList(nn, n, n.m_outEdge[i].m_cost);
                     if (isEnd(nn))
                     {
-                        nn.m_parent = n;
-                        n = nn;
                         return nn;
-                    }
-                    else
-                    {
-                        addToOpenList(nn, n, n.m_outEdge[i].m_cost);
                     }
                 }
             }

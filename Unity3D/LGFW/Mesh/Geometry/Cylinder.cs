@@ -39,10 +39,6 @@ namespace LGFW
         [SerializeField]
         protected Color m_sideColor = Color.white;
 
-        protected UIAtlasSprite m_bottomAS;
-        protected UIAtlasSprite m_topAS;
-        protected UIAtlasSprite m_wallAS;
-
         /// <summary>
         /// The y anchor of this cylinder
         /// </summary>
@@ -55,7 +51,7 @@ namespace LGFW
                 if (m_anchorY != value)
                 {
                     m_anchorY = value;
-                    m_updateFlag |= UIMesh.FLAG_VERTEX;
+                    m_flag |= FLAG_VERTEX;
                 }
             }
         }
@@ -72,7 +68,7 @@ namespace LGFW
                 if (m_radius != value)
                 {
                     m_radius = value;
-                    m_updateFlag |= UIMesh.FLAG_VERTEX;
+                    m_flag |= FLAG_VERTEX;
                 }
             }
         }
@@ -89,7 +85,7 @@ namespace LGFW
                 if (m_height != value)
                 {
                     m_height = value;
-                    m_updateFlag |= UIMesh.FLAG_VERTEX;
+                    m_flag |= FLAG_VERTEX;
                 }
             }
         }
@@ -123,7 +119,7 @@ namespace LGFW
                 if (m_bottomColor != value)
                 {
                     m_bottomColor = value;
-                    m_updateFlag |= UIMesh.FLAG_COLOR;
+                    m_flag |= FLAG_COLOR;
                 }
             }
         }
@@ -140,7 +136,7 @@ namespace LGFW
                 if (m_topColor != value)
                 {
                     m_topColor = value;
-                    m_updateFlag |= UIMesh.FLAG_COLOR;
+                    m_flag |= FLAG_COLOR;
                 }
             }
         }
@@ -157,7 +153,7 @@ namespace LGFW
                 if (m_sideColor != value)
                 {
                     m_sideColor = value;
-                    m_updateFlag |= UIMesh.FLAG_COLOR;
+                    m_flag |= FLAG_COLOR;
                 }
             }
         }
@@ -173,9 +169,9 @@ namespace LGFW
             {
                 if (m_bottomSprite != value)
                 {
-                    m_bottomSprite = value;
-                    m_bottomAS = m_atlas == null ? null : m_atlas.getSprite(m_bottomSprite);
-                    m_updateFlag |= UIMesh.FLAG_UV;
+                    // m_bottomSprite = value;
+                    // m_bottomAS = m_atlas == null ? null : m_atlas.getSprite(m_bottomSprite);
+                    // m_updateFlag |= UIMesh.FLAG_UV;
                 }
             }
         }
@@ -192,8 +188,7 @@ namespace LGFW
                 if (m_topSprite != value)
                 {
                     m_topSprite = value;
-                    m_topAS = m_atlas == null ? null : m_atlas.getSprite(m_topSprite);
-                    m_updateFlag |= UIMesh.FLAG_UV;
+                    m_flag |= FLAG_UV;
                 }
             }
         }
@@ -210,8 +205,7 @@ namespace LGFW
                 if (m_wallSprite != value)
                 {
                     m_wallSprite = value;
-                    m_wallAS = m_atlas == null ? null : m_atlas.getSprite(m_wallSprite);
-                    m_updateFlag |= UIMesh.FLAG_UV;
+                    m_flag |= FLAG_UV;
                 }
             }
         }
@@ -228,53 +222,15 @@ namespace LGFW
                 if (m_atlas != value)
                 {
                     m_atlas = value;
-                    onAtlasChanged();
+                    m_flag |= FLAG_UV;
                 }
             }
-        }
-
-        protected void onAtlasChanged()
-        {
-            if (m_atlas != null)
-            {
-                m_render.sharedMaterial = m_atlas.m_material;
-                m_updateFlag |= UIMesh.FLAG_UV;
-            }
-            else
-            {
-                m_render.sharedMaterial = null;
-                repaint();
-            }
-            refindSprite();
-        }
-
-        protected void refindSprite()
-        {
-            if (m_atlas != null)
-            {
-                m_wallAS = m_atlas.getSprite(m_wallSprite);
-                m_topAS = m_atlas.getSprite(m_topSprite);
-                m_bottomAS = m_atlas.getSprite(m_bottomSprite);
-            }
-            else
-            {
-                m_wallAS = null;
-                m_bottomAS = null;
-                m_topAS = null;
-            }
-        }
-
-        protected override void doAwake()
-        {
-            base.doAwake();
-            onAtlasChanged();
         }
 
         /// <inheritdoc/>
         public override void reset()
         {
             base.reset();
-            onAtlasChanged();
         }
 
         protected override void updateVertex()
@@ -347,9 +303,18 @@ namespace LGFW
 
         protected override void updateUV()
         {
-            Rect br = m_bottomAS == null ? (new Rect(0, 0, 1, 1)) : m_bottomAS.m_uv;
-            Rect tr = m_topAS == null ? (new Rect(0, 0, 1, 1)) : m_topAS.m_uv;
-            Rect wr = m_wallAS == null ? (new Rect(0, 0, 1, 1)) : m_wallAS.m_uv;
+            UIAtlasSprite bs = null;
+            UIAtlasSprite ts = null;
+            UIAtlasSprite ss = null;
+            if (m_atlas != null)
+            {
+                bs = m_atlas.getSprite(m_bottomSprite);
+                ts = m_atlas.getSprite(m_topSprite);
+                ss = m_atlas.getSprite(m_wallSprite);
+            }
+            Rect br = bs == null ? (new Rect(0, 0, 1, 1)) : bs.m_uv;
+            Rect tr = ts == null ? (new Rect(0, 0, 1, 1)) : ts.m_uv;
+            Rect wr = ss == null ? (new Rect(0, 0, 1, 1)) : ss.m_uv;
             Vector2 bc = br.center;
             Vector2 tc = tr.center;
             float a = 360.0f / m_segmentNumber;
@@ -394,6 +359,42 @@ namespace LGFW
         }
 
 #if UNITY_EDITOR
+        public override void onSelectedSprite(UIAtlasSprite s, int id)
+        {
+            string name = s == null ? "" : s.m_name;
+            if (id == 0)
+            {
+                m_bottomSprite = name;
+            }
+            else if (id == 1)
+            {
+                m_topSprite = name;
+            }
+            else
+            {
+                m_wallSprite = name;
+            }
+            EditorChanged = true;
+        }
+
+        public override UIAtlas editorGetAtlas()
+        {
+            return m_atlas;
+        }
+
+        public override void getSelectSprite(List<string> labels, List<UIAtlasSprite> values, List<int> ids)
+        {
+            labels.Add("bottom");
+            values.Add(m_atlas == null ? null : m_atlas.getSprite(m_bottomSprite));
+            ids.Add(0);
+            labels.Add("top");
+            values.Add(m_atlas == null ? null : m_atlas.getSprite(m_topSprite));
+            ids.Add(1);
+            labels.Add("wall");
+            values.Add(m_atlas == null ? null : m_atlas.getSprite(m_wallSprite));
+            ids.Add(2);
+        }
+
         [UnityEditor.MenuItem("LGFW/Geometry/Cylinder", false, (int)'c')]
         public static void addToGameObjects()
         {

@@ -62,7 +62,7 @@ namespace LGFW
         // void Start()
         // {
         //     initByMaze(m_maze);
-        //     var l = findPathList(m_maze.m_start.x, m_maze.m_start.y, m_maze.m_end.x, m_maze.m_end.y, 1);
+        //     var l = findPathList(m_maze.m_start.x, m_maze.m_start.y, m_maze.m_end.x, m_maze.m_end.y, 2);
         //     Debug.Log(l.Count);
         //     m_maze.m_path = l;
         // }

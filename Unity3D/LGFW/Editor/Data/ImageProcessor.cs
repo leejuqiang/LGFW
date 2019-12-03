@@ -7,13 +7,17 @@ namespace LGFW
 {
     public class ImageProcessor : AssetPostprocessor
     {
-
         void OnPreprocessTexture()
         {
             TextureImporter ti = (TextureImporter)assetImporter;
             if (!LGFWKit.fileExists(AssetDatabase.GetTextMetaFilePathFromAssetPath(ti.assetPath)))
             {
-                TextureImporterConfig c = EditorConfig.Instance.m_defaultTextureImporter;
+                string folder = System.IO.Path.GetDirectoryName(ti.assetPath);
+                TextureImporterConfig c = AssetDatabase.LoadAssetAtPath<TextureImporterConfig>(folder + "/teximporter.asset");
+                if (c == null)
+                {
+                    return;
+                }
                 if (c.m_enable)
                 {
                     ti.textureType = c.m_textureType;
@@ -37,6 +41,19 @@ namespace LGFW
                     ti.SetTextureSettings(s);
                 }
             }
+        }
+
+        [UnityEditor.MenuItem("LGFW/Asset/create texture importer configuration", false, (int)'t')]
+        public static void createImporterConfig()
+        {
+            string path = LEditorKits.openSaveToFolderPanel("Select a folder");
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+            var c = ScriptableObject.CreateInstance<TextureImporterConfig>();
+            AssetDatabase.CreateAsset(c, path + "/teximporter.asset");
+            Debug.Log("Texture importer configuration is created at \"" + path + "/teximporter.asset\"");
         }
     }
 }

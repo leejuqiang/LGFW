@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.U2D;
 
 namespace LGFW
 {
@@ -22,7 +24,7 @@ namespace LGFW
     /// </summary>
     public enum CubeFaceRotate
     {
-        normal,
+        none,
         left,
         right,
         rotateInvert,
@@ -47,12 +49,9 @@ namespace LGFW
         [HideInInspector]
         protected string[] m_sprites = new string[6];
         [SerializeField]
-        [HideInInspector]
         protected Color[] m_colorsOfFaces = new Color[] { Color.white, Color.white, Color.white, Color.white, Color.white, Color.white };
         [SerializeField]
-        [HideInInspector]
         protected CubeFaceRotate[] m_faceRotate = new CubeFaceRotate[6];
-
         protected UIAtlasSprite[] m_atlasSprites = new UIAtlasSprite[6];
 
         /// <summary>
@@ -67,7 +66,7 @@ namespace LGFW
                 if (m_anchor != value)
                 {
                     m_anchor = value;
-                    m_updateFlag |= UIMesh.FLAG_VERTEX;
+                    m_flag |= FLAG_VERTEX;
                 }
             }
         }
@@ -84,13 +83,13 @@ namespace LGFW
                 if (m_size != value)
                 {
                     m_size = value;
-                    m_updateFlag |= UIMesh.FLAG_VERTEX;
+                    m_flag |= FLAG_VERTEX;
                 }
             }
         }
 
         /// <summary>
-        /// The UIAtlas this cube uses
+        /// The atlas of this cube
         /// </summary>
         /// <value>The atlas</value>
         public UIAtlas Atlas
@@ -106,11 +105,35 @@ namespace LGFW
             }
         }
 
+        protected void onAtlasChanged()
+        {
+            if (m_atlas != null)
+            {
+                for (int i = 0; i < m_sprites.Length; ++i)
+                {
+                    m_atlasSprites[i] = m_atlas.getSprite(m_sprites[i]);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < m_sprites.Length; ++i)
+                {
+                    m_atlasSprites[i] = null;
+                }
+            }
+            m_flag |= FLAG_UV;
+        }
+
+        protected override void doAwake()
+        {
+            base.doAwake();
+            onAtlasChanged();
+        }
+
         /// <inheritdoc/>
         public override void reset()
         {
             base.reset();
-            onAtlasChanged();
         }
 
         /// <summary>
@@ -133,7 +156,7 @@ namespace LGFW
             if (c != m_colorsOfFaces[(int)face])
             {
                 m_colorsOfFaces[(int)face] = c;
-                m_updateFlag |= UIMesh.FLAG_COLOR;
+                m_flag |= FLAG_COLOR;
             }
         }
 
@@ -159,27 +182,10 @@ namespace LGFW
                 m_sprites[(int)face] = sprite;
                 if (m_atlas != null)
                 {
-                    m_atlasSprites[(int)face] = m_atlas.getSprite(sprite);
-                    m_updateFlag |= UIMesh.FLAG_UV;
+                    m_atlasSprites[(int)face] = m_atlas.getSprite(m_sprites[(int)face]);
                 }
+                m_flag |= FLAG_UV;
             }
-        }
-
-        private void onAtlasChanged()
-        {
-            if (m_atlas != null)
-            {
-                for (int i = 0; i < m_sprites.Length; ++i)
-                {
-                    m_atlasSprites[i] = m_atlas.getSprite(m_sprites[i]);
-                }
-                m_render.sharedMaterial = m_atlas.m_material;
-            }
-            else
-            {
-                m_render.sharedMaterial = null;
-            }
-            m_updateFlag |= UIMesh.FLAG_UV;
         }
 
         /// <summary>
@@ -193,6 +199,7 @@ namespace LGFW
                 m_sprites[i] = sprite;
             }
             onAtlasChanged();
+            m_flag |= FLAG_UV;
         }
 
         /// <summary>
@@ -205,7 +212,7 @@ namespace LGFW
             {
                 m_colorsOfFaces[i] = c;
             }
-            m_updateFlag |= UIMesh.FLAG_COLOR;
+            m_flag |= FLAG_COLOR;
         }
 
         /// <summary>
@@ -228,7 +235,7 @@ namespace LGFW
             if (m_faceRotate[(int)f] != r)
             {
                 m_faceRotate[(int)f] = r;
-                m_updateFlag |= UIMesh.FLAG_UV;
+                m_flag |= FLAG_UV;
             }
         }
 
@@ -242,7 +249,7 @@ namespace LGFW
             {
                 m_faceRotate[i] = r;
             }
-            m_updateFlag |= UIMesh.FLAG_UV;
+            m_flag |= FLAG_UV;
         }
 
         protected Vector3 getLeftBottomFront()
@@ -256,7 +263,7 @@ namespace LGFW
 
         protected void addUVByRotate(Rect rc, CubeFaceRotate r)
         {
-            if (r == CubeFaceRotate.normal)
+            if (r == CubeFaceRotate.none)
             {
                 m_uvs.Add(new Vector2(rc.xMin, rc.yMin));
                 m_uvs.Add(new Vector2(rc.xMin, rc.yMax));
@@ -414,9 +421,70 @@ namespace LGFW
             m_vertices.Add(new Vector3(p.x, p.y, p.z));
             m_vertices.Add(new Vector3(p2.x, p.y, p.z));
             m_vertices.Add(new Vector3(p2.x, p.y, p2.z));
+            Texture2D tex = null;
+            if (m_atlas != null)
+            {
+                tex = m_atlas.AtlasTexture;
+            }
+            if (Renderer.sharedMaterial != null)
+            {
+                m_render.sharedMaterial.mainTexture = tex;
+            }
         }
 
 #if UNITY_EDITOR
+
+        protected T[] resizeArray<T>(T[] arr)
+        {
+            if (arr.Length < 6)
+            {
+                T[] temp = new T[6];
+                System.Array.Copy(arr, temp, arr.Length);
+                for (int i = arr.Length; i < 6; ++i)
+                {
+                    temp[i] = arr[arr.Length - 1];
+                }
+                return temp;
+            }
+            if (arr.Length > 6)
+            {
+                T[] temp = new T[6];
+                System.Array.Copy(arr, temp, 6);
+                return temp;
+            }
+            return arr;
+        }
+
+        public override void onEditorChanged()
+        {
+            m_sprites = resizeArray<string>(m_sprites);
+            m_colorsOfFaces = resizeArray<Color>(m_colorsOfFaces);
+            m_faceRotate = resizeArray<CubeFaceRotate>(m_faceRotate);
+            onAtlasChanged();
+        }
+
+        public override void onSelectedSprite(UIAtlasSprite s, int id)
+        {
+            m_sprites[id] = s == null ? "" : s.m_name;
+            m_atlasSprites[id] = s;
+            EditorChanged = true;
+        }
+
+        public override UIAtlas editorGetAtlas()
+        {
+            return m_atlas;
+        }
+
+        public override void getSelectSprite(List<string> labels, List<UIAtlasSprite> values, List<int> ids)
+        {
+            for (int i = 0; i < m_atlasSprites.Length; ++i)
+            {
+                labels.Add(((CubeFace)i).ToString());
+                values.Add(m_atlasSprites[i]);
+                ids.Add(i);
+            }
+        }
+
         [UnityEditor.MenuItem("LGFW/Geometry/Cube", false, (int)'c')]
         public static void addToGameObjects()
         {

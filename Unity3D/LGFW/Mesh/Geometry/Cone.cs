@@ -20,10 +20,8 @@ namespace LGFW
         [SerializeField]
         protected float m_offsetAngle = 0;
         [SerializeField]
-        [HideInInspector]
         protected float m_height = 1;
         [SerializeField]
-        [HideInInspector]
         protected int m_splitNumber = 3;
         [SerializeField]
         protected Vector2 m_tipAnchor = new Vector2(0.5f, 0.5f);
@@ -87,7 +85,7 @@ namespace LGFW
                 if (m_scale != value)
                 {
                     m_scale = value;
-                    m_updateFlag |= UIMesh.FLAG_VERTEX | UIMesh.FLAG_NORMAL;
+                    m_flag |= FLAG_VERTEX | FLAG_NORMAL;
                 }
             }
         }
@@ -104,7 +102,7 @@ namespace LGFW
                 if (m_offsetAngle != value)
                 {
                     m_offsetAngle = value;
-                    m_updateFlag |= UIMesh.FLAG_VERTEX | UIMesh.FLAG_NORMAL;
+                    m_flag |= FLAG_VERTEX | FLAG_NORMAL;
                 }
             }
         }
@@ -126,11 +124,11 @@ namespace LGFW
                 {
                     if (m_height * value < 0)
                     {
-                        m_updateFlag |= UIMesh.FLAG_VERTEX | UIMesh.FLAG_NORMAL;
+                        m_flag |= FLAG_VERTEX | FLAG_NORMAL;
                     }
                     else
                     {
-                        m_updateFlag |= UIMesh.FLAG_TIP | UIMesh.FLAG_NORMAL;
+                        m_flag |= FLAG_TIP | FLAG_NORMAL;
                     }
                     m_height = value;
                 }
@@ -170,7 +168,7 @@ namespace LGFW
                 if (m_tipAnchor != value)
                 {
                     m_tipAnchor = value;
-                    m_updateFlag |= UIMesh.FLAG_TIP | UIMesh.FLAG_NORMAL;
+                    m_flag |= FLAG_TIP | FLAG_NORMAL;
                 }
             }
         }
@@ -187,7 +185,7 @@ namespace LGFW
                 if (m_color != value)
                 {
                     m_color = value;
-                    m_updateFlag |= UIMesh.FLAG_COLOR;
+                    m_flag |= FLAG_COLOR;
                 }
             }
         }
@@ -204,7 +202,7 @@ namespace LGFW
                 if (m_topSprite != value)
                 {
                     m_topSprite = value;
-                    m_updateFlag |= UIMesh.FLAG_UV;
+                    m_flag |= FLAG_UV;
                 }
             }
         }
@@ -221,7 +219,7 @@ namespace LGFW
                 if (m_bottomSprite != value)
                 {
                     m_bottomSprite = value;
-                    m_updateFlag |= UIMesh.FLAG_UV;
+                    m_flag |= FLAG_UV;
                 }
             }
         }
@@ -238,15 +236,7 @@ namespace LGFW
                 if (m_atlas != value)
                 {
                     m_atlas = value;
-                    if (m_atlas == null)
-                    {
-                        m_render.sharedMaterial = null;
-                    }
-                    else
-                    {
-                        m_render.sharedMaterial = m_atlas.m_material;
-                    }
-                    m_updateFlag |= UIMesh.FLAG_UV;
+                    m_flag |= FLAG_UV;
                 }
             }
         }
@@ -254,7 +244,7 @@ namespace LGFW
         protected override void preLateUpdate()
         {
             base.preLateUpdate();
-            if ((m_updateFlag & UIMesh.FLAG_VERTEX) == 0 && (m_updateFlag & UIMesh.FLAG_TIP) > 0)
+            if ((m_flag & FLAG_VERTEX) == 0 && (m_flag & FLAG_TIP) > 0)
             {
                 updateTip();
                 m_mesh.vertices = m_vertices.ToArray();
@@ -625,6 +615,35 @@ namespace LGFW
         }
 
 #if UNITY_EDITOR
+        public override void onSelectedSprite(UIAtlasSprite s, int id)
+        {
+            string name = s == null ? "" : s.m_name;
+            if (id == 0)
+            {
+                m_bottomSprite = name;
+            }
+            else
+            {
+                m_topSprite = name;
+            }
+            EditorChanged = true;
+        }
+
+        public override UIAtlas editorGetAtlas()
+        {
+            return m_atlas;
+        }
+
+        public override void getSelectSprite(List<string> labels, List<UIAtlasSprite> values, List<int> ids)
+        {
+            labels.Add("bottom");
+            values.Add(m_atlas == null ? null : m_atlas.getSprite(m_bottomSprite));
+            ids.Add(0);
+            labels.Add("top");
+            values.Add(m_atlas == null ? null : m_atlas.getSprite(m_topSprite));
+            ids.Add(1);
+        }
+
         [UnityEditor.MenuItem("LGFW/Geometry/Cone", false, (int)'c')]
         public static void addToGameObjects()
         {

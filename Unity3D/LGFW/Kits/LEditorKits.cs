@@ -56,10 +56,7 @@ namespace LGFW
         public static string getAssetDirectory(Object obj)
         {
             string path = AssetDatabase.GetAssetPath(obj);
-            int index = path.LastIndexOf('/');
-            path = path.Substring(0, index);
-            path = getPathStartWithAssets(path);
-            return path;
+            return System.IO.Path.GetDirectoryName(path);
         }
 
         public static bool isGameObjectSelected(GameObject go)

@@ -53,6 +53,8 @@ namespace LGFW
         /// The edges come into the node
         /// </summary>
         public List<GraphEdgeFromNode> m_inEdge;
+        protected int m_group;
+        protected HashSet<GraphNode> m_connectedNodes = new HashSet<GraphNode>();
         protected bool m_visited;
 
         /// <summary>
@@ -79,6 +81,25 @@ namespace LGFW
             m_id = id;
             m_outEdge = new List<GraphEdgeFromNode>();
             m_inEdge = new List<GraphEdgeFromNode>();
+        }
+
+        public void addToConnected(GraphNode n)
+        {
+            m_connectedNodes.Add(n);
+        }
+
+        public void createEdgeFromConnected()
+        {
+            m_outEdge.Clear();
+            foreach (GraphNode n in m_connectedNodes)
+            {
+                var e = new GraphEdgeFromNode();
+                e.m_end = n;
+                m_outEdge.Add(e);
+            }
+            m_inEdge = m_outEdge;
+            m_connectedNodes.Clear();
+            m_connectedNodes = null;
         }
 
         /// <summary>

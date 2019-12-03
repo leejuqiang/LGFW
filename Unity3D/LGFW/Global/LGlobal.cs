@@ -161,7 +161,6 @@ namespace LGFW
             go.AddComponent<TimeScales>();
             go.AddComponent<Localization>();
             go.AddComponent<UIPanelManager>();
-            go.AddComponent<EventManager>();
             go.AddComponent<ResourceManager>();
             go.AddComponent<NotDestroy>();
         }

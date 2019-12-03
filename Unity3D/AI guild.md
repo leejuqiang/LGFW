@@ -10,5 +10,7 @@ MSELoss and logloss are the layers for loss function.
 
 You don't need to specific the input number of each layer except the first layer. The input number for each layer is computed automatically. But for some layers, you need to make sure the parameters for the constructor are correct, so the output of one layer can match the input of the next layer.
 
+There is a precompile macro "NN_USE_FLOAT", define this to specific the neural network using float instead of double for input,  output and parameters.  
+
 
 [Back to main guild page](https://github.com/leejuqiang/LGFW/blob/master/README.md)

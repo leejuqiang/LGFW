@@ -12,5 +12,7 @@ You don't need to specific the input number of each layer except the first layer
 
 There is a precompile macro "NN_USE_FLOAT", define this to specific the neural network using float instead of double for input,  output and parameters.  
 
+Most of the layers support dropout.
+
 
 [Back to main guild page](https://github.com/leejuqiang/LGFW/blob/master/README.md)

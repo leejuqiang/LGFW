@@ -21,7 +21,7 @@ namespace LGFW
         /// Constructor
         /// </summary>
         /// <param name="neuronNumber">The number of neuron in this layer</param>
-        public NNLinearLayer(int neuronNumber)
+        public NNLinearLayer(int neuronNumber) : base()
         {
             m_neuronNumber = neuronNumber;
             m_output = new number[m_neuronNumber];

@@ -89,6 +89,15 @@ namespace LGFW
             m_imageIterator = new RectIterator(m_filterSize.x, m_imageSize.x);
         }
 
+        /// <summary>
+        /// Gets the output image size for one chanel
+        /// </summary>
+        /// <returns>The size</returns>
+        public Vector2Int getOutputImageSize()
+        {
+            return new Vector2Int(m_step.x, m_step.y);
+        }
+
         private void computePadding()
         {
             if (m_usePadding)

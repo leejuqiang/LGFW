@@ -36,19 +36,18 @@ namespace LGFW
         /// </summary>
         public UIState[] m_states;
 
-        private Transform m_trans;
-        private UIState m_currentState;
-        private UIState m_nextState;
-        private Dictionary<string, UIState> m_stateMap = new Dictionary<string, UIState>();
-        private UIPanelData m_data;
-        private CanvasGroup m_canvasG;
-
+        protected Transform m_trans;
+        protected UIState m_currentState;
+        protected UIState m_nextState;
+        protected Dictionary<string, UIState> m_stateMap = new Dictionary<string, UIState>();
+        protected UIPanelData m_data;
+        protected CanvasGroup m_canvasG;
         /// <summary>
         /// If this panel should be brought to the front when opened
         /// </summary>
         public bool m_bringToFront;
-        private bool m_isVisible;
-        private bool m_isForward = true;
+        protected bool m_isVisible;
+        protected bool m_isForward = true;
 
         /// <summary>
         /// The data used for this panel
@@ -203,6 +202,15 @@ namespace LGFW
                     m_canvasG.interactable = true;
                 }
             }
+            if ((m_flag & 4) != 0)
+            {
+                m_flag &= ~4;
+                if (m_currentState != null)
+                {
+                    m_currentState.refresh();
+                }
+                onRefresh();
+            }
             doUpdate();
         }
 
@@ -213,11 +221,7 @@ namespace LGFW
         public void refresh(UIPanelData data)
         {
             m_data = data;
-            if (m_currentState != null)
-            {
-                m_currentState.refresh();
-            }
-            onRefresh();
+            m_flag |= 4;
         }
 
         /// <summary>

@@ -86,6 +86,10 @@ namespace LGFW
         public static string createAssetAtSelectedPath(Object obj, string title, string name)
         {
             string path = openSaveToFolderPanel(title);
+            if (string.IsNullOrEmpty(path))
+            {
+                return "";
+            }
             AssetDatabase.CreateAsset(obj, path + "/" + name);
             return path;
         }

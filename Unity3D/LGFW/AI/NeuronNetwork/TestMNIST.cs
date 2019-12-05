@@ -27,16 +27,18 @@ namespace LGFW
             readData();
 
             m_nn = new NeuralNetwork(784, 0.001);
-            NNLayerBase l1 = new NNConvolutionLayer(1, 1, new Vector2Int(28, 28), new Vector2Int(2, 2), new Vector2Int(1, 1), true);
+            NNLayerBase l1 = new NNConvolutionLayer(1, 1, new Vector2Int(28, 28), new Vector2Int(2, 2), new Vector2Int(1, 1), false);
             // l1.setDropoutRate(0.3f);
             m_nn.addLayer(l1);
             NNLayerBase l2 = new NNSigmoidLayer();
             m_nn.addLayer(l2);
-            l1 = new NNLinearLayer(10);
+            var cnn = (NNConvolutionLayer)l1;
+            l1 = new AveragePoolingLayer(cnn.getOutputImageSize(), new Vector2Int(2, 2));
             // l1.setDropoutRate(0.3f);
             l2 = new NNSoftMaxLayer();
             m_nn.addLayer(l1);
             m_nn.addLayer(l2);
+            m_nn.addLayer(new NNLinearLayer(10));
             m_nn.initParameter();
             NNLossBase loss = new MSELoss();
             m_nn.setLoss(loss);
@@ -46,7 +48,7 @@ namespace LGFW
 
         public void test()
         {
-            int index = 1;
+            int index = 3;
             // for (; index < m_nn.m_trainingSet[0].Length; ++index)
             // {
             //     if (m_nn.m_trainingSet[0][index] != 0)

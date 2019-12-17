@@ -9,18 +9,40 @@ namespace LGFW
 {
     public class LEditorKits
     {
-
-        public static System.Type findTypeByName(string name)
+        private static System.Type searchType(string name, string space)
         {
             foreach (Assembly a in System.AppDomain.CurrentDomain.GetAssemblies())
             {
                 System.Type t = a.GetType(name);
                 if (t != null)
                 {
-                    return t;
+                    if (string.IsNullOrEmpty(space))
+                    {
+                        return t;
+                    }
+                    if (t.Namespace == space)
+                    {
+                        return t;
+                    }
                 }
             }
             return null;
+        }
+
+        public static System.Type findTypeByName(string name, string nameSpace)
+        {
+            string n = name;
+            if (!string.IsNullOrEmpty(nameSpace))
+            {
+                n = nameSpace + "." + name;
+            }
+            var t = searchType(n, nameSpace);
+            if (t != null)
+            {
+                return t;
+            }
+            n = name;
+            return searchType(n, nameSpace);
         }
 
         public static Transform getChildTransformByName(Transform t, string name)

@@ -87,6 +87,14 @@ namespace LGFW
             computePadding();
             m_output = new number[m_step.z * m_filter * m_channel];
             m_imageIterator = new RectIterator(m_filterSize.x, m_imageSize.x);
+            m_outputMatrixes = new OutputMatrix[m_step.z];
+            for (int i = 0; i < m_outputMatrixes.Length; ++i)
+            {
+                m_outputMatrixes[i] = new OutputMatrix();
+                m_outputMatrixes[i].m_inputIndexes = new int[m_filterSize.z];
+                m_outputMatrixes[i].m_paramIndexes = new int[m_filterSize.z];
+            }
+            initOutMatrix();
         }
 
         /// <summary>
@@ -126,90 +134,120 @@ namespace LGFW
             }
         }
 
+        private void expandOutMatrix()
+        {
+            OutputMatrix[] temp = new OutputMatrix[m_output.Length];
+            System.Array.Copy(m_outputMatrixes, temp, m_step.z);
+            int outI = 0;
+            int pOffset = 0;
+            int imageOffset = 0;
+            for (int c = 0; c < m_channel; ++c)
+            {
+                pOffset = 0;
+                for (int f = 0; f < m_filter; ++f)
+                {
+                    if (outI < m_step.z)
+                    {
+                        outI += m_step.z;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < m_step.z; ++i)
+                        {
+                            OutputMatrix m = new OutputMatrix();
+                            m.m_inputIndexes = new int[m_filterSize.z];
+                            m.m_paramIndexes = new int[m_filterSize.z];
+                            for (int j = 0; j < m_filterSize.z; ++j)
+                            {
+                                if (m_outputMatrixes[i].m_inputIndexes[j] >= 0)
+                                {
+                                    m.m_inputIndexes[j] = m_outputMatrixes[i].m_inputIndexes[j] + imageOffset;
+                                }
+                                else
+                                {
+                                    m.m_inputIndexes[j] = -1;
+                                }
+                                m.m_paramIndexes[j] = m_outputMatrixes[i].m_paramIndexes[j] + pOffset;
+                            }
+                            m.m_biasIndex = m_outputMatrixes[i].m_biasIndex + f;
+                            ++outI;
+                        }
+                    }
+                    pOffset += m_filterSize.z;
+                }
+                imageOffset += m_imageSize.z;
+            }
+            m_outputMatrixes = temp;
+        }
+
+        private void initOutMatrix()
+        {
+            int outIndex = 0;
+            int imageY = -m_padding.y;
+            for (int sy = 0; sy < m_step.y; ++sy)
+            {
+                int imageX = -m_padding.x;
+                int imagePos = imageY * m_imageSize.x;
+                for (int sx = 0; sx < m_step.x; ++sx)
+                {
+                    OutputMatrix m = m_outputMatrixes[outIndex];
+                    ++outIndex;
+                    m_imageIterator.reset(imagePos, imageX, imageY);
+                    for (int j = 0; j < m.m_inputIndexes.Length; ++j)
+                    {
+                        m.m_paramIndexes[j] = j;
+                        int n = m_imageIterator.next();
+                        if (m_imageIterator.m_pos.x < 0 || m_imageIterator.m_pos.x >= m_imageSize.x || m_imageIterator.m_pos.y < 0 || m_imageIterator.m_pos.y >= m_imageSize.y)
+                        {
+                            m.m_inputIndexes[j] = -1;
+                        }
+                        else
+                        {
+                            m.m_inputIndexes[j] = n;
+                        }
+                    }
+                    m.m_biasIndex = m_weightLength;
+                    imageX += m_stride.x;
+                }
+                imageY += m_stride.y;
+            }
+        }
+
         public override void enableTraining(int layerIndex)
         {
-            base.enableTraining(layerIndex);
+            m_parametersGD = new number[m_parameters.Length];
             if (layerIndex > 0)
             {
                 m_bpInToE = new number[m_inputNumber];
             }
-            int outIndex = 0;
-            int imageOffset = 0;
-            for (int c = 0; c < m_channel; ++c)
-            {
-                int imageY = -m_padding.y;
-                for (int f = 0; f < m_filter; ++f)
-                {
-                    int pIndex = f * m_filterSize.z;
-                    for (int sy = 0; sy < m_step.y; ++sy)
-                    {
-                        int imageX = -m_padding.x;
-                        int imagePos = imageY * m_imageSize.x + imageOffset;
-                        for (int sx = 0; sx < m_step.x; ++sx)
-                        {
-                            OutputMatrix m = m_outputMatrixes[outIndex];
-                            ++outIndex;
-                            m.m_inputIndexes = new int[m_filterSize.z];
-                            m.m_paramIndexes = new int[m_filterSize.z];
-                            m_imageIterator.reset(imagePos, imageX, imageY);
-                            for (int j = 0; j < m.m_inputIndexes.Length; ++j)
-                            {
-                                m.m_paramIndexes[j] = pIndex + j;
-                                int n = m_imageIterator.next();
-                                if (m_imageIterator.m_pos.x < 0 || m_imageIterator.m_pos.x >= m_imageSize.x || m_imageIterator.m_pos.y < 0 || m_imageIterator.m_pos.y >= m_imageSize.y)
-                                {
-                                    m.m_inputIndexes[j] = -1;
-                                }
-                                else
-                                {
-                                    m.m_inputIndexes[j] = n;
-                                }
-                            }
-                            m.m_biasIndex = m_weightLength + f;
-                            imageX += m_stride.x;
-                        }
-                        imageY += m_stride.y;
-                    }
-                }
-                imageOffset += m_imageSize.z;
-            }
+            expandOutMatrix();
         }
 
         protected override void normalOutput(number[] input)
         {
             int outIndex = 0;
             int imageOffset = 0;
+            int pOffset = 0;
             for (int c = 0; c < m_channel; ++c)
             {
                 int imageY = -m_padding.y;
                 for (int f = 0; f < m_filter; ++f)
                 {
-                    int pIndex = f * m_filterSize.z;
-                    for (int sy = 0; sy < m_step.y; ++sy)
+                    for (int i = 0; i < m_step.z; ++i)
                     {
-                        int imageX = -m_padding.x;
-                        int imagePos = imageY * m_imageSize.x + imageOffset;
-                        for (int sx = 0; sx < m_step.x; ++sx)
+                        OutputMatrix m = m_outputMatrixes[i];
+                        m_output[outIndex] = 0;
+                        for (int j = 0; j < m_filterSize.z; ++j)
                         {
-                            m_output[outIndex] = 0;
-                            m_imageIterator.reset(imagePos, imageX, imageY);
-                            for (int j = 0; j < m_filterSize.z; ++j)
+                            if (m.m_inputIndexes[j] >= 0)
                             {
-                                int n = m_imageIterator.next();
-                                if (m_imageIterator.m_pos.x < 0 || m_imageIterator.m_pos.x >= m_imageSize.x || m_imageIterator.m_pos.y < 0 || m_imageIterator.m_pos.y >= m_imageSize.y)
-                                {
-                                }
-                                else
-                                {
-                                    m_output[outIndex] += m_input[n] * m_parameters[pIndex + j];
-                                }
+                                m_output[outIndex] += input[m.m_inputIndexes[j] + imageOffset] * m_parameters[m.m_paramIndexes[j] + pOffset];
                             }
-                            m_output[outIndex] += m_parameters[m_weightLength + f];
-                            imageX += m_stride.x;
-                            ++outIndex;
                         }
-                        imageY += m_stride.y;
+                        m_output[outIndex] += m_parameters[m.m_biasIndex + f];
+                        ++outIndex;
                     }
+                    pOffset += m_filterSize.z;
                 }
                 imageOffset += m_imageSize.z;
             }

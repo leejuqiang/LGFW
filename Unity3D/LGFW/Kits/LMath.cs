@@ -158,40 +158,45 @@ namespace LGFW
         /// <typeparam name="T">The type of the element of the array</typeparam>
         public static void shuffleArray<T>(T[] array, int times = -1)
         {
-            if (times < 0)
-            {
-                times = array.Length >> 1;
-            }
-            for (int i = 0; i < times; ++i)
-            {
-                int r1 = Random.Range(0, array.Length);
-                int r2 = Random.Range(0, array.Length);
-                T temp = array[r1];
-                array[r1] = array[r2];
-                array[r2] = temp;
-            }
+            shuffleArray<T>(array, null, times);
         }
 
         /// <summary>
-        /// Shuffles the array with a RandomKit
+        /// Shuffles the array with a randomizer
         /// </summary>
         /// <param name="array">The array</param>
-        /// <param name="random">The RandomKit</param>
+        /// <param name="random">The randomizer</param>
         /// <param name="times">One time means randomly choose 2 items and swap them</param>
         /// <typeparam name="T">The type of the element of the array</typeparam>
-        public static void shuffleArray<T>(T[] array, RandomKit random, int times = -1)
+        public static void shuffleArray<T>(T[] array, Randomizer random, int times = -1)
         {
             if (times < 0)
             {
                 times = array.Length >> 1;
             }
-            for (int i = 0; i < times; ++i)
+            if (random != null)
             {
-                int r1 = random.range(0, array.Length);
-                int r2 = random.range(0, array.Length);
-                T temp = array[r1];
-                array[r1] = array[r2];
-                array[r2] = temp;
+                random.FastMode = true;
+                for (int i = 0; i < times; ++i)
+                {
+                    int r1 = random.range(0, array.Length);
+                    int r2 = random.range(0, array.Length);
+                    T temp = array[r1];
+                    array[r1] = array[r2];
+                    array[r2] = temp;
+                }
+                random.FastMode = false;
+            }
+            else
+            {
+                for (int i = 0; i < times; ++i)
+                {
+                    int r1 = Random.Range(0, array.Length);
+                    int r2 = Random.Range(0, array.Length);
+                    T temp = array[r1];
+                    array[r1] = array[r2];
+                    array[r2] = temp;
+                }
             }
         }
 
@@ -203,41 +208,176 @@ namespace LGFW
         /// <typeparam name="T">The type of the element of the List</typeparam>
         public static void shuffleList<T>(List<T> l, int times = -1)
         {
-            if (times < 0)
-            {
-                times = l.Count >> 1;
-            }
-            for (int i = 0; i < times; ++i)
-            {
-                int r1 = Random.Range(0, l.Count);
-                int r2 = Random.Range(0, l.Count);
-                T temp = l[r1];
-                l[r1] = l[r2];
-                l[r2] = temp;
-            }
+            shuffleList<T>(l, null, times);
         }
 
         /// <summary>
-        /// Shuffles a list with a RandomKit
+        /// Shuffles a list with a randomizer
         /// </summary>
         /// <param name="l">The List</param>
-        /// <param name="random">The RandomKit</param>
+        /// <param name="random">The randomizer</param>
         /// <param name="times">One time means randomly choose 2 items and swap them</param>
         /// <typeparam name="T">The type of the element of the List</typeparam>
-        public static void shuffleList<T>(List<T> l, RandomKit random, int times = -1)
+        public static void shuffleList<T>(List<T> l, Randomizer random, int times = -1)
         {
             if (times < 0)
             {
                 times = l.Count >> 1;
             }
-            for (int i = 0; i < times; ++i)
+            if (random != null)
             {
-                int r1 = random.range(0, l.Count);
-                int r2 = random.range(0, l.Count);
-                T temp = l[r1];
-                l[r1] = l[r2];
-                l[r2] = temp;
+                random.FastMode = true;
+                for (int i = 0; i < times; ++i)
+                {
+                    int r1 = random.range(0, l.Count);
+                    int r2 = random.range(0, l.Count);
+                    T temp = l[r1];
+                    l[r1] = l[r2];
+                    l[r2] = temp;
+                }
+                random.FastMode = false;
             }
+            else
+            {
+                for (int i = 0; i < times; ++i)
+                {
+                    int r1 = Random.Range(0, l.Count);
+                    int r2 = Random.Range(0, l.Count);
+                    T temp = l[r1];
+                    l[r1] = l[r2];
+                    l[r2] = temp;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Randomly picks some values from an array. Each element is only picked once.
+        /// </summary>
+        /// <param name="l">The array</param>
+        /// <param name="random">The randomizer</param>
+        /// <param name="number">The number of elements you want to pick</param>
+        /// <param name="notChangeArray">If true, the array l won't be changed</param>
+        /// <typeparam name="T">The type of the array's element</typeparam>
+        /// <returns>The picked elements. If number is greater then the length of the array, this function returns the original array l</returns>
+        public static T[] pickInArray<T>(T[] l, Randomizer random, int number, bool notChangeArray)
+        {
+            if (number >= l.Length)
+            {
+                return l;
+            }
+            if (number <= 0)
+            {
+                return new T[0];
+            }
+            T[] ret = new T[number];
+            T[] temp = l;
+            if (notChangeArray)
+            {
+                temp = new T[l.Length];
+                System.Array.Copy(l, temp, l.Length);
+            }
+            int count = l.Length;
+            if (random != null)
+            {
+                random.FastMode = true;
+                for (int i = 0; i < number; ++i)
+                {
+                    int r = random.range(0, count);
+                    ret[i] = temp[r];
+                    --count;
+                    temp[r] = temp[count];
+                }
+                random.FastMode = false;
+            }
+            else
+            {
+                for (int i = 0; i < number; ++i)
+                {
+                    int r = Random.Range(0, count);
+                    ret[i] = temp[r];
+                    --count;
+                    temp[r] = temp[count];
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Randomly picks some values from an array. Each element is only picked once.
+        /// </summary>
+        /// <param name="l">The array</param>
+        /// <param name="number">The number of elements you want to pick</param>
+        /// <param name="notChangeArray">If true, the array l won't be changed</param>
+        /// <typeparam name="T">The type of the array's element</typeparam>
+        /// <returns>The picked elements. If number is greater then the length of the array, this function returns the original array l</returns>
+        public static T[] pickInArray<T>(T[] l, int number, bool notChangeArray)
+        {
+            return pickInArray<T>(l, null, number, notChangeArray);
+        }
+
+        /// <summary>
+        /// Randomly picks some values from a list. Each element is only picked once.
+        /// </summary>
+        /// <param name="l">The list</param>
+        /// <param name="random">The randomizer</param>
+        /// <param name="number">The number of elements you want to pick</param>
+        /// <param name="notChangeArray">If true, the list l won't be changed</param>
+        /// <typeparam name="T">The type of the list's element</typeparam>
+        /// <returns>The picked elements. If number is greater then the length of the list, this function returns l.ToArray()</returns>
+        public static T[] pickInList<T>(List<T> l, Randomizer random, int number, bool notChangeList)
+        {
+            if (number >= l.Count)
+            {
+                return l.ToArray();
+            }
+            if (number <= 0)
+            {
+                return new T[0];
+            }
+            T[] ret = new T[number];
+            List<T> temp = l;
+            if (notChangeList)
+            {
+                temp = new List<T>(l);
+            }
+            int count = l.Count;
+            if (random != null)
+            {
+                random.FastMode = true;
+                for (int i = 0; i < number; ++i)
+                {
+                    int r = random.range(0, count);
+                    ret[i] = temp[r];
+                    --count;
+                    temp[r] = temp[count];
+                }
+                random.FastMode = false;
+            }
+            else
+            {
+                for (int i = 0; i < number; ++i)
+                {
+                    int r = Random.Range(0, count);
+                    ret[i] = temp[r];
+                    --count;
+                    temp[r] = temp[count];
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Randomly picks some values from a list. Each element is only picked once.
+        /// </summary>
+        /// <param name="l">The list</param>
+        /// <param name="number">The number of elements you want to pick</param>
+        /// <param name="notChangeArray">If true, the list l won't be changed</param>
+        /// <typeparam name="T">The type of the list's element</typeparam>
+        /// <returns>The picked elements. If number is greater then the length of the list, this function returns l.ToArray()</returns>
+        public static T[] pickInList<T>(List<T> l, int number, bool notChangeList)
+        {
+            return pickInList<T>(l, null, number, notChangeList);
         }
     }
 }

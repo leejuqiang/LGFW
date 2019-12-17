@@ -35,7 +35,7 @@ namespace LGFW
             ++m_noVisitNodeCount;
         }
 
-        public MazeNode findNextNode(RandomKit random)
+        public MazeNode findNextNode(Randomizer random)
         {
             int count = 0;
             for (int i = 0; i < m_nodes.Count; ++i)
@@ -199,7 +199,7 @@ namespace LGFW
 
         private int[] m_template;
 
-        private RandomKit m_random = new RandomKit();
+        private Randomizer m_random = new Randomizer();
 
         /// <summary>
         /// Gets all the maze cells 
@@ -658,7 +658,7 @@ namespace LGFW
         /// </summary>
         public void createMaze()
         {
-            m_random.enableContinuous();
+            m_random.FastMode = true;
             init();
             m_template = new int[m_matrix.Length];
             for (int i = 0; i < m_matrix.Length; ++i)
@@ -704,7 +704,7 @@ namespace LGFW
 
             fillMaze();
             breakWalls();
-            m_random.disableContinuous();
+            m_random.FastMode = false;
         }
 
         private bool checkCanBeBroke(int index)

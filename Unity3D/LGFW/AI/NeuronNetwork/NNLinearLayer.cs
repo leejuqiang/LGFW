@@ -50,8 +50,9 @@ namespace LGFW
 
         public override void initParameter()
         {
-            RandomKit k = new RandomKit();
+            Randomizer k = new Randomizer();
             float sd = 1 / Mathf.Sqrt(m_inputNumber);
+            k.FastMode = true;
             for (int i = 0; i < m_weightLength; ++i)
             {
                 m_parameters[i] = k.randomNormalDistribution(0, sd);
@@ -60,6 +61,7 @@ namespace LGFW
             {
                 m_parameters[i] = k.randomNormalDistribution(0, 1);
             }
+            k.FastMode = false;
         }
 
         public override void enableTraining(int layerIndex)

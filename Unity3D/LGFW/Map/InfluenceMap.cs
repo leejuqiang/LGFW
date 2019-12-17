@@ -296,7 +296,7 @@ namespace LGFW
         /// Randomly selects a tile by the tiles influence value, tiles with larger value is more likely being selected 
         /// </summary>
         /// <param name="random">The RandomKit, if don't want to use a RandomKit, pass null</param>
-        public int random(RandomKit random = null)
+        public int random(Randomizer random = null)
         {
             if (m_totalWeight <= 0)
             {

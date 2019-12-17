@@ -344,6 +344,17 @@ namespace LGFW
             return ret;
         }
 
+        private static string findNameSpace(string className, out string space)
+        {
+            space = "";
+            int last = className.LastIndexOf(".");
+            if (last >= 0)
+            {
+                space = className.Substring(0, last);
+                return className.Substring(last + 1);
+            }
+            return className;
+        }
         private static void parseData(Dictionary<string, object> dict, string className, string path)
         {
             object o = null;
@@ -359,8 +370,10 @@ namespace LGFW
                 return;
             }
             l = (List<object>)o;
-            System.Type dataType = LEditorKits.findTypeByName(className);
-            System.Type dbType = LEditorKits.findTypeByName(className + "DB");
+            string nameSpace = "";
+            className = findNameSpace(className, out nameSpace);
+            System.Type dataType = LEditorKits.findTypeByName(className, nameSpace);
+            System.Type dbType = LEditorKits.findTypeByName(className + "DB", nameSpace);
             if (dataType == null || dbType == null)
             {
                 return;
@@ -373,7 +386,7 @@ namespace LGFW
             Object db = AssetDatabase.LoadAssetAtPath(outPath, dbType);
             if (db == null)
             {
-                db = ScriptableObject.CreateInstance(className + "DB");
+                db = ScriptableObject.CreateInstance(dbType);
                 if (db == null)
                 {
                     return;
@@ -412,7 +425,8 @@ namespace LGFW
 
         private static void parseOneLanguage(List<object> l, string path, string lang)
         {
-            string outPath = System.IO.Path.GetDirectoryName(path) + "/" + lang + ".asset";
+            string ext = System.IO.Path.GetExtension(path);
+            string outPath = path.Substring(0, path.Length - ext.Length) + "_" + lang + ".asset";
             System.Type dataType = typeof(LocalizedTextData);
             System.Type dbType = typeof(LocalizedText);
             FieldInfo dbListInfo = dbType.GetField("m_dataList", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);

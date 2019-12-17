@@ -64,6 +64,7 @@ namespace LGFW
         public int ID
         {
             get { return m_id; }
+            set { m_id = value; }
         }
 
         /// <summary>
@@ -76,6 +77,16 @@ namespace LGFW
             set { m_visited = value; }
         }
 
+        public GraphNode()
+        {
+            m_outEdge = new List<GraphEdgeFromNode>();
+            m_inEdge = new List<GraphEdgeFromNode>();
+        }
+
+        /// <summary>
+        /// The constructor
+        /// </summary>
+        /// <param name="id">The id of the node</param>
         public GraphNode(int id)
         {
             m_id = id;

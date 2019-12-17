@@ -73,10 +73,15 @@ def readCell(sheet, r, c, mergeMap):
 
 def parseSheet(sheet):
     dict = {}
-    dict["name"] = file + "_" + sheet.name
+    sname = sheet.name
+    last = sheet.name.rfind(".")
+    if last >= 0:
+        sname = sname[last + 1:]
+
+    dict["name"] = file + "_" + sname
     dict["class"] = sheet.name
 
-    outPath = os.path.join(dir, file + "_" + sheet.name + ".json")
+    outPath = os.path.join(dir, file + "_" + sname + ".json")
     data = []
 
     mergeMap = {}

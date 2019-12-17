@@ -20,13 +20,15 @@ namespace LGFW
     /// <summary>
     /// A database for LocalizedTextData, used for localization
     /// </summary>
-    public class LocalizedText : DataSetBase<LocalizedTextData, string>
+    public class LocalizedText : ScriptableObject
     {
 
         /// <summary>
         /// All languages this database used for
         /// </summary>
         public SystemLanguage[] m_applyForLanguages;
+
+        public List<LocalizedTextData> m_dataList;
 
         /// <summary>
         /// Check if this database can be use for a language
@@ -45,33 +47,16 @@ namespace LGFW
             return false;
         }
 
-        /// <inheritdoc/>
-        public override void initData()
-        {
-            if (m_dict == null)
-            {
-                base.initData();
-            }
-        }
-
         /// <summary>
-        /// Gets the text by its key
+        /// Initializes the text Id and the text into a map
         /// </summary>
-        /// <returns>The text</returns>
-        /// <param name="id">The key</param>
-        public string getText(string id)
+        /// <param name="dict">The map</param>
+        public void initData(Dictionary<string, string> dict)
         {
-            initData();
-            if (string.IsNullOrEmpty(id))
+            for (int i = 0; i < m_dataList.Count; ++i)
             {
-                return "";
+                dict.Add(m_dataList[i].m_id, m_dataList[i].m_text);
             }
-            LocalizedTextData d = null;
-            if (m_dict.TryGetValue(id, out d))
-            {
-                return d.m_text;
-            }
-            return id;
         }
     }
 }

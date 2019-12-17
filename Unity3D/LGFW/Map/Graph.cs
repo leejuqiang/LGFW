@@ -80,6 +80,7 @@ namespace LGFW
         /// </summary>
         public void initNodeFromEdge()
         {
+            m_nodes.Clear();
             HashSet<GraphNode> nodes = new HashSet<GraphNode>();
             for (int i = 0; i < m_edges.Count; ++i)
             {
@@ -119,6 +120,7 @@ namespace LGFW
         /// </summary>
         public void initEdgeFromNode()
         {
+            m_edges.Clear();
             if (m_isDoubleDirection)
             {
                 for (int i = 0; i < m_nodes.Count; ++i)

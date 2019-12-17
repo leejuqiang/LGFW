@@ -55,7 +55,9 @@ namespace LGFW
         public LocalizedText[] m_localizeTexts;
 
         private SystemLanguage m_currentLanguage;
-        private LocalizedText m_currentText;
+        private List<LocalizedText> m_currentTexts = new List<LocalizedText>();
+
+        private Dictionary<string, string> m_texts = new Dictionary<string, string>();
 
         /// <summary>
         /// Gets the current language
@@ -105,29 +107,30 @@ namespace LGFW
                 m_currentLanguage = Application.systemLanguage;
             }
             getTextDataByLang();
-            if (m_currentText == null)
+            if (m_currentTexts.Count <= 0)
             {
                 m_currentLanguage = m_defaultLanguage;
                 getTextDataByLang();
             }
-            if (m_currentText == null && m_localizeTexts.Length > 0)
+            if (m_currentTexts.Count <= 0 && m_localizeTexts.Length > 0)
             {
-                m_currentText = m_localizeTexts[0];
+                m_currentTexts.Add(m_localizeTexts[0]);
             }
-            if (m_currentText != null)
+            m_texts.Clear();
+            for (int i = 0; i < m_currentTexts.Count; ++i)
             {
-                m_currentText.initData();
+                m_currentTexts[i].initData(m_texts);
             }
         }
 
         private void getTextDataByLang()
         {
-            m_currentText = null;
+            m_currentTexts.Clear();
             for (int i = 0; i < m_localizeTexts.Length; ++i)
             {
                 if (m_localizeTexts[i].applyForLanguage(m_currentLanguage))
                 {
-                    m_currentText = m_localizeTexts[i];
+                    m_currentTexts.Add(m_localizeTexts[i]);
                     break;
                 }
             }
@@ -151,9 +154,14 @@ namespace LGFW
         /// <param name="id">The key</param>
         public static string getString(string id)
         {
-            if (Localization.Instance != null && Localization.Instance.m_currentText != null)
+            if (Localization.Instance != null && Localization.Instance.m_currentTexts.Count > 0)
             {
-                return Localization.Instance.m_currentText.getText(id);
+                string t = null;
+                if (Instance.m_texts.TryGetValue(id, out t))
+                {
+                    return t;
+                }
+                return id;
             }
             return id;
         }

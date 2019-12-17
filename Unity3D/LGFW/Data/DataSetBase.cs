@@ -48,7 +48,7 @@ namespace LGFW
     /// <summary>
     /// A ScriptableObject stores all the data implement IData<K>, T is the type of the data
     /// </summary>
-    public class DataSetBase<T, K> : DataSetDictionary where T : IData<K>
+    public class DataSetBase<K, T> : DataSetDictionary where T : IData<K>
     {
         public List<T> m_dataList;
         protected Dictionary<K, T> m_dict;

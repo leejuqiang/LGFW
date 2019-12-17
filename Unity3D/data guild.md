@@ -14,10 +14,11 @@ class MyDataDB : ScriptableObject {
 }
 ```
 MyData is the class of the data, and MyDataDB is the class of the asset. Your goal is to configure the list of MyData (which is the m_dataList in MyDataDB) by a spread sheet.  
-One rule you must follow is the name of MyDataDB. It has to be the name of the data class (in this case, "MyData") plus "DB". Because the processor can only know the name of the data class, and the name the List of the data class must be m_dataList.
+One rule you must follow is the name of MyDataDB. It has to be the name of the data class (in this case, "MyData") plus "DB". Because the processor can only know the name of the data class, and the name the List of the data class must be m_dataList.  
+If you are using a namespace for your class, MyDataDB must be in the same namespace as MyData.
 
 ##### Spread Sheet
-In your spread sheet, the name of each sheet is the data class name. The first non-empty row of a sheet is the header, the header is used to determine the name of each column. Once you have the header, you assign a name to each column, this name is use to match the names of fields in the data class. So your sheet may looks like this:
+In your spread sheet, the name of each sheet is the data class name. If you are using a namespace, the sheet's name should be "namespace"."class name". The first non-empty row of a sheet is the header, the header is used to determine the name of each column. Once you have the header, you assign a name to each column, this name is use to match the names of fields in the data class. So your sheet may looks like this:
 
 | a      | b      | text       |
 | ------ | ------ | -------- |
@@ -62,7 +63,7 @@ Now you are all set. Each time you update your spread sheet, the processor autom
 .json file is the json format of the spread sheet. .asset is the data you use in Unity3D.
 
 ### Localization
-To generate localization data, you need to set the sheet name to "Localization" (not the spread sheet name). The column named "id" is treated as the text id. And each column with another name is treated as a language. Each of them is output as a single asset, with the name of {column name}.asset. See an example:
+To generate localization data, you need to set the sheet name to "Localization" (not the spread sheet file's name). Don't use "LGFW.Localization" as the name although the class has a namespace. The column named "id" is treated as the text id. And each column with another name is treated as a language. Each of them is output as a single asset, with the name of {column name}.asset. See an example:
 
 | id      | en      | en1       |
 | ------ | ------ | -------- |

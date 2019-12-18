@@ -51,7 +51,7 @@ If you use a merged cell in header, that means those columns should be treated a
 If the field excepts an array. And you don't ues [DataSplit] (if you use, the array is the spliting of the combined string), then those columns are treated as an array. So the array has the same length of the columns, each element in the array is the value of each column.  
 Don't use merged cells span different header.
 
-##### Nest Class
+##### Nesting Class
 It's possible to nest another class in your data class. For example:
 ```
 [System.Serializable]

@@ -71,19 +71,16 @@ def readCell(sheet, r, c, mergeMap):
     return ret, e
 
 
-def parseSheet(sheet):
-    dict = {}
+def parseSheet(sheet, first):
     sname = sheet.name
     last = sheet.name.rfind(".")
     if last >= 0:
         sname = sname[last + 1:]
 
-    dict["name"] = file + "_" + sname
-    dict["class"] = sheet.name
+    fileName = file + "_" + sname
+    className = sheet.name if first else sname
 
-    outPath = os.path.join(dir, file + "_" + sname + ".json")
     data = []
-
     mergeMap = {}
     for mc in sheet.merged_cells:
         for r in range(mc[0], mc[1]):
@@ -102,7 +99,7 @@ def parseSheet(sheet):
             break
 
     if r >= sheet.nrows:
-        return
+        return fileName, className, None, None
 
     c = 0
     while c < sheet.ncols:
@@ -112,7 +109,6 @@ def parseSheet(sheet):
             heads[c] = h
             headers.append(s)
         c = e
-    dict["header"] = headers
 
     r += 1
     while r < sheet.nrows:
@@ -131,15 +127,29 @@ def parseSheet(sheet):
                 c = e
             data.append(row)
         r += 1
-    dict["data"] = data
 
-    js = json.dumps(dict, ensure_ascii=False)
-    with open(outPath, "w", encoding="utf-8") as wf:
-        wf.write(js)
+    if len(data) <= 0:
+        return fileName, className, None, None
+
+    return fileName, className, headers, data
 
 
 isXls = ext == ".xls"
 wb = xlrd.open_workbook(sys.argv[1], formatting_info=isXls)
-
+outDict = {"name": "", "main": "", "header": {}, "data": {}}
+first = True
 for s in range(wb.nsheets):
-    parseSheet(wb.sheet_by_index(s))
+    f, n, h, d = parseSheet(wb.sheet_by_index(s), first)
+    if d != None:
+        outDict["header"][n] = h
+        outDict["data"][n] = d
+        if first:
+            outDict["name"] = f
+            outDict["main"] = n
+        first = False
+
+if "name" in outDict:
+    outPath = os.path.join(dir, outDict["name"] + ".json")
+    js = json.dumps(outDict, ensure_ascii=False)
+    with open(outPath, "w", encoding="utf-8") as wf:
+        wf.write(js)

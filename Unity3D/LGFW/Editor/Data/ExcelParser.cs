@@ -82,8 +82,12 @@ namespace LGFW
             return m.Invoke(null, ps);
         }
 
-        private static object stringToValue(string s, System.Type t)
+        private static object stringToValue(string s, System.Type t, Dictionary<string, Dictionary<string, object>> refMap)
         {
+            if (t.IsSubclassOf(typeof(ScriptableObject)))
+            {
+                return AssetDatabase.LoadAssetAtPath(s, t);
+            }
             if (t == typeof(string))
             {
                 return s;
@@ -170,6 +174,15 @@ namespace LGFW
                 }
                 float[] v = stringToVector(s, 4);
                 return new Quaternion(v[0], v[1], v[2], v[3]);
+            }
+            if (t.IsClass)
+            {
+                Dictionary<string, object> d = null;
+                if (!refMap.TryGetValue(t.Name + "." + s, out d))
+                {
+                    return null;
+                }
+                return parseOneData(d, t, refMap);
             }
             return null;
         }
@@ -265,7 +278,7 @@ namespace LGFW
             return ret;
         }
 
-        private static object getValueFromText(List<object> l, System.Type fieldType, object[] attributes)
+        private static object getValueFromText(List<object> l, System.Type fieldType, object[] attributes, Dictionary<string, Dictionary<string, object>> refMap)
         {
             List<string> values = generateString(l, attributes);
             if (fieldType.IsGenericType)
@@ -275,7 +288,7 @@ namespace LGFW
                 IList list = (IList)System.Activator.CreateInstance(lt);
                 for (int i = 0; i < values.Count; ++i)
                 {
-                    object o = stringToValue(values[i], gt);
+                    object o = stringToValue(values[i], gt, refMap);
                     if (o != null)
                     {
                         list.Add(o);
@@ -289,7 +302,7 @@ namespace LGFW
                 List<object> temp = new List<object>();
                 for (int i = 0; i < values.Count; ++i)
                 {
-                    object o = stringToValue(values[i], et);
+                    object o = stringToValue(values[i], et, refMap);
                     if (o != null)
                     {
                         temp.Add(o);
@@ -302,10 +315,10 @@ namespace LGFW
                 }
                 return ret;
             }
-            return stringToValue(combineList(values), fieldType);
+            return stringToValue(combineList(values), fieldType, refMap);
         }
 
-        private static object parseOneData(Dictionary<string, object> dict, System.Type t)
+        private static object parseOneData(Dictionary<string, object> dict, System.Type t, Dictionary<string, Dictionary<string, object>> refMap)
         {
             object ret = System.Activator.CreateInstance(t);
             foreach (string key in dict.Keys)
@@ -328,18 +341,18 @@ namespace LGFW
                 {
                     continue;
                 }
-                object v = getValueFromText((List<object>)dict[key], fi.FieldType, attributes);
+                object v = getValueFromText((List<object>)dict[key], fi.FieldType, attributes, refMap);
                 fi.SetValue(ret, v);
             }
             return ret;
         }
 
-        private static List<object> parseRows(List<object> data, System.Type dt)
+        private static List<object> parseRows(List<object> data, System.Type dt, Dictionary<string, Dictionary<string, object>> refMap)
         {
             List<object> ret = new List<object>();
             for (int i = 0; i < data.Count; ++i)
             {
-                ret.Add(parseOneData((Dictionary<string, object>)data[i], dt));
+                ret.Add(parseOneData((Dictionary<string, object>)data[i], dt, refMap));
             }
             return ret;
         }
@@ -355,21 +368,44 @@ namespace LGFW
             }
             return className;
         }
-        private static void parseData(Dictionary<string, object> dict, string className, string path)
+
+        private static Dictionary<string, Dictionary<string, object>> createReferenceMap(string main, Dictionary<string, object> dict)
+        {
+            var ret = new Dictionary<string, Dictionary<string, object>>();
+            foreach (string k in dict.Keys)
+            {
+                if (k == main)
+                {
+                    continue;
+                }
+                var rows = (List<object>)dict[k];
+                for (int i = 0; i < rows.Count; ++i)
+                {
+                    object o = null;
+                    var d = (Dictionary<string, object>)rows[i];
+                    if (!d.TryGetValue("id", out o))
+                    {
+                        continue;
+                    }
+                    List<object> l = (List<object>)o;
+                    string key = k + ".";
+                    for (int j = 0; j < l.Count; ++j)
+                    {
+                        key += l[j];
+                    }
+                    ret.Add(key, d);
+                }
+            }
+            return ret;
+        }
+        private static void parseData(Dictionary<string, object> classes, string fileName, string className, string path)
         {
             object o = null;
-            string outPath = "";
-            if (!dict.TryGetValue("name", out o))
+            if (!classes.TryGetValue(className, out o))
             {
                 return;
             }
-            outPath = System.IO.Path.GetDirectoryName(path) + "/" + o.ToString() + ".asset";
-            List<object> l = null;
-            if (!dict.TryGetValue("data", out o))
-            {
-                return;
-            }
-            l = (List<object>)o;
+            var l = (List<object>)o;
             string nameSpace = "";
             className = findNameSpace(className, out nameSpace);
             System.Type dataType = LEditorKits.findTypeByName(className, nameSpace);
@@ -383,6 +419,7 @@ namespace LGFW
             {
                 return;
             }
+            string outPath = System.IO.Path.GetDirectoryName(path) + "/" + fileName + ".asset";
             Object db = AssetDatabase.LoadAssetAtPath(outPath, dbType);
             if (db == null)
             {
@@ -393,7 +430,8 @@ namespace LGFW
                 }
                 AssetDatabase.CreateAsset(db, outPath);
             }
-            List<object> rows = parseRows(l, dataType);
+            var refMap = createReferenceMap(className, classes);
+            List<object> rows = parseRows(l, dataType, refMap);
             System.Type lt = typeof(List<>).MakeGenericType(dataType);
             IList dl = (IList)System.Activator.CreateInstance(lt);
             for (int i = 0; i < rows.Count; ++i)
@@ -457,27 +495,14 @@ namespace LGFW
             EditorUtility.SetDirty(db);
         }
 
-        private static void parseLocalization(Dictionary<string, object> dict, string path)
+        private static void parseLocalization(List<object> rows, List<object> header, string path)
         {
-            object o = null;
-            List<object> l = null;
-            if (!dict.TryGetValue("data", out o))
-            {
-                return;
-            }
-            l = (List<object>)o;
-            List<object> header = null;
-            if (!dict.TryGetValue("header", out o))
-            {
-                return;
-            }
-            header = (List<object>)o;
             for (int i = 0; i < header.Count; ++i)
             {
                 string key = header[i].ToString();
                 if (key != "id")
                 {
-                    parseOneLanguage(l, path, key);
+                    parseOneLanguage(rows, path, key);
                 }
             }
         }
@@ -485,17 +510,43 @@ namespace LGFW
         public static void parse(Dictionary<string, object> dict, string path)
         {
             object o = null;
-            if (!dict.TryGetValue("class", out o))
+            if (!dict.TryGetValue("name", out o))
             {
                 return;
             }
-            if (o.ToString() == "Localization")
+            string fileName = o.ToString();
+            if (!dict.TryGetValue("main", out o))
             {
-                parseLocalization(dict, path);
+                return;
+            }
+            string mainClass = o.ToString();
+            if (!dict.TryGetValue("data", out o))
+            {
+                return;
+            }
+            Dictionary<string, object> classes = (Dictionary<string, object>)o;
+            if (!classes.TryGetValue(mainClass, out o))
+            {
+                return;
+            }
+            List<object> l = (List<object>)o;
+            if (!dict.TryGetValue("header", out o))
+            {
+                return;
+            }
+            var headers = (Dictionary<string, object>)o;
+            if (!headers.TryGetValue(mainClass, out o))
+            {
+                return;
+            }
+            var h = (List<object>)o;
+            if (mainClass == "Localization")
+            {
+                parseLocalization(l, h, path);
             }
             else
             {
-                parseData(dict, o.ToString(), path);
+                parseData(classes, fileName, mainClass, path);
             }
         }
     }

@@ -51,8 +51,8 @@ If you use a merged cell in header, that means those columns should be treated a
 If the field excepts an array. And you don't ues [DataSplit] (if you use, the array is the spliting of the combined string), then those columns are treated as an array. So the array has the same length of the columns, each element in the array is the value of each column.  
 Don't use merged cells span different header.
 
-##### Nesting Class
-It's possible to nest another class in your data class. For example:
+##### Nesting Class and Assets
+It's possible to nest another class or refer to another asset in your data class. For example:
 ```
 [System.Serializable]
 class NestData {
@@ -64,13 +64,15 @@ class MyData {
     public int m_b;
     public string[] m_text;
     public NestData m_data;
+    public MyAsset m_asset;
 }
 
 class MyDataDB : ScriptableObject {
     public List<MyData> m_dataList;
 }
 ```
-In this case, you need 2 sheets in the spread sheet. The first sheet is still the sheet for "MyData". The second sheet's name must be "NestData". This name is the same name as the class name, without namespace (NestData and MyData don't need to be in the same namespace). The configuration for NestData is same as MyData by all ways except there must be a column named "id" (lower case). You don't have to have a field named "id" in "NestData", and you can use merged cells for "id". For "m_data" field in "MyData", you just put the id of that row in sheet "NestData", so the parser can find the correct reference to "NestData".  
+"MyAsset" is a subclass of "ScriptableObject". In this case, you put the path of the asset for "m_asset". The parser loads the asset from the path. The path is usually something like "Assets/xxxxx/xxx.asset".  
+In the case of nesting class, you need 2 sheets in the spread sheet. The first sheet is still the sheet for "MyData". The second sheet's name must be "NestData". This name is the same name as the class name, without namespace (NestData and MyData don't need to be in the same namespace). The configuration for NestData is same as MyData by all ways except there must be a column named "id" (lower case). You don't have to have a field named "id" in "NestData", and you can use merged cells for "id". For "m_data" field in "MyData", you just put the id of that row in sheet "NestData", so the parser can find the correct reference to "NestData".  
 If you do have a field named "id" in "NestData", keep in mind the processing for "id" is different between using it as a reference and using it as a field. When used as a field, the merged cells rules and other attributes rules applyed, but when used as a reference, the actual "id" is always the combination of all cells' literal text.
 
 ### Setup

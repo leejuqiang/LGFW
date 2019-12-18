@@ -18,7 +18,7 @@ One rule you must follow is the name of MyDataDB. It has to be the name of the d
 If you are using a namespace for your class, MyDataDB must be in the same namespace as MyData.
 
 ##### Spread Sheet
-In your spread sheet, the name of each sheet is the data class name. If you are using a namespace, the sheet's name should be "namespace"."class name". The first non-empty row of a sheet is the header, the header is used to determine the name of each column. Once you have the header, you assign a name to each column, this name is use to match the names of fields in the data class. So your sheet may looks like this:
+In your spread sheet, the name of each sheet is the data class name. If you are using a namespace, the sheet's name should be "namespace"."class name". Only the first non-empty sheet is treated as your data class (MyData). The first non-empty row of a sheet is the header, the header is used to determine the name of each column. Once you have the header, you assign a name to each column, this name is use to match the names of fields in the data class. So your sheet may looks like this:
 
 | a      | b      | text       |
 | ------ | ------ | -------- |
@@ -50,6 +50,28 @@ You can use merged cell in your spread sheet. Your sheet may looks like this:
 If you use a merged cell in header, that means those columns should be treated as one column. If the field of that column expects one string as the value (such as m_a, which is an int), the value is the combination of all those columns. So in this case, the value of m_a is 11. You can also use [DataCombineText("0")] to add a custom string when joining columns. In this case, if you use "0", m_a is 101. Or you can use [DontCombineText] to specific that use the value of the first cell instead of using the combine of all cells.  
 If the field excepts an array. And you don't ues [DataSplit] (if you use, the array is the spliting of the combined string), then those columns are treated as an array. So the array has the same length of the columns, each element in the array is the value of each column.  
 Don't use merged cells span different header.
+
+##### Nest Class
+It's possible to nest another class in your data class. For example:
+```
+[System.Serializable]
+class NestData {
+    public int m_abc;
+}
+
+class MyData {
+    public int m_a;
+    public int m_b;
+    public string[] m_text;
+    public NestData m_data;
+}
+
+class MyDataDB : ScriptableObject {
+    public List<MyData> m_dataList;
+}
+```
+In this case, you need 2 sheets in the spread sheet. The first sheet is still the sheet for "MyData". The second sheet's name must be "NestData". This name is the same name as the class name, without namespace (NestData and MyData don't need to be in the same namespace). The configuration for NestData is same as MyData by all ways except there must be a column named "id" (lower case). You don't have to have a field named "id" in "NestData", and you can use merged cells for "id". For "m_data" field in "MyData", you just put the id of that row in sheet "NestData", so the parser can find the correct reference to "NestData".  
+If you do have a field named "id" in "NestData", keep in mind the processing for "id" is different between using it as a reference and using it as a field. When used as a field, the merged cells rules and other attributes rules applyed, but when used as a reference, the actual "id" is always the combination of all cells' literal text.
 
 ### Setup
 Your spread sheet must be under the folder "Assets/Data", and using a extension ".xls" or ".xlsx".  
